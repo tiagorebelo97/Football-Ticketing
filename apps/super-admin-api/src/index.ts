@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import { apiLimiter } from '@football-ticketing/shared';
 import clubRoutes from './routes/clubs';
 import nfcStockRoutes from './routes/nfc-stock';
 import feeConfigRoutes from './routes/fee-config';
@@ -15,6 +16,9 @@ const PORT = process.env.PORT || 3000;
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+
+// Apply rate limiting to all routes
+app.use('/api', apiLimiter);
 
 // Health check
 app.get('/health', (req, res) => {
