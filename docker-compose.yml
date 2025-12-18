@@ -1,0 +1,259 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - football-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_DB: football_ticketing
+      POSTGRES_USER: football_user
+      POSTGRES_PASSWORD: football_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - football-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U football_user -d football_ticketing"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - football-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/football_ticketing
+      KC_DB_USERNAME: football_user
+      KC_DB_PASSWORD: football_pass
+      KC_HOSTNAME_STRICT: false
+      KC_HTTP_ENABLED: true
+    command: start-dev
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - football-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.keycloak.rule=Host(`auth.localhost`)"
+      - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
+
+  super-admin-api:
+    build:
+      context: .
+      dockerfile: ./apps/super-admin-api/Dockerfile
+    container_name: super-admin-api
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://football_user:football_pass@postgres:5432/football_ticketing
+      REDIS_URL: redis://redis:6379
+      KEYCLOAK_URL: http://keycloak:8080
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+    ports:
+      - "3001:3000"
+    depends_on:
+      - postgres
+      - redis
+      - keycloak
+    networks:
+      - football-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.super-admin-api.rule=Host(`super-admin-api.localhost`)"
+      - "traefik.http.services.super-admin-api.loadbalancer.server.port=3000"
+
+  club-backoffice-api:
+    build:
+      context: .
+      dockerfile: ./apps/club-backoffice-api/Dockerfile
+    container_name: club-backoffice-api
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://football_user:football_pass@postgres:5432/football_ticketing
+      REDIS_URL: redis://redis:6379
+      KEYCLOAK_URL: http://keycloak:8080
+    ports:
+      - "3002:3000"
+    depends_on:
+      - postgres
+      - redis
+      - keycloak
+    networks:
+      - football-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.club-backoffice-api.rule=Host(`club-api.localhost`)"
+      - "traefik.http.services.club-backoffice-api.loadbalancer.server.port=3000"
+
+  fan-api:
+    build:
+      context: .
+      dockerfile: ./apps/fan-api/Dockerfile
+    container_name: fan-api
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://football_user:football_pass@postgres:5432/football_ticketing
+      REDIS_URL: redis://redis:6379
+      KEYCLOAK_URL: http://keycloak:8080
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
+    ports:
+      - "3003:3000"
+    depends_on:
+      - postgres
+      - redis
+      - keycloak
+    networks:
+      - football-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fan-api.rule=Host(`fan-api.localhost`)"
+      - "traefik.http.services.fan-api.loadbalancer.server.port=3000"
+
+  pos-api:
+    build:
+      context: .
+      dockerfile: ./apps/pos-api/Dockerfile
+    container_name: pos-api
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://football_user:football_pass@postgres:5432/football_ticketing
+      REDIS_URL: redis://redis:6379
+      KEYCLOAK_URL: http://keycloak:8080
+    ports:
+      - "3004:3000"
+    depends_on:
+      - postgres
+      - redis
+      - keycloak
+    networks:
+      - football-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pos-api.rule=Host(`pos-api.localhost`)"
+      - "traefik.http.services.pos-api.loadbalancer.server.port=3000"
+
+  entry-api:
+    build:
+      context: .
+      dockerfile: ./apps/entry-api/Dockerfile
+    container_name: entry-api
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://football_user:football_pass@postgres:5432/football_ticketing
+      REDIS_URL: redis://redis:6379
+      KEYCLOAK_URL: http://keycloak:8080
+    ports:
+      - "3005:3000"
+    depends_on:
+      - postgres
+      - redis
+      - keycloak
+    networks:
+      - football-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.entry-api.rule=Host(`entry-api.localhost`)"
+      - "traefik.http.services.entry-api.loadbalancer.server.port=3000"
+
+  fan-pwa:
+    build:
+      context: .
+      dockerfile: ./apps/fan-pwa/Dockerfile
+    container_name: fan-pwa
+    environment:
+      REACT_APP_API_URL: http://fan-api.localhost
+    ports:
+      - "3100:80"
+    depends_on:
+      - fan-api
+    networks:
+      - football-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fan-pwa.rule=Host(`app.localhost`)"
+      - "traefik.http.services.fan-pwa.loadbalancer.server.port=80"
+
+  super-admin-dashboard:
+    build:
+      context: .
+      dockerfile: ./apps/super-admin-dashboard/Dockerfile
+    container_name: super-admin-dashboard
+    environment:
+      REACT_APP_API_URL: http://super-admin-api.localhost
+    ports:
+      - "3101:80"
+    depends_on:
+      - super-admin-api
+    networks:
+      - football-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.super-admin-dashboard.rule=Host(`admin.localhost`)"
+      - "traefik.http.services.super-admin-dashboard.loadbalancer.server.port=80"
+
+  club-backoffice:
+    build:
+      context: .
+      dockerfile: ./apps/club-backoffice/Dockerfile
+    container_name: club-backoffice
+    environment:
+      REACT_APP_API_URL: http://club-api.localhost
+    ports:
+      - "3102:80"
+    depends_on:
+      - club-backoffice-api
+    networks:
+      - football-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.club-backoffice.rule=Host(`club.localhost`)"
+      - "traefik.http.services.club-backoffice.loadbalancer.server.port=80"
+
+networks:
+  football-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:

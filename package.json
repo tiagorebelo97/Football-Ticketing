@@ -1,0 +1,24 @@
+{
+  "name": "football-ticketing",
+  "version": "1.0.0",
+  "description": "Multi-tenant football ticketing platform with NFC cards",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "docker-compose up",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "clean": "docker-compose down -v"
+  },
+  "keywords": [
+    "football",
+    "ticketing",
+    "nfc",
+    "multi-tenant"
+  ],
+  "author": "",
+  "license": "MIT"
+}
