@@ -26,7 +26,7 @@ export async function nfcLogin(req: Request, res: Response) {
     await pool.query(
       `INSERT INTO staff_sessions (user_id, nfc_card_id, club_id, session_token, is_active)
        VALUES ($1, $2, $3, $4, true)`,
-      [card.id, card.id, card.club_id, sessionToken]
+      [card.assigned_to_user_id, card.id, card.club_id, sessionToken]
     );
     
     res.json({

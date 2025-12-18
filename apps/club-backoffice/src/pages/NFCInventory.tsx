@@ -3,7 +3,7 @@ import axios from 'axios';
 
 interface Inventory {
   status: string;
-  count: number;
+  count: string;
 }
 
 interface StockConfig {
@@ -75,7 +75,7 @@ const NFCInventory: React.FC = () => {
         <tbody>
           {inventory.map((item) => {
             const total = config?.total_cards || 1;
-            const percentage = ((parseInt(item.count as any) / total) * 100).toFixed(1);
+            const percentage = ((parseInt(item.count, 10) / total) * 100).toFixed(1);
             return (
               <tr key={item.status}>
                 <td style={{ textTransform: 'capitalize' }}>{item.status}</td>

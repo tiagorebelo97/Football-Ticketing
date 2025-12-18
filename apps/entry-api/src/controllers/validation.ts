@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
 import { entryValidationSchema } from '@football-ticketing/shared';
 import pool from '../db';
-import { io } from '../index';
 
-export async function validateEntry(req: Request, res: Response) {
+export async function validateEntry(req: Request & { io?: any }, res: Response) {
   try {
     const validatedData = entryValidationSchema.parse(req.body);
     const { ticketIdentifier, matchId, gateNumber, entryType } = validatedData;
@@ -87,11 +86,13 @@ export async function validateEntry(req: Request, res: Response) {
     const match = matchResult.rows[0];
     
     // Broadcast capacity update via WebSocket
-    io.to(`match-${matchId}`).emit('capacity-update', {
-      matchId,
-      currentAttendance: match.current_attendance,
-      totalCapacity: match.total_capacity,
-    });
+    if (req.io) {
+      req.io.to(`match-${matchId}`).emit('capacity-update', {
+        matchId,
+        currentAttendance: match.current_attendance,
+        totalCapacity: match.total_capacity,
+      });
+    }
     
     res.json({
       valid: true,

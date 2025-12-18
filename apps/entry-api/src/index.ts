@@ -10,7 +10,7 @@ dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, {
+export const io = new Server(httpServer, {
   cors: {
     origin: '*',
   },
@@ -24,6 +24,12 @@ app.use(express.json());
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'entry-api' });
+});
+
+// Attach io to request for controllers
+app.use((req: any, res, next) => {
+  req.io = io;
+  next();
 });
 
 app.use('/api/validation', validationRoutes);
@@ -40,8 +46,6 @@ io.on('connection', (socket) => {
     console.log('Client disconnected');
   });
 });
-
-export { io };
 
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);

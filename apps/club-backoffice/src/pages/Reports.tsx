@@ -3,8 +3,8 @@ import axios from 'axios';
 
 interface SalesReport {
   date: string;
-  tickets_sold: number;
-  total_revenue: number;
+  tickets_sold: string;
+  total_revenue: string;
   home_team: string;
   away_team: string;
 }
@@ -16,7 +16,7 @@ interface AttendanceReport {
   match_date: string;
   total_capacity: number;
   current_attendance: number;
-  attendance_percentage: number;
+  attendance_percentage: string;
 }
 
 const Reports: React.FC = () => {
@@ -48,8 +48,8 @@ const Reports: React.FC = () => {
   if (loading) return <div className="loading">Loading reports...</div>;
   if (error) return <div className="error">{error}</div>;
 
-  const totalRevenue = salesData.reduce((sum, item) => sum + parseFloat(item.total_revenue as any), 0);
-  const totalTickets = salesData.reduce((sum, item) => sum + parseInt(item.tickets_sold as any), 0);
+  const totalRevenue = salesData.reduce((sum, item) => sum + parseFloat(item.total_revenue), 0);
+  const totalTickets = salesData.reduce((sum, item) => sum + parseInt(item.tickets_sold, 10), 0);
 
   return (
     <div>
@@ -87,7 +87,7 @@ const Reports: React.FC = () => {
                 <td>{new Date(item.date).toLocaleDateString()}</td>
                 <td>{item.home_team} vs {item.away_team}</td>
                 <td>{item.tickets_sold}</td>
-                <td>${parseFloat(item.total_revenue as any).toFixed(2)}</td>
+                <td>${parseFloat(item.total_revenue).toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
@@ -115,7 +115,7 @@ const Reports: React.FC = () => {
                 <td>{new Date(item.match_date).toLocaleDateString()}</td>
                 <td>{item.current_attendance}</td>
                 <td>{item.total_capacity}</td>
-                <td>{parseFloat(item.attendance_percentage as any).toFixed(1)}%</td>
+                <td>{parseFloat(item.attendance_percentage).toFixed(1)}%</td>
               </tr>
             ))}
           </tbody>
