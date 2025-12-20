@@ -64,8 +64,8 @@ services:
       KC_DB_URL: jdbc:postgresql://postgres:5432/football_ticketing
       KC_DB_USERNAME: football_user
       KC_DB_PASSWORD: football_pass
-      KC_HOSTNAME_STRICT: false
-      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
     command: start-dev
     ports:
       - "8081:8080"
