@@ -114,7 +114,7 @@ The platform uses a single database with row-level tenancy through `club_id` for
    - Status management
 
 5. **tickets** - Digital tickets
-   - QR code generation (primary entry method)
+   - QR code generation (always included)
    - Optional NFC card linking
    - Purchase tracking
 
@@ -158,7 +158,7 @@ Each API service is independently deployable and focuses on a specific domain:
 **Responsibilities**:
 - Match calendar
 - Ticket sales
-- QR code generation (primary entry method)
+- QR code generation and NFC card linking
 - Stripe payment processing
 
 #### 3. POS API (Port 3004)
@@ -185,8 +185,7 @@ Each API service is independently deployable and focuses on a specific domain:
 - WebSocket: Real-time updates
 
 **Responsibilities**:
-- QR code validation (primary method)
-- NFC validation (alternative method)
+- Dual entry validation (QR code and NFC card)
 - Duplicate prevention
 - Capacity enforcement
 - Live attendance tracking

@@ -74,17 +74,17 @@ const TicketCheckout: React.FC = () => {
 
       <form onSubmit={handlePurchase}>
         <div style={{
-          background: '#e8f5e9',
+          background: '#e7f3ff',
           padding: '15px',
           borderRadius: '8px',
           marginBottom: '20px',
-          border: '1px solid #a5d6a7'
+          border: '1px solid #b3d9ff'
         }}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#2e7d32' }}>
-            📱 Entry Method: QR Code
+          <h4 style={{ margin: '0 0 10px 0', color: '#0066cc' }}>
+            🎟️ Entry Methods
           </h4>
           <p style={{ margin: 0, fontSize: '0.9rem' }}>
-            Your ticket includes a QR code for quick and easy entry at the gate.
+            Your ticket includes a QR code for entry. You can also add an NFC card for tap-to-enter convenience.
           </p>
         </div>
 
@@ -95,7 +95,7 @@ const TicketCheckout: React.FC = () => {
               checked={includeDeposit}
               onChange={(e) => setIncludeDeposit(e.target.checked)}
             />
-            {' '}Add NFC Card (Optional - ${depositAmount.toFixed(2)} deposit)
+            {' '}Add NFC Card (${depositAmount.toFixed(2)} deposit)
           </label>
           {includeDeposit && (
             <p style={{ 
@@ -104,7 +104,7 @@ const TicketCheckout: React.FC = () => {
               marginTop: '8px',
               marginLeft: '24px' 
             }}>
-              With an NFC card, you can enter by tapping instead of scanning QR code.
+              Get an NFC card for tap-to-enter alongside your QR code.
               Deposit is refundable.
             </p>
           )}

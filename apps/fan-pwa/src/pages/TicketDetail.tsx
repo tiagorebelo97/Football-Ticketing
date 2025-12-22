@@ -92,14 +92,14 @@ const TicketDetail: React.FC = () => {
               border: '1px solid #b3d9ff'
             }}>
               <h4 style={{ margin: '0 0 10px 0', color: '#0066cc' }}>
-                📱 Entry Options:
+                📱 Entry Methods:
               </h4>
               <p style={{ margin: '8px 0', fontSize: '0.95rem' }}>
-                <strong>✓ QR Code Entry:</strong> Show this QR code at the gate for scanning
+                <strong>✓ QR Code:</strong> Show this QR code at the gate for scanning
               </p>
               {ticket.nfc_card_id && (
                 <p style={{ margin: '8px 0', fontSize: '0.95rem' }}>
-                  <strong>✓ NFC Card Entry:</strong> Tap your NFC card at the gate
+                  <strong>✓ NFC Card:</strong> Tap your NFC card at the gate
                 </p>
               )}
               {!ticket.nfc_card_id && (
@@ -109,7 +109,7 @@ const TicketDetail: React.FC = () => {
                   color: '#666',
                   fontStyle: 'italic'
                 }}>
-                  QR code ready for entry - No NFC card required
+                  Add an NFC card for tap-to-enter convenience
                 </p>
               )}
             </div>

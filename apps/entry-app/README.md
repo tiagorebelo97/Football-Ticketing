@@ -1,19 +1,20 @@
 # Football Ticketing Android Entry App
 
 ## Overview
-Entry gate validation application with QR code scanning and optional NFC support, plus live capacity tracking.
+Entry gate validation application with dual entry support: QR code scanning and NFC card tap, plus live capacity tracking.
 
 ## Features
-- **QR Code Scanning**: Primary entry validation method - scan QR codes from fan mobile tickets
-- **NFC Tap Entry**: Alternative entry method for fans with assigned NFC cards
+- **Dual Entry Validation**: Support both QR code and NFC card entry methods
+- **QR Code Scanning**: Scan QR codes from fan mobile tickets
+- **NFC Card Tap**: Tap NFC cards for entry validation
 - **Gate Validation**: Real-time ticket validation
 - **Live Capacity Tracking**: Display current match attendance
 - **Duplicate Detection**: Prevent multiple entries with same ticket
 
 ## Technical Requirements
 - Android 8.0 (API level 26) or higher
-- Camera for QR code scanning (required)
-- NFC-enabled device (optional, for NFC entry support)
+- Camera for QR code scanning
+- NFC-enabled device for NFC card tap
 - Network connectivity to Entry API
 
 ## Key Components
@@ -47,9 +48,9 @@ Base URL: `http://entry-api.localhost/api`
 - `GET /validation/capacity/:matchId` - Get match capacity
 - WebSocket: `/socket.io` - Real-time capacity updates
 
-## NFC/QR Implementation
+## Dual Entry Implementation
 ```kotlin
-// QR Code Scanning (Primary Method - using ZXing)
+// QR Code Scanning (using ZXing)
 val integrator = IntentIntegrator(this)
 integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
 integrator.setPrompt("Scan ticket QR code")
@@ -67,7 +68,7 @@ override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) 
     }
 }
 
-// NFC Reading (Alternative Method)
+// NFC Card Reading
 val nfcAdapter = NfcAdapter.getDefaultAdapter(this)
 override fun onNewIntent(intent: Intent) {
     if (NfcAdapter.ACTION_TAG_DISCOVERED == intent.action) {
