@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 
 interface Match {
@@ -20,11 +20,7 @@ const MatchList: React.FC = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    loadMatches();
-  }, []);
-
-  const loadMatches = async () => {
+  const loadMatches = useCallback(async () => {
     try {
       const clubId = 'demo-club-id'; // Would come from auth
       const response = await axios.get(`/api/matches?clubId=${clubId}`);
@@ -34,7 +30,11 @@ const MatchList: React.FC = () => {
       setError('Failed to load matches');
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadMatches();
+  }, [loadMatches]);
 
   const handleCancelMatch = async (matchId: string) => {
     if (!window.confirm('Are you sure you want to cancel this match?')) return;
@@ -43,7 +43,7 @@ const MatchList: React.FC = () => {
       await axios.delete(`/api/matches/${matchId}`);
       loadMatches();
     } catch (err) {
-      alert('Failed to cancel match');
+      window.alert('Failed to cancel match');
     }
   };
 
@@ -60,7 +60,7 @@ const MatchList: React.FC = () => {
       </div>
 
       {matches.length === 0 ? (
-        <p>No matches scheduled. <a href="/create-match">Create your first match</a></p>
+        <p>No matches scheduled. <Link to="/create-match">Create your first match</Link></p>
       ) : (
         <div className="matches-list">
           {matches.map((match) => (
