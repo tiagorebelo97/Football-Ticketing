@@ -109,7 +109,7 @@ const TicketDetail: React.FC = () => {
                   color: '#666',
                   fontStyle: 'italic'
                 }}>
-                  No NFC card linked - Use QR code for entry
+                  QR code ready for entry - No NFC card required
                 </p>
               )}
             </div>
