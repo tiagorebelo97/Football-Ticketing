@@ -36,23 +36,23 @@ The Football Ticketing Platform is a multi-tenant SaaS solution that enables foo
 │  (Node.js)   │        │  (Node.js)   │        │   Database   │
 └──────────────┘        └──────────────┘        └──────────────┘
         │                        │                        │
-        ▼                        ▼                        ▼
-┌──────────────┐        ┌──────────────┐        ┌──────────────┐
-│   POS App    │        │  Entry App   │        │   Keycloak   │
-│  (Android)   │        │  (Android)   │        │    (Auth)    │
-└──────────────┘        └──────────────┘        └──────────────┘
-                                                        │
-                                                        ▼
-                                                ┌──────────────┐
-                                                │    Redis     │
-                                                │   (Cache)    │
-                                                └──────────────┘
-                                                        │
-                                                        ▼
-                                                ┌──────────────┐
-                                                │    Stripe    │
-                                                │  (Payments)  │
-                                                └──────────────┘
+   ┌────┴────┐              ┌───┴────┐                   ▼
+   ▼         ▼              ▼        ▼          ┌──────────────┐
+┌────────┐┌──────┐    ┌────────┐┌───────┐     │   Keycloak   │
+│POS App ││POS   │    │Entry   ││Entry  │     │    (Auth)    │
+│(Android││Web   │    │App     ││Web    │     └──────────────┘
+│)       ││(React│    │(Android││(React)│              │
+└────────┘└──────┘    └────────┘└───────┘              ▼
+                                            ┌──────────────┐
+                                            │    Redis     │
+                                            │   (Cache)    │
+                                            └──────────────┘
+                                                    │
+                                                    ▼
+                                            ┌──────────────┐
+                                            │    Stripe    │
+                                            │  (Payments)  │
+                                            └──────────────┘
 ```
 
 ## Technology Stack
