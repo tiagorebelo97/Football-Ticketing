@@ -31,6 +31,11 @@ const Capacity: React.FC = () => {
       const response = await axios.get(`${API_URL}/api/validation/capacity/${matchId}`);
       setCapacity(response.data);
       
+      // Disconnect existing socket before creating a new one
+      if (socket) {
+        socket.disconnect();
+      }
+      
       // Connect to WebSocket for live updates
       const newSocket = io(API_URL);
       

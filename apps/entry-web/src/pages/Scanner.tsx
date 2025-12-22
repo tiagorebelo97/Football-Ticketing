@@ -33,14 +33,23 @@ const Scanner: React.FC<ScannerProps> = ({ gate, onBack }) => {
           scanner?.clear();
         },
         (error) => {
-          // Suppress console errors for scanning failures
+          // Scanning errors are expected and frequent during normal operation
+          // Only log in development for debugging
+          if (process.env.NODE_ENV === 'development') {
+            console.debug('QR scan error:', error);
+          }
         }
       );
     }
 
     return () => {
       if (scanner) {
-        scanner.clear().catch(() => {});
+        scanner.clear().catch((error) => {
+          // Log cleanup errors in development
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('Scanner cleanup error:', error);
+          }
+        });
       }
     };
   }, [scanMode]);
