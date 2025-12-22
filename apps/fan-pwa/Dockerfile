@@ -3,7 +3,7 @@ FROM node:20-alpine as build
 WORKDIR /app
 
 COPY apps/fan-pwa/package.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 COPY apps/fan-pwa ./
 RUN npm run build
