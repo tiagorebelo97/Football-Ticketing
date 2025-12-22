@@ -3,7 +3,7 @@ FROM node:20-alpine as build
 WORKDIR /app
 
 COPY apps/entry-web/package.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 COPY apps/entry-web ./
 RUN npm run build
