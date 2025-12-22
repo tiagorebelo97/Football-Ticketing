@@ -37,7 +37,7 @@ const MatchList: React.FC = () => {
   };
 
   const handleCancelMatch = async (matchId: string) => {
-    if (!confirm('Are you sure you want to cancel this match?')) return;
+    if (!window.confirm('Are you sure you want to cancel this match?')) return;
 
     try {
       await axios.delete(`/api/matches/${matchId}`);
