@@ -114,8 +114,8 @@ The platform uses a single database with row-level tenancy through `club_id` for
    - Status management
 
 5. **tickets** - Digital tickets
-   - QR code generation
-   - NFC card linking
+   - QR code generation (primary entry method)
+   - Optional NFC card linking
    - Purchase tracking
 
 6. **transactions** - Financial records
@@ -158,7 +158,7 @@ Each API service is independently deployable and focuses on a specific domain:
 **Responsibilities**:
 - Match calendar
 - Ticket sales
-- QR code generation
+- QR code generation (primary entry method)
 - Stripe payment processing
 
 #### 3. POS API (Port 3004)
@@ -180,12 +180,13 @@ Each API service is independently deployable and focuses on a specific domain:
 **Purpose**: Gate validation and capacity tracking
 
 **Key Endpoints**:
-- `POST /api/validation/validate` - Validate NFC/QR entry
+- `POST /api/validation/validate` - Validate QR code or NFC entry
 - `GET /api/validation/capacity/:matchId` - Live capacity
 - WebSocket: Real-time updates
 
 **Responsibilities**:
-- NFC/QR validation
+- QR code validation (primary method)
+- NFC validation (alternative method)
 - Duplicate prevention
 - Capacity enforcement
 - Live attendance tracking
@@ -233,11 +234,11 @@ Each API service is independently deployable and focuses on a specific domain:
 ### Entry Validation Flow
 
 ```
-1. Fan → Entry App (scan NFC/QR)
-2. Entry App → Entry API (validate)
-3. Entry API → PostgreSQL (check ticket)
+1. Fan → Entry App (scan QR code or tap NFC)
+2. Entry App → Entry API (validate with entryType: 'qr' or 'nfc')
+3. Entry API → PostgreSQL (check ticket by qr_code_data or nfc_card_id)
 4. Entry API → PostgreSQL (check duplicates)
-5. Entry API → PostgreSQL (log entry)
+5. Entry API → PostgreSQL (log entry with entry_type)
 6. Entry API → PostgreSQL (update attendance)
 7. Entry API → WebSocket (broadcast capacity)
 8. Entry App ← Entry API (validation result)
