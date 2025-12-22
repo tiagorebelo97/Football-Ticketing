@@ -12,8 +12,10 @@ A comprehensive multi-tenant platform for football clubs featuring reusable NFC 
 ### Fan PWA
 - **Match Calendar**: Browse upcoming matches with real-time availability
 - **3-Click Checkout**: Streamlined ticket purchase flow (select match → add deposit → pay)
-- **QR/NFC Delivery**: Instant ticket delivery via QR code with NFC support
-- **Deposit Management**: Optional NFC card deposit for reusable entry cards
+- **Dual Entry Methods**: Instant digital ticket delivery with both QR code and optional NFC card support
+- **QR Code Entry**: Contactless entry via QR code scanning
+- **NFC Card Entry**: Optional reusable NFC cards for tap-to-enter convenience
+- **Deposit Management**: Manage NFC card deposits (refundable)
 
 ### POS App (Android)
 - **NFC Staff Login**: Staff authenticate by tapping their NFC card
@@ -22,7 +24,9 @@ A comprehensive multi-tenant platform for football clubs featuring reusable NFC 
 - **End-Match Refunds**: Process ticket and deposit refunds
 
 ### Entry App (Android)
-- **NFC/QR Gates**: Validate entries via NFC tap or QR code scan
+- **Dual Entry Validation**: Support both QR code scanning and NFC card tap for ticket validation
+- **QR Code Scanning**: Scan QR codes from fan mobile tickets
+- **NFC Card Tap**: Validate entries via NFC card tap
 - **Live Capacity Tracking**: Real-time attendance monitoring with WebSocket updates
 - **Duplicate Prevention**: Detect and prevent duplicate entries
 - **Multi-Gate Support**: Manage multiple entry points simultaneously
@@ -48,9 +52,9 @@ Multi-tenant design with:
 - Users with role-based access (super_admin, club_admin, staff, fan)
 - NFC cards with lifecycle tracking (available, assigned, blocked, lost)
 - Matches with real-time capacity tracking
-- Tickets with QR/NFC support
+- Tickets with dual entry support: QR code (always) and NFC card (optional)
 - Transactions with Stripe integration
-- Entry logs for gate validation
+- Entry logs for gate validation (supports both QR and NFC methods equally)
 - Refunds with audit trail
 
 ## 🚀 Quick Start
@@ -181,7 +185,7 @@ cd apps/fan-api && npm run dev
 ### Fan API
 - `GET /api/matches` - List upcoming matches
 - `POST /api/tickets/purchase` - Purchase ticket (3-click flow)
-- `GET /api/tickets/:ticketId` - Get ticket with QR code
+- `GET /api/tickets/:ticketId` - Get ticket with QR code and NFC card info
 
 ### POS API
 - `POST /api/auth/nfc-login` - NFC staff authentication
@@ -189,7 +193,7 @@ cd apps/fan-api && npm run dev
 - `POST /api/refunds` - Process refund
 
 ### Entry API
-- `POST /api/validation/validate` - Validate NFC/QR entry
+- `POST /api/validation/validate` - Validate QR code or NFC entry
 - `GET /api/validation/capacity/:matchId` - Get live capacity
 - WebSocket: Real-time capacity updates
 

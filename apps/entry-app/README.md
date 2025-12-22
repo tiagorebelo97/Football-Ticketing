@@ -1,18 +1,20 @@
 # Football Ticketing Android Entry App
 
 ## Overview
-Entry gate validation application with NFC/QR scanning and live capacity tracking.
+Entry gate validation application with dual entry support: QR code scanning and NFC card tap, plus live capacity tracking.
 
 ## Features
-- **NFC/QR Scanning**: Validate tickets via NFC or QR code
+- **Dual Entry Validation**: Support both QR code and NFC card entry methods
+- **QR Code Scanning**: Scan QR codes from fan mobile tickets
+- **NFC Card Tap**: Tap NFC cards for entry validation
 - **Gate Validation**: Real-time ticket validation
 - **Live Capacity Tracking**: Display current match attendance
 - **Duplicate Detection**: Prevent multiple entries with same ticket
 
 ## Technical Requirements
 - Android 8.0 (API level 26) or higher
-- NFC-enabled device
 - Camera for QR code scanning
+- NFC-enabled device for NFC card tap
 - Network connectivity to Entry API
 
 ## Key Components
@@ -46,20 +48,35 @@ Base URL: `http://entry-api.localhost/api`
 - `GET /validation/capacity/:matchId` - Get match capacity
 - WebSocket: `/socket.io` - Real-time capacity updates
 
-## NFC/QR Implementation
+## Dual Entry Implementation
 ```kotlin
-// NFC Reading
-val nfcAdapter = NfcAdapter.getDefaultAdapter(this)
-override fun onNewIntent(intent: Intent) {
-    val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
-    val cardUid = tag?.id?.toHex()
-    validateEntry(cardUid, "nfc")
-}
-
 // QR Code Scanning (using ZXing)
 val integrator = IntentIntegrator(this)
 integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
+integrator.setPrompt("Scan ticket QR code")
+integrator.setCameraId(0)
+integrator.setBeepEnabled(true)
+integrator.setBarcodeImageEnabled(false)
 integrator.initiateScan()
+
+// Handle QR scan result
+override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    val result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
+    if (result != null && result.contents != null) {
+        val qrCode = result.contents
+        validateEntry(qrCode, "qr")
+    }
+}
+
+// NFC Card Reading
+val nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+override fun onNewIntent(intent: Intent) {
+    if (NfcAdapter.ACTION_TAG_DISCOVERED == intent.action) {
+        val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
+        val cardUid = tag?.id?.toHex()
+        validateEntry(cardUid, "nfc")
+    }
+}
 ```
 
 ## WebSocket Integration

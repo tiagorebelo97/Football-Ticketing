@@ -13,6 +13,7 @@ interface TicketDetail {
   venue: string;
   status: string;
   price: number;
+  nfc_card_id?: string;
 }
 
 const TicketDetail: React.FC = () => {
@@ -63,13 +64,63 @@ const TicketDetail: React.FC = () => {
         
         {ticket.status === 'active' && (
           <div className="qr-code-container">
-            <h3>Scan this QR code at the gate</h3>
-            <img src={ticket.qrCode} alt="Ticket QR Code" />
-            <p style={{ fontSize: '0.8rem', color: '#666' }}>
-              Code: {ticket.qr_code_data}
-            </p>
-            <p style={{ marginTop: '20px', color: '#28a745' }}>
-              ✓ This ticket supports NFC entry
+            <h3>🎟️ Your Entry Pass</h3>
+            <div style={{ 
+              background: '#f8f9fa', 
+              padding: '20px', 
+              borderRadius: '10px',
+              marginBottom: '20px'
+            }}>
+              <img 
+                src={ticket.qrCode} 
+                alt="Ticket QR Code" 
+                style={{ 
+                  width: '100%', 
+                  maxWidth: '300px',
+                  border: '4px solid #fff',
+                  borderRadius: '8px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                }}
+              />
+            </div>
+            
+            <div style={{ 
+              background: '#e7f3ff', 
+              padding: '15px', 
+              borderRadius: '8px',
+              marginTop: '15px',
+              border: '1px solid #b3d9ff'
+            }}>
+              <h4 style={{ margin: '0 0 10px 0', color: '#0066cc' }}>
+                📱 Entry Methods:
+              </h4>
+              <p style={{ margin: '8px 0', fontSize: '0.95rem' }}>
+                <strong>✓ QR Code:</strong> Show this QR code at the gate for scanning
+              </p>
+              {ticket.nfc_card_id && (
+                <p style={{ margin: '8px 0', fontSize: '0.95rem' }}>
+                  <strong>✓ NFC Card:</strong> Tap your NFC card at the gate
+                </p>
+              )}
+              {!ticket.nfc_card_id && (
+                <p style={{ 
+                  margin: '8px 0', 
+                  fontSize: '0.85rem', 
+                  color: '#666',
+                  fontStyle: 'italic'
+                }}>
+                  Add an NFC card for tap-to-enter convenience
+                </p>
+              )}
+            </div>
+            
+            <p style={{ 
+              fontSize: '0.8rem', 
+              color: '#666',
+              marginTop: '15px',
+              textAlign: 'center'
+            }}>
+              Ticket Code: {ticket.qr_code_data}
             </p>
           </div>
         )}

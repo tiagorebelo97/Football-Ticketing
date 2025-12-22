@@ -73,15 +73,41 @@ const TicketCheckout: React.FC = () => {
       </div>
 
       <form onSubmit={handlePurchase}>
+        <div style={{
+          background: '#e7f3ff',
+          padding: '15px',
+          borderRadius: '8px',
+          marginBottom: '20px',
+          border: '1px solid #b3d9ff'
+        }}>
+          <h4 style={{ margin: '0 0 10px 0', color: '#0066cc' }}>
+            🎟️ Entry Methods
+          </h4>
+          <p style={{ margin: 0, fontSize: '0.9rem' }}>
+            Your ticket includes a QR code for entry. You can also add an NFC card for tap-to-enter convenience.
+          </p>
+        </div>
+
         <div className="form-group">
-          <label>
+          <label style={{ display: 'block', marginBottom: '8px' }}>
             <input
               type="checkbox"
               checked={includeDeposit}
               onChange={(e) => setIncludeDeposit(e.target.checked)}
             />
-            {' '}Include NFC Card Deposit (${depositAmount.toFixed(2)})
+            {' '}Add NFC Card (${depositAmount.toFixed(2)} deposit)
           </label>
+          {includeDeposit && (
+            <p style={{ 
+              fontSize: '0.85rem', 
+              color: '#666', 
+              marginTop: '8px',
+              marginLeft: '24px' 
+            }}>
+              Get an NFC card for tap-to-enter alongside your QR code.
+              Deposit is refundable.
+            </p>
+          )}
         </div>
 
         <div className="form-group">
@@ -91,7 +117,7 @@ const TicketCheckout: React.FC = () => {
         {error && <div className="error">{error}</div>}
 
         <button type="submit" className="btn" disabled={processing}>
-          {processing ? 'Processing...' : 'Complete Purchase (3-Click Checkout)'}
+          {processing ? 'Processing...' : 'Complete Purchase'}
         </button>
         <button
           type="button"
