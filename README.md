@@ -87,6 +87,8 @@ docker-compose up
 - Fan PWA: http://app.localhost
 - Super Admin Dashboard: http://admin.localhost
 - Club Backoffice: http://club.localhost
+- **POS Web App: http://pos.localhost**
+- **Entry Web App: http://entry.localhost**
 - Keycloak: http://auth.localhost or http://localhost:8081
 - Traefik Dashboard: http://localhost:8080
 
@@ -97,7 +99,32 @@ docker-compose up
 - POS API: http://pos-api.localhost or http://localhost:3004
 - Entry API: http://entry-api.localhost or http://localhost:3005
 
-## 📱 Mobile Apps
+## 🌐 Web Applications
+
+### POS Web App
+Web-based version of the Android POS app for browser-based point-of-sale operations.
+
+**Features:**
+- Staff authentication (simulated NFC login via manual card ID entry)
+- Payment processing interface
+- NFC card assignment to fans
+- Refund processing
+
+**Access:** http://pos.localhost or http://localhost:3103
+
+### Entry Web App
+Web-based version of the Android Entry app for browser-based entry validation.
+
+**Features:**
+- QR code scanning via webcam
+- Manual NFC card ID entry (simulated NFC tap)
+- Real-time validation feedback
+- Live capacity dashboard with WebSocket updates
+- Multi-gate support
+
+**Access:** http://entry.localhost or http://localhost:3104
+
+## 📱 Mobile Apps (Android)
 
 ### POS App
 See `apps/pos-app/README.md` for:
@@ -127,6 +154,8 @@ Football-Ticketing/
 │   ├── fan-pwa/               # Fan progressive web app
 │   ├── super-admin-dashboard/ # Admin interface (React)
 │   ├── club-backoffice/       # Club management interface (React)
+│   ├── pos-web/               # POS web application (React)
+│   ├── entry-web/             # Entry gate web application (React)
 │   ├── pos-app/               # Android POS application
 │   └── entry-app/             # Android entry gate application
 ├── packages/

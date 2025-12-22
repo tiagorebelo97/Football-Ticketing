@@ -250,6 +250,42 @@ services:
       - "traefik.http.routers.club-backoffice.rule=Host(`club.localhost`)"
       - "traefik.http.services.club-backoffice.loadbalancer.server.port=80"
 
+  pos-web:
+    build:
+      context: .
+      dockerfile: ./apps/pos-web/Dockerfile
+    container_name: pos-web
+    environment:
+      REACT_APP_POS_API_URL: http://pos-api.localhost/api
+    ports:
+      - "3103:80"
+    depends_on:
+      - pos-api
+    networks:
+      - football-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pos-web.rule=Host(`pos.localhost`)"
+      - "traefik.http.services.pos-web.loadbalancer.server.port=80"
+
+  entry-web:
+    build:
+      context: .
+      dockerfile: ./apps/entry-web/Dockerfile
+    container_name: entry-web
+    environment:
+      REACT_APP_ENTRY_API_URL: http://entry-api.localhost
+    ports:
+      - "3104:80"
+    depends_on:
+      - entry-api
+    networks:
+      - football-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.entry-web.rule=Host(`entry.localhost`)"
+      - "traefik.http.services.entry-web.loadbalancer.server.port=80"
+
 networks:
   football-network:
     driver: bridge
