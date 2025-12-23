@@ -53,74 +53,78 @@ const Reports: React.FC = () => {
 
   return (
     <div>
-      <h2>Reports & Analytics</h2>
+      <h2 style={{ marginBottom: '20px' }}>Reports & Analytics</h2>
 
-      <div className="stats-grid">
-        <div className="stat-card" style={{ borderLeftColor: '#27ae60' }}>
-          <div className="stat-value" style={{ color: '#27ae60' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', marginBottom: '30px' }}>
+        <div className="card">
+          <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'var(--color-primary)' }}>
             ${totalRevenue.toFixed(2)}
           </div>
-          <div className="stat-label">Total Revenue</div>
+          <div style={{ color: 'var(--color-text-light)' }}>Total Revenue</div>
         </div>
-        <div className="stat-card">
-          <div className="stat-value">{totalTickets}</div>
-          <div className="stat-label">Tickets Sold</div>
+        <div className="card">
+          <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{totalTickets}</div>
+          <div style={{ color: 'var(--color-text-light)' }}>Tickets Sold</div>
         </div>
       </div>
 
-      <h3 style={{ marginTop: '40px' }}>Sales Report</h3>
-      {salesData.length === 0 ? (
-        <p>No sales data available</p>
-      ) : (
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Match</th>
-              <th>Tickets Sold</th>
-              <th>Revenue</th>
-            </tr>
-          </thead>
-          <tbody>
-            {salesData.map((item, idx) => (
-              <tr key={idx}>
-                <td>{new Date(item.date).toLocaleDateString()}</td>
-                <td>{item.home_team} vs {item.away_team}</td>
-                <td>{item.tickets_sold}</td>
-                <td>${parseFloat(item.total_revenue).toFixed(2)}</td>
+      <div className="card">
+        <h3 style={{ marginBottom: '20px' }}>Sales Report</h3>
+        {salesData.length === 0 ? (
+          <p>No sales data available</p>
+        ) : (
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Match</th>
+                <th>Tickets Sold</th>
+                <th>Revenue</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {salesData.map((item, idx) => (
+                <tr key={idx}>
+                  <td>{new Date(item.date).toLocaleDateString()}</td>
+                  <td>{item.home_team} vs {item.away_team}</td>
+                  <td>{item.tickets_sold}</td>
+                  <td>${parseFloat(item.total_revenue).toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
 
-      <h3 style={{ marginTop: '40px' }}>Attendance Report</h3>
-      {attendanceData.length === 0 ? (
-        <p>No attendance data available</p>
-      ) : (
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Match</th>
-              <th>Date</th>
-              <th>Attendance</th>
-              <th>Capacity</th>
-              <th>Fill Rate</th>
-            </tr>
-          </thead>
-          <tbody>
-            {attendanceData.map((item) => (
-              <tr key={item.id}>
-                <td>{item.home_team} vs {item.away_team}</td>
-                <td>{new Date(item.match_date).toLocaleDateString()}</td>
-                <td>{item.current_attendance}</td>
-                <td>{item.total_capacity}</td>
-                <td>{parseFloat(item.attendance_percentage).toFixed(1)}%</td>
+      <div className="card">
+        <h3 style={{ marginBottom: '20px' }}>Attendance Report</h3>
+        {attendanceData.length === 0 ? (
+          <p>No attendance data available</p>
+        ) : (
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Match</th>
+                <th>Date</th>
+                <th>Attendance</th>
+                <th>Capacity</th>
+                <th>Fill Rate</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {attendanceData.map((item) => (
+                <tr key={item.id}>
+                  <td>{item.home_team} vs {item.away_team}</td>
+                  <td>{new Date(item.match_date).toLocaleDateString()}</td>
+                  <td>{item.current_attendance}</td>
+                  <td>{item.total_capacity}</td>
+                  <td>{parseFloat(item.attendance_percentage).toFixed(1)}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 };

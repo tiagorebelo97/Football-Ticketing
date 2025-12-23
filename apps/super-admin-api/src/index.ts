@@ -6,6 +6,8 @@ import { apiLimiter } from '@football-ticketing/shared';
 import clubRoutes from './routes/clubs';
 import nfcStockRoutes from './routes/nfc-stock';
 import feeConfigRoutes from './routes/fee-config';
+import authRoutes from './routes/auth';
+import userRoutes from './routes/users';
 
 dotenv.config();
 
@@ -29,6 +31,8 @@ app.get('/health', (req, res) => {
 app.use('/api/clubs', clubRoutes);
 app.use('/api/nfc-stock', nfcStockRoutes);
 app.use('/api/fee-config', feeConfigRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

@@ -40,52 +40,54 @@ const NFCInventory: React.FC = () => {
 
   return (
     <div>
-      <h2>NFC Card Inventory</h2>
+      <h2 style={{ marginBottom: '20px' }}>NFC Card Inventory</h2>
 
       {config && (
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-value">{config.total_cards}</div>
-            <div className="stat-label">Total Cards</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '30px' }}>
+          <div className="card">
+            <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{config.total_cards}</div>
+            <div style={{ color: 'var(--color-text-light)' }}>Total Cards</div>
           </div>
-          <div className="stat-card" style={{ borderLeftColor: '#27ae60' }}>
-            <div className="stat-value" style={{ color: '#27ae60' }}>
+          <div className="card">
+            <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'var(--color-primary)' }}>
               {config.available_cards}
             </div>
-            <div className="stat-label">Available</div>
+            <div style={{ color: 'var(--color-text-light)' }}>Available</div>
           </div>
-          <div className="stat-card" style={{ borderLeftColor: '#f39c12' }}>
-            <div className="stat-value" style={{ color: '#f39c12' }}>
+          <div className="card">
+            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#f39c12' }}>
               ${config.deposit_amount.toFixed(2)}
             </div>
-            <div className="stat-label">Deposit Amount</div>
+            <div style={{ color: 'var(--color-text-light)' }}>Deposit Amount</div>
           </div>
         </div>
       )}
 
-      <h3 style={{ marginTop: '40px' }}>Card Status Breakdown</h3>
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Status</th>
-            <th>Count</th>
-            <th>Percentage</th>
-          </tr>
-        </thead>
-        <tbody>
-          {inventory.map((item) => {
-            const total = config?.total_cards || 1;
-            const percentage = ((parseInt(item.count, 10) / total) * 100).toFixed(1);
-            return (
-              <tr key={item.status}>
-                <td style={{ textTransform: 'capitalize' }}>{item.status}</td>
-                <td>{item.count}</td>
-                <td>{percentage}%</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="card">
+        <h3 style={{ marginBottom: '20px' }}>Card Status Breakdown</h3>
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Count</th>
+              <th>Percentage</th>
+            </tr>
+          </thead>
+          <tbody>
+            {inventory.map((item) => {
+              const total = config?.total_cards || 1;
+              const percentage = ((parseInt(item.count, 10) / total) * 100).toFixed(1);
+              return (
+                <tr key={item.status}>
+                  <td style={{ textTransform: 'capitalize' }}>{item.status}</td>
+                  <td>{item.count}</td>
+                  <td>{percentage}%</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

@@ -5,7 +5,9 @@ import dotenv from 'dotenv';
 import { apiLimiter } from '@football-ticketing/shared';
 import matchRoutes from './routes/matches';
 import nfcRoutes from './routes/nfc';
+
 import reportRoutes from './routes/reports';
+import authRoutes from './routes/auth';
 
 dotenv.config();
 
@@ -23,9 +25,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'club-backoffice-api' });
 });
 
+
 app.use('/api/matches', matchRoutes);
 app.use('/api/nfc', nfcRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/auth', authRoutes);
 
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);

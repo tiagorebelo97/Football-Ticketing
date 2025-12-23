@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 
 interface GateSelectionProps {
   onSelectGate: (gate: string) => void;
+  matchName: string;
 }
 
-const GateSelection: React.FC<GateSelectionProps> = ({ onSelectGate }) => {
+const GateSelection: React.FC<GateSelectionProps> = ({ onSelectGate, matchName }) => {
   const navigate = useNavigate();
 
   const gates = ['Gate A', 'Gate B', 'Gate C', 'Gate D', 'Gate E'];
@@ -18,19 +19,19 @@ const GateSelection: React.FC<GateSelectionProps> = ({ onSelectGate }) => {
   return (
     <div>
       <div className="header">
-        <h1>Entry Web App</h1>
+        <h1>{matchName}</h1>
         <div className="nav-buttons">
-          <button className="nav-button" onClick={() => navigate('/capacity')}>
-            Capacity Dashboard
+          <button className="btn btn-outline" onClick={() => navigate('/match-selection')}>
+            Change Match
           </button>
         </div>
       </div>
 
       <div className="container">
-        <div className="card">
-          <h2 style={{ textAlign: 'center' }}>Select Entry Gate</h2>
-          <p style={{ textAlign: 'center', color: '#7f8c8d' }}>
-            Choose which gate you are managing to start validating entries
+        <div className="glass-card" style={{ textAlign: 'center' }}>
+          <h2>Select Entry Gate</h2>
+          <p style={{ color: 'var(--color-text-dim)' }}>
+            Choose which gate you are managing
           </p>
         </div>
 

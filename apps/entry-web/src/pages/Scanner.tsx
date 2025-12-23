@@ -4,11 +4,13 @@ import axios from 'axios';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
 interface ScannerProps {
+  matchId: string;
+  matchName: string;
   gate: string;
   onBack: () => void;
 }
 
-const Scanner: React.FC<ScannerProps> = ({ gate, onBack }) => {
+const Scanner: React.FC<ScannerProps> = ({ matchId, matchName, gate, onBack }) => {
   const navigate = useNavigate();
   const [scanMode, setScanMode] = useState<'qr' | 'nfc'>('qr');
   const [nfcInput, setNfcInput] = useState('');
@@ -33,23 +35,14 @@ const Scanner: React.FC<ScannerProps> = ({ gate, onBack }) => {
           scanner?.clear();
         },
         (error) => {
-          // Scanning errors are expected and frequent during normal operation
-          // Only log in development for debugging
-          if (process.env.NODE_ENV === 'development') {
-            console.debug('QR scan error:', error);
-          }
+          // Scanning errors are expected
         }
       );
     }
 
     return () => {
       if (scanner) {
-        scanner.clear().catch((error) => {
-          // Log cleanup errors in development
-          if (process.env.NODE_ENV === 'development') {
-            console.warn('Scanner cleanup error:', error);
-          }
-        });
+        scanner.clear().catch(console.warn);
       }
     };
   }, [scanMode]);
@@ -60,36 +53,33 @@ const Scanner: React.FC<ScannerProps> = ({ gate, onBack }) => {
 
     try {
       const response = await axios.post(`${API_URL}/validation/validate`, {
-        code,
-        entryType: type,
-        gate
+        ticketIdentifier: code,
+        matchId,
+        gateNumber: gate,
+        entryType: type
       });
 
       setValidationResult({
-        success: response.data.success,
-        message: response.data.message,
-        ticketInfo: response.data.ticketInfo
+        success: response.data.valid,
+        message: response.data.valid ? 'Access Granted' : response.data.error,
+        ticket: response.data.ticket
       });
 
-      // Clear result after 5 seconds
+      // Clear result after 3 seconds for fast throughput
       setTimeout(() => {
         setValidationResult(null);
-        if (type === 'nfc') {
-          setNfcInput('');
-        }
-      }, 5000);
+        if (type === 'nfc') setNfcInput('');
+      }, 3000);
     } catch (err: any) {
       setValidationResult({
         success: false,
-        message: err.response?.data?.message || 'Validation failed'
+        message: err.response?.data?.error || 'Validation failed'
       });
 
       setTimeout(() => {
         setValidationResult(null);
-        if (type === 'nfc') {
-          setNfcInput('');
-        }
-      }, 5000);
+        if (type === 'nfc') setNfcInput('');
+      }, 3000);
     } finally {
       setLoading(false);
     }
@@ -102,87 +92,88 @@ const Scanner: React.FC<ScannerProps> = ({ gate, onBack }) => {
     }
   };
 
-  const handleBackClick = () => {
-    onBack();
-    navigate('/gate-selection');
-  };
-
   return (
     <div>
       <div className="header">
-        <h1>Entry Scanner - {gate}</h1>
+        <h1>{matchName}</h1>
         <div className="nav-buttons">
-          <button className="nav-button" onClick={() => navigate('/capacity')}>
-            Capacity
+          <button className="btn btn-outline" onClick={() => navigate('/capacity')}>
+            Stats
           </button>
-          <button className="nav-button" onClick={handleBackClick}>
-            Back to Gates
+          <button className="btn btn-outline" onClick={onBack}>
+            Exit Gate
           </button>
         </div>
       </div>
 
-      <div className="container scanner-container">
-        <div className="scanner-modes">
+      <div className="container">
+        <div className="glass-card" style={{ textAlign: 'center', marginBottom: '16px' }}>
+          <h2 style={{ fontSize: '1.2rem' }}>{gate}</h2>
+        </div>
+
+        <div className="scanner-modes" style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
           <button
-            className={`mode-button ${scanMode === 'qr' ? 'active' : ''}`}
+            className={`btn ${scanMode === 'qr' ? 'btn-primary' : 'btn-outline'}`}
+            style={{ flex: 1 }}
             onClick={() => setScanMode('qr')}
           >
-            📷 QR Code Scanner
+            📷 QR
           </button>
           <button
-            className={`mode-button ${scanMode === 'nfc' ? 'active' : ''}`}
+            className={`btn ${scanMode === 'nfc' ? 'btn-primary' : 'btn-outline'}`}
+            style={{ flex: 1 }}
             onClick={() => setScanMode('nfc')}
           >
-            📱 NFC Manual Entry
+            📱 NFC
           </button>
         </div>
 
-        <div className="scanner-area">
+        <div className="glass-card">
           {scanMode === 'qr' ? (
-            <div>
-              <h3 style={{ textAlign: 'center', marginTop: 0 }}>Scan QR Code</h3>
-              <div id="qr-reader"></div>
-            </div>
+            <div id="qr-reader" style={{ width: '100%' }}></div>
           ) : (
-            <div>
-              <h3 style={{ textAlign: 'center', marginTop: 0 }}>Enter NFC Card ID</h3>
-              <div className="info-box">
-                <p><strong>Note:</strong> In the Android app, fans would tap their NFC card. For the web version, please enter the NFC Card ID manually.</p>
+            <form onSubmit={handleNfcSubmit}>
+              <div style={{ marginBottom: '16px' }}>
+                <input
+                  type="text"
+                  value={nfcInput}
+                  onChange={(e) => setNfcInput(e.target.value)}
+                  placeholder="Scan or enter NFC UID"
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    borderRadius: '12px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid var(--glass-border)',
+                    color: 'white',
+                    fontSize: '1.2rem',
+                    textAlign: 'center'
+                  }}
+                  autoFocus
+                />
               </div>
-              <form onSubmit={handleNfcSubmit}>
-                <div className="form-group">
-                  <label htmlFor="nfcInput">NFC Card ID</label>
-                  <input
-                    type="text"
-                    id="nfcInput"
-                    value={nfcInput}
-                    onChange={(e) => setNfcInput(e.target.value)}
-                    placeholder="Enter NFC Card ID"
-                    disabled={loading}
-                    autoFocus
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="button-primary"
-                  disabled={loading || !nfcInput.trim()}
-                >
-                  {loading ? 'Validating...' : 'Validate Entry'}
-                </button>
-              </form>
-            </div>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ width: '100%' }}
+                disabled={loading || !nfcInput.trim()}
+              >
+                {loading ? 'Validating...' : 'Validate'}
+              </button>
+            </form>
           )}
         </div>
 
         {validationResult && (
-          <div className={`validation-result ${validationResult.success ? 'success' : 'error'}`}>
-            <h2>{validationResult.success ? '✅ ENTRY APPROVED' : '❌ ENTRY DENIED'}</h2>
-            <p>{validationResult.message}</p>
-            {validationResult.ticketInfo && (
-              <div style={{ marginTop: '15px', fontSize: '14px' }}>
-                <p><strong>Match:</strong> {validationResult.ticketInfo.match}</p>
-                <p><strong>Fan:</strong> {validationResult.ticketInfo.fan}</p>
-              </div>
+          <div className={`status-indicator ${validationResult.success ? 'success' : 'error'}`}>
+            <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>
+              {validationResult.success ? '✅ OK' : '❌ NO'}
+            </h1>
+            <p style={{ fontSize: '1.2rem', fontWeight: 600 }}>{validationResult.message}</p>
+            {validationResult.ticket && (
+              <p style={{ marginTop: '8px', fontSize: '0.9rem', opacity: 0.8 }}>
+                Ticket ID: {validationResult.ticket.id.substring(0, 8)}...
+              </p>
             )}
           </div>
         )}
