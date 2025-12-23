@@ -7,6 +7,7 @@ interface Club {
     slug: string;
     primaryColor: string;
     secondaryColor: string;
+    logoUrl?: string;
 }
 
 interface User {
@@ -72,7 +73,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 name: foundClub.name,
                 slug: foundClub.slug,
                 primaryColor: foundClub.primary_color,
-                secondaryColor: foundClub.secondary_color
+                secondaryColor: foundClub.secondary_color,
+                logoUrl: foundClub.logo_url
             };
 
             setUser(mockUser);

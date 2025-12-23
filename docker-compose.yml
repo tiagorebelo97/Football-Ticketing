@@ -11,10 +11,13 @@ services:
       - football-network
 
   traefik:
-    image: traefik:v2.10
+    image: traefik:v2.11
     container_name: traefik
+    environment:
+      - DOCKER_API_VERSION=1.44
     command:
       - "--api.insecure=true"
+      - "--log.level=DEBUG"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
@@ -24,7 +27,7 @@ services:
       - "443:443"
       - "8080:8080"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - football-network
 
@@ -43,7 +46,7 @@ services:
     networks:
       - football-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U football_user -d football_ticketing"]
+      test: [ "CMD-SHELL", "pg_isready -U football_user -d football_ticketing" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -58,7 +61,7 @@ services:
     networks:
       - football-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5

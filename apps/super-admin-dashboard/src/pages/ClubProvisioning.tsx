@@ -35,7 +35,7 @@ const ClubProvisioning: React.FC = () => {
     <div className="form-container">
       <h2>Provision New Club</h2>
       <p style={{ color: '#666', marginBottom: '20px' }}>
-        This will automatically create a Keycloak realm and Stripe connected account for the club.
+        This will automatically create a Keycloak realm for the club.
       </p>
 
       <form onSubmit={handleSubmit}>

@@ -1,25 +1,22 @@
 import { Request, Response } from 'express';
 import { clubCreateSchema } from '@football-ticketing/shared';
-import { createClub, provisionKeycloakRealm, provisionStripeAccount } from '../services/club-service';
+import { createClub, provisionKeycloakRealm } from '../services/club-service';
 import pool from '../db';
 
 export async function provisionClub(req: Request, res: Response) {
   try {
     const validatedData = clubCreateSchema.parse(req.body);
-    
+
     // Create Keycloak realm
     const keycloakRealmId = await provisionKeycloakRealm(validatedData.slug);
-    
-    // Create Stripe connected account
-    const stripeAccountId = await provisionStripeAccount(validatedData.name, validatedData.slug);
-    
+
     // Create club in database
     const club = await createClub({
       ...validatedData,
       keycloakRealmId,
-      stripeAccountId,
+      // stripeAccountId, // Stripe integration removed
     });
-    
+
     res.status(201).json(club);
   } catch (error: any) {
     console.error('Error provisioning club:', error);
@@ -41,11 +38,11 @@ export async function getClub(req: Request, res: Response) {
   try {
     const { clubId } = req.params;
     const result = await pool.query('SELECT * FROM clubs WHERE id = $1', [clubId]);
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Club not found' });
     }
-    
+
     res.json(result.rows[0]);
   } catch (error: any) {
     console.error('Error getting club:', error);
@@ -57,7 +54,7 @@ export async function updateClub(req: Request, res: Response) {
   try {
     const { clubId } = req.params;
     const { name, logoUrl, primaryColor, secondaryColor, isActive } = req.body;
-    
+
     const result = await pool.query(
       `UPDATE clubs 
        SET name = COALESCE($1, name),
@@ -69,11 +66,11 @@ export async function updateClub(req: Request, res: Response) {
        RETURNING *`,
       [name, logoUrl, primaryColor, secondaryColor, isActive, clubId]
     );
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Club not found' });
     }
-    
+
     res.json(result.rows[0]);
   } catch (error: any) {
     console.error('Error updating club:', error);

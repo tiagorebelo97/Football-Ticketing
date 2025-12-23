@@ -20,7 +20,7 @@ export async function register(req: Request, res: Response) {
         }
 
         // Check if user exists
-        const userCheck = await pool.query('SELECT id FROM super_admins WHERE email = $1', [email]);
+        const userCheck = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
         if (userCheck.rows.length > 0) {
             return res.status(400).json({ error: 'User already exists' });
         }
@@ -29,9 +29,10 @@ export async function register(req: Request, res: Response) {
         const passwordHash = await bcrypt.hash(password, salt);
         const verificationToken = crypto.randomBytes(32).toString('hex');
 
+        // Insert into users table with role 'super_admin' and nullable keycloak_id
         const newUser = await pool.query(
-            'INSERT INTO super_admins (email, password_hash, verification_token) VALUES ($1, $2, $3) RETURNING id, email',
-            [email, passwordHash, verificationToken]
+            'INSERT INTO users (email, password_hash, verification_token, role) VALUES ($1, $2, $3, $4) RETURNING id, email',
+            [email, passwordHash, verificationToken, 'super_admin']
         );
 
         await sendVerificationEmail(email, verificationToken);
@@ -47,11 +48,20 @@ export async function login(req: Request, res: Response) {
     try {
         const { email, password } = req.body;
 
-        const result = await pool.query('SELECT * FROM super_admins WHERE email = $1', [email]);
+        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
         const user = result.rows[0];
 
         if (!user) {
             return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        // Ensure user is actually a super_admin
+        if (user.role !== 'super_admin') {
+            return res.status(403).json({ error: 'Access denied' });
+        }
+
+        if (!user.password_hash) {
+             return res.status(401).json({ error: 'Invalid authentication method for this user' });
         }
 
         const validPassword = await bcrypt.compare(password, user.password_hash);
@@ -81,7 +91,7 @@ export async function verifyEmail(req: Request, res: Response) {
         }
 
         const result = await pool.query(
-            'UPDATE super_admins SET is_verified = TRUE, verification_token = NULL WHERE verification_token = $1 RETURNING id, email',
+            'UPDATE users SET is_verified = TRUE, verification_token = NULL WHERE verification_token = $1 RETURNING id, email',
             [token]
         );
 

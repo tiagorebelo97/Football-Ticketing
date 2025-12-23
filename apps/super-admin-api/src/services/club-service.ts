@@ -10,7 +10,7 @@ export async function createClub(data: {
   name: string;
   slug: string;
   keycloakRealmId: string;
-  stripeAccountId: string;
+  stripeAccountId?: string;
   logoUrl?: string;
   primaryColor?: string;
   secondaryColor?: string;
@@ -21,7 +21,7 @@ export async function createClub(data: {
      RETURNING *`,
     [data.name, data.slug, data.keycloakRealmId, data.stripeAccountId, data.logoUrl, data.primaryColor, data.secondaryColor]
   );
-  
+
   return result.rows[0];
 }
 
@@ -30,7 +30,7 @@ export async function provisionKeycloakRealm(slug: string): Promise<string> {
     const keycloakUrl = process.env.KEYCLOAK_URL || 'http://keycloak:8080';
     const adminUser = process.env.KEYCLOAK_ADMIN || 'admin';
     const adminPassword = process.env.KEYCLOAK_ADMIN_PASSWORD || 'admin';
-    
+
     // Get admin token
     const tokenResponse = await axios.post(
       `${keycloakUrl}/realms/master/protocol/openid-connect/token`,
@@ -46,9 +46,9 @@ export async function provisionKeycloakRealm(slug: string): Promise<string> {
         },
       }
     );
-    
+
     const token = tokenResponse.data.access_token;
-    
+
     // Create realm
     const realmName = `club-${slug}`;
     await axios.post(
@@ -65,9 +65,13 @@ export async function provisionKeycloakRealm(slug: string): Promise<string> {
         },
       }
     );
-    
+
     return realmName;
   } catch (error: any) {
+    if (error.response?.status === 409) {
+      console.log(`Realm ${slug} already exists, proceeding...`);
+      return `club-${slug}`;
+    }
     console.error('Error provisioning Keycloak realm:', error.response?.data || error.message);
     throw new Error('Failed to provision Keycloak realm');
   }
@@ -83,7 +87,7 @@ export async function provisionStripeAccount(name: string, slug: string): Promis
         name: name,
       },
     });
-    
+
     return account.id;
   } catch (error: any) {
     console.error('Error provisioning Stripe account:', error.message);

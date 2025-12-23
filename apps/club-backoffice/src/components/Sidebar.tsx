@@ -2,9 +2,11 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FaThLarge, FaUsers, FaCalendarAlt, FaMapMarkerAlt, FaChartBar } from 'react-icons/fa';
 import '../index.css';
+import { useAuth } from '../context/AuthContext';
 
 const Sidebar: React.FC = () => {
     const location = useLocation();
+    const { club } = useAuth();
 
     const menuItems = [
         { path: '/', label: 'Dashboard', icon: <FaThLarge /> },
@@ -24,8 +26,24 @@ const Sidebar: React.FC = () => {
             flexDirection: 'column',
             position: 'fixed'
         }}>
-            <div style={{ padding: '20px', fontSize: '24px', fontWeight: 'bold', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                <span style={{ color: 'white' }}>logo</span>
+            <div style={{
+                padding: '20px',
+                fontSize: '24px',
+                fontWeight: 'bold',
+                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}>
+                {club?.logoUrl ? (
+                    <img
+                        src={club.logoUrl}
+                        alt={`${club.name} logo`}
+                        style={{ maxWidth: '100%', maxHeight: '60px', objectFit: 'contain' }}
+                    />
+                ) : (
+                    <span style={{ color: 'white' }}>{club?.name || 'Club'}</span>
+                )}
             </div>
             <nav style={{ flex: 1, padding: '20px 0' }}>
                 {menuItems.map((item) => {
