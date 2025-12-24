@@ -8,8 +8,8 @@ const ClubProvisioning: React.FC = () => {
     name: '',
     slug: '',
     logoUrl: '',
-    primaryColor: '#0066cc',
-    secondaryColor: '#ffffff',
+    primaryColor: '#4facfe',
+    secondaryColor: '#00f2fe',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -23,88 +23,125 @@ const ClubProvisioning: React.FC = () => {
 
     try {
       await axios.post('/api/clubs', formData);
-      setSuccess('Club provisioned successfully! Keycloak realm and Stripe account created.');
+      setSuccess('Initialization protocols complete. Hub provisioned.');
       setTimeout(() => navigate('/'), 2000);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to provision club');
+      setError(err.response?.data?.error || 'Provisioning sequence interrupted');
       setLoading(false);
     }
   };
 
   return (
-    <div className="form-container">
-      <h2>Provision New Club</h2>
-      <p style={{ color: '#666', marginBottom: '20px' }}>
-        This will automatically create a Keycloak realm for the club.
-      </p>
-
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Club Name *</label>
-          <input
-            type="text"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-            placeholder="e.g., Manchester United FC"
-          />
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
+      <div className="glass-card" style={{ padding: '48px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ marginBottom: '40px' }}>
+          <h2 className="text-gradient" style={{ fontSize: '32px', fontWeight: 800, marginBottom: '12px' }}>
+            Provision New Hub
+          </h2>
+          <p style={{ color: 'var(--text-dim)', fontSize: '15px' }}>
+            Register a new club entity within the platform ecosystem. This will automatically synthesize Keycloak realms and financial pipelines.
+          </p>
         </div>
 
-        <div className="form-group">
-          <label>Slug * (lowercase, hyphens only)</label>
-          <input
-            type="text"
-            value={formData.slug}
-            onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase() })}
-            required
-            pattern="[a-z0-9-]+"
-            placeholder="e.g., manchester-united"
-          />
-        </div>
+        {error && (
+          <div className="glass-effect" style={{ padding: '16px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', marginBottom: '32px', fontSize: '14px' }}>
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="glass-effect" style={{ padding: '16px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#10b981', marginBottom: '32px', fontSize: '14px' }}>
+            {success}
+          </div>
+        )}
 
-        <div className="form-group">
-          <label>Logo URL (optional)</label>
-          <input
-            type="url"
-            value={formData.logoUrl}
-            onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
-            placeholder="https://example.com/logo.png"
-          />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginBottom: '48px' }}>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Entity Designation (Club Name)</label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
+                required
+                className="glass-effect"
+                style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', color: 'white', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-glass)' }}
+                placeholder="e.g., Manchester United FC"
+              />
+            </div>
 
-        <div className="form-group">
-          <label>Primary Color</label>
-          <input
-            type="color"
-            value={formData.primaryColor}
-            onChange={(e) => setFormData({ ...formData, primaryColor: e.target.value })}
-          />
-        </div>
+            <div>
+              <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Identifier Slug</label>
+              <input
+                type="text"
+                value={formData.slug}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, slug: e.target.value.toLowerCase() })}
+                required
+                pattern="[a-z0-9-]+"
+                className="glass-effect"
+                style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', color: 'white', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-glass)' }}
+                placeholder="e.g., manchester-united"
+              />
+            </div>
 
-        <div className="form-group">
-          <label>Secondary Color</label>
-          <input
-            type="color"
-            value={formData.secondaryColor}
-            onChange={(e) => setFormData({ ...formData, secondaryColor: e.target.value })}
-          />
-        </div>
+            <div>
+              <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Visual Asset (Logo URL)</label>
+              <input
+                type="url"
+                value={formData.logoUrl}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, logoUrl: e.target.value })}
+                className="glass-effect"
+                style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', color: 'white', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-glass)' }}
+                placeholder="https://assets.hub.com/logo.png"
+              />
+            </div>
 
-        {error && <div className="error">{error}</div>}
-        {success && <div className="success">{success}</div>}
+            <div>
+              <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Primary Spectrum</label>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <input
+                  type="color"
+                  value={formData.primaryColor}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, primaryColor: e.target.value })}
+                  style={{ width: '40px', height: '40px', padding: '0', border: 'none', background: 'transparent', cursor: 'pointer' }}
+                />
+                <span style={{ fontFamily: 'monospace', fontSize: '14px', color: 'var(--text-muted)' }}>{formData.primaryColor.toUpperCase()}</span>
+              </div>
+            </div>
 
-        <button type="submit" className="btn btn-success" disabled={loading}>
-          {loading ? 'Provisioning...' : 'Provision Club'}
-        </button>
-        <button
-          type="button"
-          className="btn"
-          onClick={() => navigate('/')}
-          disabled={loading}
-        >
-          Cancel
-        </button>
-      </form>
+            <div>
+              <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Secondary Spectrum</label>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <input
+                  type="color"
+                  value={formData.secondaryColor}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, secondaryColor: e.target.value })}
+                  style={{ width: '40px', height: '40px', padding: '0', border: 'none', background: 'transparent', cursor: 'pointer' }}
+                />
+                <span style={{ fontFamily: 'monospace', fontSize: '14px', color: 'var(--text-muted)' }}>{formData.secondaryColor.toUpperCase()}</span>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '20px' }}>
+            <button
+              type="button"
+              className="premium-btn premium-btn-secondary"
+              onClick={() => navigate('/')}
+              style={{ flex: 1, padding: '16px' }}
+            >
+              Abort Mission
+            </button>
+            <button
+              type="submit"
+              className="premium-btn premium-btn-primary"
+              disabled={loading}
+              style={{ flex: 2, padding: '16px' }}
+            >
+              {loading ? 'Initializing...' : 'Commit Provisioning'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

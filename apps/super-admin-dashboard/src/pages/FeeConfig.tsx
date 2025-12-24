@@ -37,65 +37,83 @@ const FeeConfig: React.FC = () => {
 
     try {
       await axios.post(`/api/fee-config/${clubId}`, formData);
-      setSuccess('Fee configuration updated successfully!');
+      setSuccess('Monetary parameters calibrated.');
       setTimeout(() => navigate('/'), 2000);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to update configuration');
+      setError(err.response?.data?.error || 'Calibration sequence failed');
       setLoading(false);
     }
   };
 
   return (
-    <div className="form-container">
-      <h2>Fee Configuration</h2>
-
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Platform Fee (%)</label>
-          <input
-            type="number"
-            step="0.01"
-            value={formData.platformFeePercentage}
-            onChange={(e) => setFormData({ ...formData, platformFeePercentage: parseFloat(e.target.value) })}
-            required
-            min="0"
-            max="100"
-          />
-          <small style={{ color: '#666' }}>
-            Percentage of each transaction charged as platform fee
-          </small>
+    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '40px 20px' }}>
+      <div className="glass-card" style={{ padding: '48px' }}>
+        <div style={{ marginBottom: '40px' }}>
+          <h2 className="text-gradient" style={{ fontSize: '32px', fontWeight: 800, marginBottom: '12px' }}>
+            Fee Calibration
+          </h2>
+          <p style={{ color: 'var(--text-dim)', fontSize: '15px' }}>
+            Adjust the financial leakage and fixed costs for this hub entity.
+          </p>
         </div>
 
-        <div className="form-group">
-          <label>Transaction Fee (Fixed $)</label>
-          <input
-            type="number"
-            step="0.01"
-            value={formData.transactionFeeFixed}
-            onChange={(e) => setFormData({ ...formData, transactionFeeFixed: parseFloat(e.target.value) })}
-            required
-            min="0"
-          />
-          <small style={{ color: '#666' }}>
-            Fixed amount charged per transaction
-          </small>
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div style={{ display: 'grid', gap: '32px', marginBottom: '48px' }}>
+            <div>
+              <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Platform Tax (%)</label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.platformFeePercentage}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, platformFeePercentage: parseFloat(e.target.value) })}
+                required
+                min="0"
+                max="100"
+                className="glass-effect"
+                style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', color: 'white', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-glass)' }}
+              />
+              <p style={{ color: 'var(--text-dim)', fontSize: '12px', marginTop: '8px' }}>Global percentage deducted per transaction</p>
+            </div>
 
-        {error && <div className="error">{error}</div>}
-        {success && <div className="success">{success}</div>}
+            <div>
+              <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Fixed Processing ($)</label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.transactionFeeFixed}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, transactionFeeFixed: parseFloat(e.target.value) })}
+                required
+                min="0"
+                className="glass-effect"
+                style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', color: 'white', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-glass)' }}
+              />
+              <p style={{ color: 'var(--text-dim)', fontSize: '12px', marginTop: '8px' }}>Flat rate applied to every processed unit</p>
+            </div>
+          </div>
 
-        <button type="submit" className="btn btn-success" disabled={loading}>
-          {loading ? 'Saving...' : 'Save Configuration'}
-        </button>
-        <button
-          type="button"
-          className="btn"
-          onClick={() => navigate('/')}
-          disabled={loading}
-        >
-          Cancel
-        </button>
-      </form>
+          {error && <div className="glass-effect" style={{ padding: '16px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', marginBottom: '32px', fontSize: '14px' }}>{error}</div>}
+          {success && <div className="glass-effect" style={{ padding: '16px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#10b981', marginBottom: '32px', fontSize: '14px' }}>{success}</div>}
+
+          <div style={{ display: 'flex', gap: '20px' }}>
+            <button
+              type="button"
+              className="premium-btn premium-btn-secondary"
+              onClick={() => navigate('/')}
+              style={{ flex: 1, padding: '16px' }}
+            >
+              Abort
+            </button>
+            <button
+              type="submit"
+              className="premium-btn premium-btn-primary"
+              disabled={loading}
+              style={{ flex: 2, padding: '16px' }}
+            >
+              {loading ? 'Transmitting...' : 'Commit Configuration'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

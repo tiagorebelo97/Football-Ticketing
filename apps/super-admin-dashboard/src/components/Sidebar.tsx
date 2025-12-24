@@ -8,28 +8,35 @@ const Sidebar: React.FC = () => {
     const { user } = useAuth();
 
     const menuItems = [
-        { path: '/', label: 'Clubs', icon: <FaBuilding /> },
-        { path: '/provision', label: 'Provision Club', icon: <FaPlusCircle /> },
+        { path: '/', label: 'Overview', icon: <FaBuilding /> },
+        { path: '/provision', label: 'Provisioning', icon: <FaPlusCircle /> },
     ];
 
     if (user?.role === 'super_admin') {
-        menuItems.push({ path: '/users', label: 'Users', icon: <FaUsers /> });
+        menuItems.push({ path: '/users', label: 'Management', icon: <FaUsers /> });
     }
 
     return (
-        <div style={{
+        <div className="glass-effect" style={{
             width: 'var(--sidebar-width)',
-            backgroundColor: 'var(--color-sidebar)',
-            color: '#ecf0f1',
+            color: 'var(--text-main)',
             height: '100vh',
             display: 'flex',
             flexDirection: 'column',
-            position: 'fixed'
+            position: 'fixed',
+            zIndex: 1000,
+            overflow: 'hidden'
         }}>
-            <div style={{ padding: '20px', fontSize: '20px', fontWeight: 'bold', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                <span style={{ color: 'white' }}>Super Admin</span>
+            <div style={{ padding: '32px', marginBottom: '10px' }}>
+                <h1 className="text-gradient" style={{ fontSize: '22px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                    Antigravity
+                </h1>
+                <p style={{ fontSize: '10px', color: 'var(--text-dim)', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '2px' }}>
+                    Super Admin Portal
+                </p>
             </div>
-            <nav style={{ flex: 1, padding: '20px 0' }}>
+
+            <nav style={{ flex: 1, padding: '0 16px' }}>
                 {menuItems.map((item) => {
                     const isActive = location.pathname === item.path;
                     return (
@@ -39,20 +46,45 @@ const Sidebar: React.FC = () => {
                             style={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                padding: '12px 24px',
+                                padding: '14px 20px',
                                 textDecoration: 'none',
-                                color: isActive ? 'var(--color-white)' : 'var(--color-text-light)',
-                                backgroundColor: isActive ? 'var(--color-primary)' : 'transparent',
-                                borderLeft: isActive ? '4px solid var(--color-primary-dark)' : '4px solid transparent',
-                                transition: 'all 0.3s ease'
+                                borderRadius: 'var(--radius-sm)',
+                                color: isActive ? 'var(--accent-primary)' : 'var(--text-muted)',
+                                background: isActive ? 'rgba(0, 242, 254, 0.08)' : 'transparent',
+                                marginBottom: '8px',
+                                transition: 'var(--transition-smooth)',
+                                position: 'relative'
                             }}
+                            className="nav-link"
                         >
-                            <span style={{ marginRight: '12px' }}>{item.icon}</span>
-                            {item.label}
+                            {isActive && (
+                                <div style={{
+                                    position: 'absolute',
+                                    left: 0,
+                                    height: '20px',
+                                    width: '3px',
+                                    background: 'var(--accent-primary)',
+                                    borderRadius: '0 4px 4px 0'
+                                }} />
+                            )}
+                            <span style={{ marginRight: '16px', fontSize: '18px', display: 'flex' }}>{item.icon}</span>
+                            <span style={{ fontWeight: isActive ? 600 : 500, fontSize: '15px' }}>{item.label}</span>
                         </Link>
                     );
                 })}
             </nav>
+
+            <div style={{ padding: '24px', borderTop: '1px solid var(--border-glass)' }}>
+                <div className="glass-card" style={{ padding: '12px', display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(255,255,255,0.02)' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--accent-vibrant)', display: 'flex', alignItems: 'center', justifySelf: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>
+                        {user?.email[0].toUpperCase()}
+                    </div>
+                    <div style={{ overflow: 'hidden' }}>
+                        <div style={{ fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.email}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>Administrator</div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

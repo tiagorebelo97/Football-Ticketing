@@ -24,19 +24,22 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [user, setUser] = useState<User | null>(null);
-    const [token, setToken] = useState<string | null>(null);
+    const [user, setUser] = useState<User | null>(() => {
+        const storedUser = localStorage.getItem('sa_user');
+        return storedUser ? JSON.parse(storedUser) : null;
+    });
+    const [token, setToken] = useState<string | null>(() => {
+        const storedToken = localStorage.getItem('sa_token');
+        if (storedToken) {
+            axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+            return storedToken;
+        }
+        return null;
+    });
 
     useEffect(() => {
-        const storedToken = localStorage.getItem('sa_token');
-        const storedUser = localStorage.getItem('sa_user');
-
-        if (storedToken && storedUser) {
-            setToken(storedToken);
-            setUser(JSON.parse(storedUser));
-            // Set default header
-            axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-        }
+        // This effect can now be empty or removed if no other initialization is needed.
+        // Keeping it empty for now to avoid breaking existing imports if any, or just removing it.
     }, []);
 
     const login = (newToken: string, newUser: User) => {

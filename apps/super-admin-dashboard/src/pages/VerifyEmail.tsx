@@ -35,50 +35,54 @@ const VerifyEmail: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'linear-gradient(135deg, #1e1e2f 0%, #2c3e50 100%)',
-            padding: '20px'
+            background: 'radial-gradient(circle at center, #1a1c2c 0%, #0a0b14 100%)',
+            padding: '24px',
+            fontFamily: "'Inter', sans-serif"
         }}>
-            <div className="card" style={{
+            <div className="animated-bg" style={{ opacity: 0.3 }}></div>
+
+            <div className="glass-card" style={{
                 width: '100%',
-                maxWidth: '400px',
-                padding: '40px',
+                maxWidth: '440px',
+                padding: '56px',
                 textAlign: 'center',
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(10px)',
-                borderRadius: '16px',
-                boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)'
+                position: 'relative',
+                zIndex: 10
             }}>
                 {status === 'verifying' && (
                     <>
-                        <h2 style={{ color: 'var(--color-secondary)' }}>Verifying...</h2>
-                        <p>Please wait while we verify your email address.</p>
+                        <div style={{ fontSize: '48px', marginBottom: '24px', animation: 'pulse 2s infinite' }}>📡</div>
+                        <h2 className="text-gradient" style={{ fontSize: '32px', fontWeight: 800, marginBottom: '12px' }}>Verifying...</h2>
+                        <p style={{ color: 'var(--text-muted)' }}>Synchronizing administrative credentials with the core registry.</p>
                     </>
                 )}
 
                 {status === 'success' && (
                     <>
-                        <h2 style={{ color: 'var(--color-primary)' }}>Email Verified!</h2>
-                        <p style={{ marginBottom: '20px' }}>Your account has been successfully verified.</p>
+                        <div style={{ fontSize: '48px', marginBottom: '24px' }}>🛡️</div>
+                        <h2 className="text-gradient" style={{ fontSize: '32px', fontWeight: 800, marginBottom: '12px' }}>Identity Verified</h2>
+                        <p style={{ color: 'var(--text-muted)', marginBottom: '40px' }}>Your administrative access has been provisioned and secured.</p>
                         <button
-                            className="btn btn-success"
+                            className="premium-btn premium-btn-primary"
                             onClick={() => navigate('/login')}
-                            style={{ width: '100%' }}
+                            style={{ width: '100%', padding: '16px' }}
                         >
-                            Continue to Login
+                            Proceed to Command Center
                         </button>
                     </>
                 )}
 
                 {status === 'error' && (
                     <>
-                        <h2 style={{ color: 'var(--color-danger)' }}>Verification Failed</h2>
-                        <p style={{ marginBottom: '20px' }}>{message}</p>
+                        <div style={{ fontSize: '48px', marginBottom: '24px' }}>⚠️</div>
+                        <h2 style={{ color: '#ef4444', fontSize: '32px', fontWeight: 800, marginBottom: '12px' }}>Verification Failure</h2>
+                        <p style={{ color: 'var(--text-muted)', marginBottom: '40px' }}>{message}</p>
                         <button
-                            className="btn btn-primary"
+                            className="premium-btn premium-btn-secondary"
                             onClick={() => navigate('/login')}
-                            style={{ width: '100%' }}
+                            style={{ width: '100%', padding: '16px' }}
                         >
-                            Back to Login
+                            Return to Portal
                         </button>
                     </>
                 )}

@@ -43,9 +43,12 @@ CREATE TABLE fee_config (
 -- Users
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    keycloak_id VARCHAR(255) UNIQUE NOT NULL,
+    keycloak_id VARCHAR(255) UNIQUE,
     club_id UUID REFERENCES clubs(id) ON DELETE SET NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255),
+    is_verified BOOLEAN DEFAULT false,
+    verification_token VARCHAR(255),
     first_name VARCHAR(100),
     last_name VARCHAR(100),
     phone VARCHAR(20),

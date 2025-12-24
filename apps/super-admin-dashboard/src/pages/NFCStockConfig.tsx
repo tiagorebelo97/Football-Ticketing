@@ -37,57 +37,81 @@ const NFCStockConfig: React.FC = () => {
 
     try {
       await axios.post(`/api/nfc-stock/${clubId}`, formData);
-      setSuccess('NFC stock configuration updated successfully!');
+      setSuccess('Asset inventory synchronized.');
       setTimeout(() => navigate('/'), 2000);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to update configuration');
+      setError(err.response?.data?.error || 'Synchronization failure');
       setLoading(false);
     }
   };
 
   return (
-    <div className="form-container">
-      <h2>NFC Stock Configuration</h2>
-
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Total NFC Cards</label>
-          <input
-            type="number"
-            value={formData.totalCards}
-            onChange={(e) => setFormData({ ...formData, totalCards: parseInt(e.target.value) })}
-            required
-            min="0"
-          />
+    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '40px 20px' }}>
+      <div className="glass-card" style={{ padding: '48px' }}>
+        <div style={{ marginBottom: '40px' }}>
+          <h2 className="text-gradient" style={{ fontSize: '32px', fontWeight: 800, marginBottom: '12px' }}>
+            NFC Inventory Control
+          </h2>
+          <p style={{ color: 'var(--text-dim)', fontSize: '15px' }}>
+            Configure the physical hardware stock and associated deposits for this entity.
+          </p>
         </div>
 
-        <div className="form-group">
-          <label>Deposit Amount ($)</label>
-          <input
-            type="number"
-            step="0.01"
-            value={formData.depositAmount}
-            onChange={(e) => setFormData({ ...formData, depositAmount: parseFloat(e.target.value) })}
-            required
-            min="0"
-          />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div style={{ display: 'grid', gap: '32px', marginBottom: '48px' }}>
+            <div>
+              <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Sentinel Units (Total Cards)</label>
+              <input
+                type="number"
+                value={formData.totalCards}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, totalCards: parseInt(e.target.value) })}
+                required
+                min="0"
+                className="glass-effect"
+                style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', color: 'white', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-glass)' }}
+                placeholder="0"
+              />
+            </div>
 
-        {error && <div className="error">{error}</div>}
-        {success && <div className="success">{success}</div>}
+            <div>
+              <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Collateral Amount ($)</label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.depositAmount}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, depositAmount: parseFloat(e.target.value) })}
+                required
+                min="0"
+                className="glass-effect"
+                style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', color: 'white', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-glass)' }}
+                placeholder="5.00"
+              />
+            </div>
+          </div>
 
-        <button type="submit" className="btn btn-success" disabled={loading}>
-          {loading ? 'Saving...' : 'Save Configuration'}
-        </button>
-        <button
-          type="button"
-          className="btn"
-          onClick={() => navigate('/')}
-          disabled={loading}
-        >
-          Cancel
-        </button>
-      </form>
+          {error && <div className="glass-effect" style={{ padding: '16px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', marginBottom: '32px', fontSize: '14px' }}>{error}</div>}
+          {success && <div className="glass-effect" style={{ padding: '16px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#10b981', marginBottom: '32px', fontSize: '14px' }}>{success}</div>}
+
+          <div style={{ display: 'flex', gap: '20px' }}>
+            <button
+              type="button"
+              className="premium-btn premium-btn-secondary"
+              onClick={() => navigate('/')}
+              style={{ flex: 1, padding: '16px' }}
+            >
+              Abort
+            </button>
+            <button
+              type="submit"
+              className="premium-btn premium-btn-primary"
+              disabled={loading}
+              style={{ flex: 2, padding: '16px' }}
+            >
+              {loading ? 'Transmitting...' : 'Commit Configuration'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

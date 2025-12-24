@@ -29,16 +29,24 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [user, setUser] = useState<User | null>(null);
-    const [club, setClub] = useState<Club | null>(null);
+    const [user, setUser] = useState<User | null>(() => {
+        const storedUser = localStorage.getItem('club_user');
+        return storedUser ? JSON.parse(storedUser) : null;
+    });
+    const [club, setClub] = useState<Club | null>(() => {
+        const storedClub = localStorage.getItem('club_data');
+        if (storedClub) {
+            const clubData = JSON.parse(storedClub);
+            // Dynamically update CSS variables for branding
+            document.documentElement.style.setProperty('--color-primary', clubData.primaryColor);
+            document.documentElement.style.setProperty('--color-secondary', clubData.secondaryColor);
+            return clubData;
+        }
+        return null;
+    });
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('club_user');
-        const storedClub = localStorage.getItem('club_data');
-        if (storedUser && storedClub) {
-            setUser(JSON.parse(storedUser));
-            setClub(JSON.parse(storedClub));
-        }
+        // No longer needed here as it's handled in state initialization
     }, []);
 
     const login = async (slug: string, email: string) => {

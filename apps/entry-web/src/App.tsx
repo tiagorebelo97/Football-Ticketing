@@ -16,8 +16,31 @@ interface Match {
 }
 
 function App() {
-  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
-  const [selectedGate, setSelectedGate] = useState<string | null>(null);
+  const [selectedMatch, setSelectedMatch] = useState<Match | null>(() => {
+    const stored = localStorage.getItem('entry_selectedMatch');
+    return stored ? JSON.parse(stored) : null;
+  });
+  const [selectedGate, setSelectedGate] = useState<string | null>(() => {
+    return localStorage.getItem('entry_selectedGate');
+  });
+
+  const handleSelectMatch = (match: Match | null) => {
+    if (match) {
+      localStorage.setItem('entry_selectedMatch', JSON.stringify(match));
+    } else {
+      localStorage.removeItem('entry_selectedMatch');
+    }
+    setSelectedMatch(match);
+  };
+
+  const handleSelectGate = (gate: string | null) => {
+    if (gate) {
+      localStorage.setItem('entry_selectedGate', gate);
+    } else {
+      localStorage.removeItem('entry_selectedGate');
+    }
+    setSelectedGate(gate);
+  };
 
   return (
     <Router>
@@ -25,13 +48,13 @@ function App() {
         <Routes>
           <Route
             path="/match-selection"
-            element={<MatchSelection onSelectMatch={setSelectedMatch} />}
+            element={<MatchSelection onSelectMatch={handleSelectMatch} />}
           />
           <Route
             path="/gate-selection"
             element={
               selectedMatch ?
-                <GateSelection onSelectGate={setSelectedGate} matchName={`${selectedMatch.home_team} vs ${selectedMatch.away_team}`} /> :
+                <GateSelection onSelectGate={handleSelectGate} matchName={`${selectedMatch.home_team} vs ${selectedMatch.away_team}`} /> :
                 <Navigate to="/match-selection" />
             }
           />
@@ -43,7 +66,7 @@ function App() {
                   matchId={selectedMatch.id}
                   matchName={`${selectedMatch.home_team} vs ${selectedMatch.away_team}`}
                   gate={selectedGate}
-                  onBack={() => setSelectedGate(null)}
+                  onBack={() => handleSelectGate(null)}
                 /> :
                 <Navigate to="/match-selection" />
             }

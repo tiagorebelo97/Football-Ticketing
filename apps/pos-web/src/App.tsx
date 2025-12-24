@@ -9,15 +9,24 @@ import NFCAssignment from './pages/NFCAssignment';
 import Refund from './pages/Refund';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [staffInfo, setStaffInfo] = useState<any>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('pos_isAuthenticated') === 'true';
+  });
+  const [staffInfo, setStaffInfo] = useState<any>(() => {
+    const stored = localStorage.getItem('pos_staffInfo');
+    return stored ? JSON.parse(stored) : null;
+  });
 
   const handleLogin = (staff: any) => {
+    localStorage.setItem('pos_isAuthenticated', 'true');
+    localStorage.setItem('pos_staffInfo', JSON.stringify(staff));
     setIsAuthenticated(true);
     setStaffInfo(staff);
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('pos_isAuthenticated');
+    localStorage.removeItem('pos_staffInfo');
     setIsAuthenticated(false);
     setStaffInfo(null);
   };

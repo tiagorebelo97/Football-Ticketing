@@ -18,14 +18,13 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<User | null>(() => {
+        const storedUser = localStorage.getItem('fan_user');
+        return storedUser ? JSON.parse(storedUser) : null;
+    });
 
     useEffect(() => {
-        // Check local storage on load
-        const storedUser = localStorage.getItem('fan_user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
+        // Handled in initialization
     }, []);
 
     const login = async (email: string) => {
