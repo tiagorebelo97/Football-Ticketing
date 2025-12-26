@@ -21,7 +21,16 @@ const Login: React.FC = () => {
             navigate('/');
         } catch (error: any) {
             console.error('Login error:', error);
-            setError(error.message || 'Login failed. Please check your credentials.');
+            let errorMessage = error.message || 'Login failed. Please check your credentials.';
+            
+            // Provide more helpful error messages
+            if (error.message === 'Club not found') {
+                errorMessage = 'Club not found. Please check the club slug. Example: "sporting-cp", "benfica", "fc-porto"';
+            } else if (error.message && error.message.includes('Failed to fetch')) {
+                errorMessage = 'Unable to connect to the server. Please ensure the services are running.';
+            }
+            
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -149,6 +158,10 @@ const Login: React.FC = () => {
                         {loading ? 'Authenticating...' : 'Access Dashboard'}
                     </button>
                 </form>
+
+                <div style={{ marginTop: '24px', padding: '12px', background: 'rgba(79, 172, 254, 0.1)', border: '1px solid rgba(79, 172, 254, 0.3)', borderRadius: '8px', fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center' }}>
+                    <strong style={{ color: 'var(--accent-primary)' }}>Development Mode:</strong> Enter your club slug to access the dashboard. Password is not required.
+                </div>
 
                 <div style={{ marginTop: '32px', textAlign: 'center', fontSize: '14px' }}>
                     <span style={{ color: 'var(--text-dim)' }}>Need help? </span>
