@@ -395,7 +395,7 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
     }));
   }, []);
 
-  const updateRow = useCallback((standId: string, floorId: string, sectorId: string, rowId: string, updates: Partial<Row>) => {
+  const updateRow = useCallback((standId: string, floorId: string, sectorId: string, rowId: string, seatsCount: number) => {
     setState(prev => ({
       ...prev,
       stands: prev.stands.map(s => 
@@ -411,13 +411,13 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
                         
                         const oldRow = (sec.rows || []).find(r => r.id === rowId);
                         const oldSeats = oldRow?.seatsCount || 0;
-                        const newSeats = updates.seatsCount !== undefined ? updates.seatsCount : oldSeats;
+                        const newSeats = seatsCount;
                         const seatsDiff = newSeats - oldSeats;
                         
                         return {
                           ...sec,
                           rows: (sec.rows || []).map(r => 
-                            r.id === rowId ? { ...r, ...updates } : r
+                            r.id === rowId ? { ...r, seatsCount } : r
                           ),
                           configuredSeats: (sec.configuredSeats || 0) + seatsDiff
                         };
