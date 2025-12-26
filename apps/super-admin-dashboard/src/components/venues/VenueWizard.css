@@ -1,9 +1,13 @@
 /* Venue Wizard Styles */
 .venue-wizard {
-  background: #ffffff;
+  background: var(--bg-glass-light);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-premium);
   overflow: hidden;
+  color: var(--text-main);
 }
 
 .wizard-header {
@@ -63,6 +67,7 @@
 .wizard-body {
   padding: 2rem;
   min-height: 500px;
+  color: var(--text-main);
 }
 
 .wizard-footer {
@@ -70,8 +75,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 2rem;
-  background: #f5f5f5;
-  border-top: 1px solid #e0e0e0;
+  background: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid var(--border-glass);
 }
 
 .footer-left, .footer-right {
@@ -123,10 +128,12 @@
   flex-direction: column;
   align-items: center;
   padding: 1.5rem;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border-glass);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-main);
 }
 
 .sport-card:hover {
@@ -158,7 +165,7 @@
 }
 
 .tab-description {
-  color: #666;
+  color: var(--text-muted);
   margin-bottom: 2rem;
 }
 
@@ -180,16 +187,18 @@
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-main);
 }
 
 .form-control {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-glass);
   border-radius: 4px;
   font-size: 1rem;
   transition: border-color 0.3s ease;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
 }
 
 .form-control:focus {
@@ -220,9 +229,10 @@
 
 .form-info {
   padding: 1rem;
-  background: #e3f2fd;
+  background: rgba(79, 172, 254, 0.1);
   border-radius: 4px;
-  border-left: 4px solid var(--color-primary, #2196F3);
+  border-left: 4px solid var(--accent-secondary);
+  color: var(--text-main);
 }
 
 /* Stadium Configuration */
@@ -248,7 +258,8 @@
 }
 
 .stadium-canvas-section {
-  background: #f5f5f5;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
   border-radius: 8px;
   padding: 1.5rem;
 }
@@ -267,7 +278,7 @@
 .add-stand-dropdown label {
   display: block;
   font-size: 0.875rem;
-  color: #666;
+  color: var(--text-muted);
   margin-bottom: 0.5rem;
 }
 
@@ -286,7 +297,7 @@
 .empty-canvas-message {
   text-align: center;
   padding: 2rem;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .stadium-config-section {
@@ -297,8 +308,8 @@
 
 /* Stand Config Panel */
 .stand-config-panel {
-  background: white;
-  border: 1px solid #e0e0e0;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
   border-radius: 8px;
   padding: 1.5rem;
   height: fit-content;
@@ -307,7 +318,7 @@
 .no-stand-selected {
   text-align: center;
   padding: 2rem 1rem;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .panel-header {
@@ -316,7 +327,7 @@
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid #e0e0e0;
+  border-bottom: 2px solid var(--border-glass);
 }
 
 .panel-header h3 {
@@ -341,7 +352,8 @@
 
 .stat {
   padding: 0.75rem;
-  background: #f5f5f5;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
   border-radius: 4px;
   text-align: center;
 }
@@ -349,7 +361,7 @@
 .stat-label {
   display: block;
   font-size: 0.75rem;
-  color: #666;
+  color: var(--text-muted);
   margin-bottom: 0.25rem;
 }
 
@@ -357,6 +369,8 @@
   display: block;
   font-size: 1.5rem;
   font-weight: bold;
+  color: var(--text-main);
+}
   color: var(--color-primary, #2196F3);
 }
 
@@ -392,13 +406,13 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: #fafafa;
+  background: rgba(255, 255, 255, 0.03);
   cursor: pointer;
   transition: background 0.2s ease;
 }
 
 .floor-header:hover {
-  background: #f0f0f0;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .floor-info {
@@ -408,13 +422,13 @@
 .floor-name {
   display: block;
   font-weight: 600;
-  color: #333;
+  color: var(--text-main);
 }
 
 .floor-stats {
   display: block;
   font-size: 0.875rem;
-  color: #666;
+  color: var(--text-muted);
   margin-top: 0.25rem;
 }
 
@@ -422,6 +436,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
 }
 
 .btn-icon {
@@ -443,7 +458,7 @@
 }
 
 .expand-icon {
-  color: #666;
+  color: var(--text-muted);
   font-size: 0.75rem;
 }
 
@@ -470,8 +485,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: #f9f9f9;
-  border: 1px solid #e0e0e0;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
   border-radius: 4px;
 }
 
@@ -482,13 +497,13 @@
 .sector-name {
   display: block;
   font-weight: 600;
-  color: #333;
+  color: var(--text-main);
 }
 
 .sector-stats {
   display: block;
   font-size: 0.875rem;
-  color: #666;
+  color: var(--text-muted);
   margin-top: 0.25rem;
 }
 
@@ -506,7 +521,7 @@
 .empty-message {
   text-align: center;
   padding: 1rem;
-  color: #999;
+  color: var(--text-dim);
   font-style: italic;
 }
 
@@ -598,14 +613,17 @@
 }
 
 .modal-content {
-  background: white;
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
   border-radius: 12px;
   max-width: 1200px;
   width: 100%;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-premium);
 }
 
 .sector-modal {
@@ -617,30 +635,31 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--border-glass);
 }
 
 .modal-header h2 {
   margin: 0;
-  color: var(--color-secondary, #1976D2);
+  color: var(--accent-secondary);
 }
 
 .modal-close {
   width: 36px;
   height: 36px;
   border: none;
-  background: #f5f5f5;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 50%;
   font-size: 1.5rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--text-main);
   transition: background 0.2s ease;
 }
 
 .modal-close:hover {
-  background: #e0e0e0;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .modal-body {
@@ -654,7 +673,7 @@
   justify-content: flex-end;
   gap: 1rem;
   padding: 1.5rem 2rem;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--border-glass);
 }
 
 /* Sector Configuration Layout */
@@ -672,14 +691,15 @@
 }
 
 .sector-canvas-container {
-  background: #f5f5f5;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
   border-radius: 8px;
   overflow: hidden;
 }
 
 .divider {
   height: 1px;
-  background: #e0e0e0;
+  background: var(--border-glass);
   margin: 1.5rem 0;
 }
 
@@ -691,15 +711,15 @@
 }
 
 .warning-box {
-  background: #fff3cd;
-  color: #856404;
+  background: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
   border-left: 4px solid #ffc107;
 }
 
 .success-box {
-  background: #d4edda;
-  color: #155724;
-  border-left: 4px solid #28a745;
+  background: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+  border-left: 4px solid #4CAF50;
 }
 
 /* Row Config Table */
@@ -720,7 +740,7 @@
 
 .seats-summary {
   font-size: 0.875rem;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .seats-summary .success {
@@ -739,24 +759,25 @@
 }
 
 .table thead {
-  background: #f5f5f5;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .table th {
   padding: 0.75rem;
   text-align: left;
   font-weight: 600;
-  color: #333;
-  border-bottom: 2px solid #e0e0e0;
+  color: var(--text-main);
+  border-bottom: 2px solid var(--border-glass);
 }
 
 .table td {
   padding: 0.75rem;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--border-glass);
+  color: var(--text-main);
 }
 
 .table tbody tr:hover {
-  background: #fafafa;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .row-name {
@@ -765,14 +786,16 @@
 }
 
 .seats-count {
-  color: #666;
+  color: var(--text-muted);
 }
 
 .form-control-sm {
   padding: 0.375rem 0.75rem;
   font-size: 0.875rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-glass);
   border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
 }
 
 .edit-actions,
@@ -783,9 +806,9 @@
 
 .add-row-section {
   padding: 1rem;
-  background: #f9f9f9;
+  background: rgba(255, 255, 255, 0.03);
   border-radius: 4px;
-  border: 1px dashed #ddd;
+  border: 1px dashed var(--border-glass);
 }
 
 .add-row-form {
@@ -796,7 +819,7 @@
 
 .add-row-form label {
   font-weight: 600;
-  color: #333;
+  color: var(--text-main);
 }
 
 .warning-message {
@@ -817,7 +840,7 @@
 .empty-state {
   text-align: center;
   padding: 2rem;
-  color: #666;
+  color: var(--text-muted);
 }
 
 /* Venue List Page */
@@ -839,7 +862,7 @@
 
 .header-content p {
   margin: 0;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .alert {
@@ -870,7 +893,7 @@
 }
 
 .empty-state p {
-  color: #666;
+  color: var(--text-muted);
   margin-bottom: 2rem;
 }
 
@@ -927,7 +950,7 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .info-icon {
@@ -958,7 +981,7 @@
 .stat-item .stat-label {
   display: block;
   font-size: 0.75rem;
-  color: #666;
+  color: var(--text-muted);
   margin-top: 0.25rem;
 }
 
@@ -975,7 +998,7 @@
 .loading {
   text-align: center;
   padding: 3rem;
-  color: #666;
+  color: var(--text-muted);
   font-size: 1.1rem;
 }
 
