@@ -5,7 +5,8 @@ import './index.css';
 import App from './App';
 
 // Configure axios base URL from environment variable
-const apiUrl = process.env.REACT_APP_API_URL || '';
+// If REACT_APP_API_URL is not set, axios will use relative URLs (useful for development with proxy)
+const apiUrl = process.env.REACT_APP_API_URL;
 if (apiUrl) {
   axios.defaults.baseURL = apiUrl;
 }
