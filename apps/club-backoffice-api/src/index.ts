@@ -5,7 +5,8 @@ import dotenv from 'dotenv';
 import { apiLimiter } from '@football-ticketing/shared';
 import matchRoutes from './routes/matches';
 import nfcRoutes from './routes/nfc';
-
+import venueRoutes from './routes/venues';
+import sportRoutes from './routes/sports';
 import reportRoutes from './routes/reports';
 import authRoutes from './routes/auth';
 
@@ -28,6 +29,8 @@ app.get('/health', (req, res) => {
 
 app.use('/api/matches', matchRoutes);
 app.use('/api/nfc', nfcRoutes);
+app.use('/api/venues', venueRoutes);
+app.use('/api/sports', sportRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/auth', authRoutes);
 
