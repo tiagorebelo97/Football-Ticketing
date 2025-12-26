@@ -93,7 +93,7 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
   const renderField = () => {
     if (sportCode === 'football') {
       return (
-        <Group>
+        <Group listening={false}>
           {/* Field */}
           <Rect
             x={fieldX}
@@ -162,7 +162,7 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
 
     // Simple field for other sports
     return (
-      <Group>
+      <Group listening={false}>
         <Rect
           x={fieldX}
           y={fieldY}
@@ -194,7 +194,17 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
       const isSelected = stand.id === selectedStandId;
 
       return (
-        <Group key={stand.id}>
+        <Group
+          key={stand.id}
+          onClick={(e) => {
+            e.cancelBubble = true;
+            onStandClick(stand.id!);
+          }}
+          onTap={(e) => {
+            e.cancelBubble = true;
+            onStandClick(stand.id!);
+          }}
+        >
           <Rect
             x={geometry.x}
             y={geometry.y}
@@ -206,14 +216,7 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
             strokeWidth={isSelected ? 4 : 2}
             shadowBlur={isSelected ? 10 : 5}
             shadowColor="black"
-            onClick={(e) => {
-              e.cancelBubble = true;
-              onStandClick(stand.id!);
-            }}
-            onTap={(e) => {
-              e.cancelBubble = true;
-              onStandClick(stand.id!);
-            }}
+            listening={false}
           />
           <Text
             x={geometry.x}
@@ -226,6 +229,7 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
             fill="#FFFFFF"
             align="center"
             verticalAlign="middle"
+            listening={false}
           />
           {stand.totalCapacity && stand.totalCapacity > 0 && (
             <Text
@@ -238,6 +242,7 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
               fill="#FFFFFF"
               align="center"
               verticalAlign="middle"
+              listening={false}
             />
           )}
         </Group>
@@ -256,6 +261,7 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
             width={dimensions.width}
             height={dimensions.height}
             fill="#1a1a1a"
+            listening={false}
           />
 
           {/* Field */}
