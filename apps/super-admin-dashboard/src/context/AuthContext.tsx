@@ -44,7 +44,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
         }
 
-        return JSON.parse(storedUser);
+        try {
+            return JSON.parse(storedUser);
+        } catch (error) {
+            console.error('Failed to parse stored user:', error);
+            localStorage.removeItem('sa_user');
+            return null;
+        }
     });
 
     const [token, setToken] = useState<string | null>(() => {

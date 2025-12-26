@@ -52,7 +52,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
         }
 
-        return JSON.parse(storedUser);
+        try {
+            return JSON.parse(storedUser);
+        } catch (error) {
+            console.error('Failed to parse stored user:', error);
+            localStorage.removeItem('club_user');
+            return null;
+        }
     });
 
     const [token, setToken] = useState<string | null>(() => {
@@ -77,11 +83,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [club, setClub] = useState<Club | null>(() => {
         const storedClub = localStorage.getItem('club_data');
         if (storedClub) {
-            const clubData = JSON.parse(storedClub);
-            // Dynamically update CSS variables for branding
-            document.documentElement.style.setProperty('--color-primary', clubData.primaryColor);
-            document.documentElement.style.setProperty('--color-secondary', clubData.secondaryColor);
-            return clubData;
+            try {
+                const clubData = JSON.parse(storedClub);
+                // Dynamically update CSS variables for branding
+                document.documentElement.style.setProperty('--color-primary', clubData.primaryColor);
+                document.documentElement.style.setProperty('--color-secondary', clubData.secondaryColor);
+                return clubData;
+            } catch (error) {
+                console.error('Failed to parse stored club data:', error);
+                localStorage.removeItem('club_data');
+                return null;
+            }
         }
         return null;
     });
