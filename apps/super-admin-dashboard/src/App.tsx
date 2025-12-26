@@ -1,8 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
 import Layout from './components/Layout';
-import ClubList from './pages/ClubList';
-import ClubProvisioning from './pages/ClubProvisioning';
+import ClubsList from './pages/ClubsList';
+import ClubForm from './pages/ClubForm';
+import CountriesList from './pages/CountriesList';
+import CountryForm from './pages/CountryForm';
+import CountryDetail from './pages/CountryDetail';
+import VenuesList from './pages/VenuesList';
+import CompetitionsList from './pages/CompetitionsList';
+import SeasonsList from './pages/SeasonsList';
 import NFCStockConfig from './pages/NFCStockConfig';
 import FeeConfig from './pages/FeeConfig';
 import UserManagement from './pages/UserManagement';
@@ -44,10 +50,31 @@ function App() {
           <Route path="/verify-email" element={<VerifyEmail />} />
 
           <Route element={<ProtectedLayout />}>
-            <Route path="/" element={<ClubList />} />
-            <Route path="/provision" element={<ClubProvisioning />} />
+            <Route path="/" element={<Navigate to="/countries" replace />} />
+            
+            {/* Countries */}
+            <Route path="/countries" element={<CountriesList />} />
+            <Route path="/countries/new" element={<CountryForm />} />
+            <Route path="/countries/:id" element={<CountryDetail />} />
+            <Route path="/countries/:id/edit" element={<CountryForm />} />
+            
+            {/* Clubs */}
+            <Route path="/clubs" element={<ClubsList />} />
+            <Route path="/clubs/new" element={<ClubForm />} />
+            <Route path="/clubs/:id/edit" element={<ClubForm />} />
             <Route path="/nfc-config/:clubId" element={<NFCStockConfig />} />
             <Route path="/fee-config/:clubId" element={<FeeConfig />} />
+            
+            {/* Venues */}
+            <Route path="/venues" element={<VenuesList />} />
+            
+            {/* Competitions */}
+            <Route path="/competitions" element={<CompetitionsList />} />
+            
+            {/* Seasons */}
+            <Route path="/seasons" element={<SeasonsList />} />
+            
+            {/* Legacy routes */}
             <Route path="/users" element={<UserManagement />} />
             <Route path="/settings" element={<Settings />} />
           </Route>
