@@ -1,0 +1,131 @@
+import React, { useState, useEffect } from 'react';
+import { Sport, sportService } from '../../services/sportService';
+import SportSelector from './SportSelector';
+import { VenueDetails } from '../../hooks/useVenueBuilder';
+
+interface VenueDetailsTabProps {
+  details: VenueDetails;
+  errors: { [key: string]: string };
+  onUpdate: (details: Partial<VenueDetails>) => void;
+}
+
+const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUpdate }) => {
+  const [sports, setSports] = useState<Sport[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadSports();
+  }, []);
+
+  const loadSports = async () => {
+    try {
+      const data = await sportService.getSports();
+      setSports(data);
+    } catch (error) {
+      console.error('Error loading sports:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSportSelect = (sportId: string) => {
+    const sport = sports.find(s => s.id === sportId);
+    onUpdate({ sportId, sportName: sport?.name });
+  };
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // In a real app, upload to server and get URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onUpdate({ photoUrl: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  if (loading) {
+    return <div className="loading">A carregar desportos...</div>;
+  }
+
+  return (
+    <div className="venue-details-tab">
+      <h2>Detalhes da Venue</h2>
+      <p className="tab-description">
+        Preencha as informações básicas da venue desportiva.
+      </p>
+
+      <div className="form-section">
+        <SportSelector
+          sports={sports}
+          selectedSportId={details.sportId}
+          onSelectSport={handleSportSelect}
+        />
+        {errors.sportId && <div className="error-message">{errors.sportId}</div>}
+      </div>
+
+      <div className="form-row">
+        <div className="form-group">
+          <label htmlFor="venueName">Nome da Venue *</label>
+          <input
+            id="venueName"
+            type="text"
+            className={`form-control ${errors.name ? 'error' : ''}`}
+            value={details.name}
+            onChange={(e) => onUpdate({ name: e.target.value })}
+            placeholder="Ex: Estádio José Alvalade"
+          />
+          {errors.name && <div className="error-message">{errors.name}</div>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="venueCity">Cidade *</label>
+          <input
+            id="venueCity"
+            type="text"
+            className={`form-control ${errors.city ? 'error' : ''}`}
+            value={details.city}
+            onChange={(e) => onUpdate({ city: e.target.value })}
+            placeholder="Ex: Lisboa"
+          />
+          {errors.city && <div className="error-message">{errors.city}</div>}
+        </div>
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="venueAddress">Morada</label>
+        <input
+          id="venueAddress"
+          type="text"
+          className="form-control"
+          value={details.address}
+          onChange={(e) => onUpdate({ address: e.target.value })}
+          placeholder="Ex: Rua Professor Fernando da Fonseca"
+        />
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="venuePhoto">Foto da Venue</label>
+        <input
+          id="venuePhoto"
+          type="file"
+          className="form-control"
+          accept="image/*"
+          onChange={handlePhotoUpload}
+        />
+        {details.photoUrl && (
+          <div className="photo-preview">
+            <img src={details.photoUrl} alt="Preview" />
+          </div>
+        )}
+      </div>
+
+      <div className="form-info">
+        <p><strong>Nota:</strong> A capacidade total será calculada automaticamente com base nas bancadas configuradas no próximo passo.</p>
+      </div>
+    </div>
+  );
+};
+
+export default VenueDetailsTab;
