@@ -1,3 +1,9 @@
+/* Venue Create Page Container */
+.venue-create-page {
+  padding: 2rem;
+  min-height: 100vh;
+}
+
 /* Venue Wizard Styles */
 .venue-wizard {
   background: var(--bg-glass-light);
