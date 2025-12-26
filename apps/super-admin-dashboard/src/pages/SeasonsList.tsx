@@ -39,6 +39,7 @@ const SeasonsList: React.FC = () => {
                   <td style={{ padding: '20px 24px', fontSize: '14px' }}>{new Date(s.start_date).toLocaleDateString()} - {new Date(s.end_date).toLocaleDateString()}</td>
                   <td style={{ padding: '20px 24px' }}><span className={`badge ${s.is_active ? 'badge-success' : 'badge-secondary'}`}>{s.is_active ? 'Active' : 'Inactive'}</span></td>
                   <td style={{ padding: '20px 24px' }}><div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                    <button className="premium-btn premium-btn-secondary" style={{ padding: '8px 16px', fontSize: '13px' }} onClick={() => navigate(`/seasons/${s.id}/edit`)}>View</button>
                     <button className="premium-btn premium-btn-secondary" style={{ padding: '8px 16px', fontSize: '13px' }} onClick={() => navigate(`/seasons/${s.id}/edit`)}>Edit</button>
                   </div></td>
                 </tr>
