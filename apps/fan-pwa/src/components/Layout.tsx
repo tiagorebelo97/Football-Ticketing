@@ -8,13 +8,17 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--bg-space)' }}>
+            <div className="animated-bg" />
             <Header />
             <main style={{
                 flex: 1,
                 padding: '20px',
                 marginTop: 'var(--header-height)',
-                paddingBottom: '20px' // Extra padding is handled by body padding-bottom for fixed nav
+                paddingBottom: '20px',
+                maxWidth: '600px',
+                margin: '0 auto',
+                width: '100%'
             }}>
                 {children}
             </main>
