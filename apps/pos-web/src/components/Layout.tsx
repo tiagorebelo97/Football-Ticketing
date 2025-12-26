@@ -10,18 +10,20 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children, staffInfo, onLogout }) => {
     return (
-        <div style={{ display: 'flex', minHeight: '100vh' }}>
+        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--bg-space)' }}>
+            <div className="animated-bg" />
             <Sidebar />
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', marginLeft: 'var(--sidebar-width)' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', marginLeft: 'var(--sidebar-width)', transition: 'margin 0.3s ease' }}>
                 {staffInfo && onLogout && <Header staffInfo={staffInfo} onLogout={onLogout} />}
                 <main style={{
                     flex: 1,
-                    padding: '20px',
+                    padding: '40px 40px 80px 40px',
                     marginTop: 'var(--header-height)',
-                    backgroundColor: 'var(--color-background)',
                     overflowY: 'auto'
                 }}>
-                    {children}
+                    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+                        {children}
+                    </div>
                 </main>
             </div>
         </div>

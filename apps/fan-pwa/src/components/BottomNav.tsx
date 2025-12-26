@@ -11,18 +11,17 @@ const BottomNav: React.FC = () => {
     ];
 
     return (
-        <nav style={{
+        <nav className="glass-effect" style={{
             position: 'fixed',
             bottom: 0,
             left: 0,
             right: 0,
             height: 'var(--bottom-nav-height)',
-            backgroundColor: 'var(--color-white)',
             display: 'flex',
             justifyContent: 'space-around',
             alignItems: 'center',
-            boxShadow: '0 -2px 10px rgba(0,0,0,0.05)',
-            zIndex: 100
+            zIndex: 100,
+            borderTop: '1px solid var(--border-glass)'
         }}>
             {menuItems.map((item) => {
                 const isActive = location.pathname === item.path;
@@ -35,12 +34,16 @@ const BottomNav: React.FC = () => {
                             flexDirection: 'column',
                             alignItems: 'center',
                             textDecoration: 'none',
-                            color: isActive ? 'var(--color-primary)' : 'var(--color-text-light)',
+                            color: isActive ? 'var(--accent-primary)' : 'var(--text-muted)',
                             fontSize: '12px',
-                            fontWeight: 500
+                            fontWeight: 600,
+                            padding: '8px 24px',
+                            borderRadius: 'var(--radius-sm)',
+                            background: isActive ? 'rgba(0, 242, 254, 0.08)' : 'transparent',
+                            transition: 'var(--transition-smooth)'
                         }}
                     >
-                        <span style={{ fontSize: '20px', marginBottom: '4px' }}>{item.icon}</span>
+                        <span style={{ fontSize: '22px', marginBottom: '4px' }}>{item.icon}</span>
                         {item.label}
                     </Link>
                 );
