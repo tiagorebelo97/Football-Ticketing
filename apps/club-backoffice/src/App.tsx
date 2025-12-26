@@ -9,6 +9,9 @@ import MatchCreate from './pages/MatchCreate';
 import NFCInventory from './pages/NFCInventory';
 import Reports from './pages/Reports';
 import Login from './pages/Login';
+import VenueList from './pages/venues/VenueList';
+import VenueCreate from './pages/venues/VenueCreate';
+import VenueEdit from './pages/venues/VenueEdit';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './App.css';
 
@@ -45,7 +48,9 @@ function App() {
             <Route path="/create-match" element={<MatchCreate />} />
             <Route path="/club-members" element={<div className="card">Club Members Placeholder</div>} />
             <Route path="/calendar" element={<div className="card">Calendar Placeholder</div>} />
-            <Route path="/venues" element={<div className="card">Venues Placeholder</div>} />
+            <Route path="/venues" element={<VenueList />} />
+            <Route path="/venues/create" element={<VenueCreate />} />
+            <Route path="/venues/:id/edit" element={<VenueEdit />} />
             <Route path="/nfc-inventory" element={<NFCInventory />} />
             <Route path="/reports" element={<Reports />} />
           </Route>
