@@ -6,6 +6,8 @@ COPY apps/entry-web/package.json ./
 RUN npm install --legacy-peer-deps
 
 COPY apps/entry-web ./
+ARG REACT_APP_ENTRY_API_URL
+ENV REACT_APP_ENTRY_API_URL=$REACT_APP_ENTRY_API_URL
 RUN npm run build
 
 FROM nginx:alpine

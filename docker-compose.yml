@@ -212,6 +212,8 @@ services:
     build:
       context: .
       dockerfile: ./apps/fan-pwa/Dockerfile
+      args:
+        - REACT_APP_API_URL=http://fan-api.localhost
     container_name: fan-pwa
     environment:
       REACT_APP_API_URL: http://fan-api.localhost
@@ -230,6 +232,8 @@ services:
     build:
       context: .
       dockerfile: ./apps/super-admin-dashboard/Dockerfile
+      args:
+        - REACT_APP_API_URL=http://super-admin-api.localhost
     container_name: super-admin-dashboard
     environment:
       REACT_APP_API_URL: http://super-admin-api.localhost
@@ -248,6 +252,8 @@ services:
     build:
       context: .
       dockerfile: ./apps/club-backoffice/Dockerfile
+      args:
+        - REACT_APP_API_URL=http://club-api.localhost
     container_name: club-backoffice
     environment:
       REACT_APP_API_URL: http://club-api.localhost
@@ -266,6 +272,8 @@ services:
     build:
       context: .
       dockerfile: ./apps/pos-web/Dockerfile
+      args:
+        - REACT_APP_POS_API_URL=http://pos-api.localhost/api
     container_name: pos-web
     environment:
       REACT_APP_POS_API_URL: http://pos-api.localhost/api
@@ -284,6 +292,8 @@ services:
     build:
       context: .
       dockerfile: ./apps/entry-web/Dockerfile
+      args:
+        - REACT_APP_ENTRY_API_URL=http://entry-api.localhost
     container_name: entry-web
     environment:
       REACT_APP_ENTRY_API_URL: http://entry-api.localhost
