@@ -39,6 +39,7 @@ const CompetitionsList: React.FC = () => {
                   <td style={{ padding: '20px 24px' }}><span className="badge">{c.type}</span></td>
                   <td style={{ padding: '20px 24px' }}>{c.country_name}</td>
                   <td style={{ padding: '20px 24px' }}><div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                    <button className="premium-btn premium-btn-secondary" style={{ padding: '8px 16px', fontSize: '13px' }} onClick={() => navigate(`/competitions/${c.id}/edit`)}>View</button>
                     <button className="premium-btn premium-btn-secondary" style={{ padding: '8px 16px', fontSize: '13px' }} onClick={() => navigate(`/competitions/${c.id}/edit`)}>Edit</button>
                   </div></td>
                 </tr>

@@ -126,7 +126,17 @@ export async function getClub(req: Request, res: Response) {
     });
   } catch (error: any) {
     console.error('Error getting club:', error);
-    res.status(500).json({ error: 'Failed to get club' });
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      detail: error.detail,
+      stack: error.stack
+    });
+    res.status(500).json({ 
+      error: 'Failed to get club',
+      details: error.message || 'Unknown error',
+      code: error.code
+    });
   }
 }
 

@@ -18,7 +18,7 @@ const VenuesList: React.FC = () => {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '32px' }}>
-        <div><h1 className="text-gradient" style={{ fontSize: '36px', fontWeight: 800 }}>Venues</h1><p style={{ color: 'var(--text-muted)' }}>Manage stadiums and venues</p></div>
+        <div><h1 className="text-gradient" style={{ fontSize: '36px', fontWeight: 800 }}>Venues</h1><p style={{ color: 'var(--text-muted)' }}>Manage stadiums and venues with advanced configuration</p></div>
         <button className="premium-btn premium-btn-primary" onClick={() => navigate('/venues/new')}>+ Add Venue</button>
       </div>
       {venues.length === 0 ? (
@@ -39,6 +39,7 @@ const VenuesList: React.FC = () => {
                   <td style={{ padding: '20px 24px' }}>{v.club_name}</td>
                   <td style={{ padding: '20px 24px' }}>{v.city}</td>
                   <td style={{ padding: '20px 24px' }}><div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                    <button className="premium-btn premium-btn-secondary" style={{ padding: '8px 16px', fontSize: '13px' }} onClick={() => navigate(`/venues/${v.id}/edit`)}>View</button>
                     <button className="premium-btn premium-btn-secondary" style={{ padding: '8px 16px', fontSize: '13px' }} onClick={() => navigate(`/venues/${v.id}/edit`)}>Edit</button>
                   </div></td>
                 </tr>
