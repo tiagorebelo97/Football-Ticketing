@@ -52,10 +52,11 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
 
     const fetchClubs = async () => {
         try {
-            const response = await axios.get('/api/clubs');
-            setClbs(response.data);
+            const response = await axios.get('/api/clubs', { params: { perPage: 100 } });
+            setClbs(response.data.data || response.data);
         } catch (err) {
             console.error('Failed to fetch clubs');
+            setClbs([]);
         }
     };
 

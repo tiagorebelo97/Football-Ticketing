@@ -9,7 +9,7 @@ const ClubForm: React.FC = () => {
   const isEdit = Boolean(id);
   const [countries, setCountries] = useState<any[]>([]);
   const [formData, setFormData] = useState({
-    name: '', shortName: '', countryId: '', logoUrl: '', foundedYear: '', stadiumCapacity: '', website: ''
+    name: '', slug: '', shortName: '', countryId: '', logoUrl: '', foundedYear: '', stadiumCapacity: '', website: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -31,6 +31,7 @@ const ClubForm: React.FC = () => {
       const club = res.data;
       setFormData({
         name: club.name || '',
+        slug: club.slug || '',
         shortName: club.short_name || '',
         countryId: club.country_id || '',
         logoUrl: club.logo_url || '',
@@ -53,15 +54,16 @@ const ClubForm: React.FC = () => {
     try {
       const payload: any = {
         name: formData.name,
+        slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-'),
         shortName: formData.shortName || undefined,
         countryId: formData.countryId,
-        logoUrl: formData.logoUrl || undefined, // Send undefined if empty to skip validation or allow null if schema supports it
+        logoUrl: formData.logoUrl || undefined,
         foundedYear: formData.foundedYear ? parseInt(formData.foundedYear.toString()) : undefined,
         stadiumCapacity: formData.stadiumCapacity ? parseInt(formData.stadiumCapacity.toString()) : undefined,
         website: formData.website || undefined
       };
 
-      if (!isEdit) {
+      if (!isEdit && !payload.slug) {
         payload.slug = formData.name.toLowerCase().replace(/\s+/g, '-');
       }
 
@@ -89,6 +91,19 @@ const ClubForm: React.FC = () => {
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600 }}>Club Name *</label>
             <input type="text" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', color: 'var(--text-main)' }} />
+          </div>
+
+          <div style={{ marginBottom: '24px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600 }}>Slug *</label>
+            <input
+              type="text"
+              required
+              value={formData.slug}
+              onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
+              placeholder="e.g. sporting-cp"
+              style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', color: 'var(--text-main)' }}
+            />
+            <small style={{ color: 'var(--text-muted)' }}>Used for login and URLs</small>
           </div>
 
           <div style={{ marginBottom: '24px' }}>
