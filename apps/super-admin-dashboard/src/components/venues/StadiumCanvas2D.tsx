@@ -206,15 +206,13 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
             strokeWidth={isSelected ? 4 : 2}
             shadowBlur={isSelected ? 10 : 5}
             shadowColor="black"
-            onClick={() => onStandClick(stand.id!)}
-            onTap={() => onStandClick(stand.id!)}
-            onMouseEnter={(e) => {
-              const container = e.target.getStage()?.container();
-              if (container) container.style.cursor = 'pointer';
+            onClick={(e) => {
+              e.cancelBubble = true;
+              onStandClick(stand.id!);
             }}
-            onMouseLeave={(e) => {
-              const container = e.target.getStage()?.container();
-              if (container) container.style.cursor = 'default';
+            onTap={(e) => {
+              e.cancelBubble = true;
+              onStandClick(stand.id!);
             }}
           />
           <Text
@@ -259,10 +257,10 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
             height={dimensions.height}
             fill="#1a1a1a"
           />
-          
+
           {/* Field */}
           {renderField()}
-          
+
           {/* Stands */}
           {renderStands()}
         </Layer>

@@ -49,14 +49,21 @@ const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUp
       }
     };
 
-    loadData();
+    if (loading && (sports.length === 0 || (isSuperAdmin && clubs.length === 0))) {
+      loadData();
+    } else {
+      setLoading(false);
+    }
 
     return () => { mounted = false; };
-  }, [isSuperAdmin]);
+  }, [isSuperAdmin]); // Removed sports.length check to avoid potential loops if data fetch fails
 
   const handleSportSelect = (sportId: string) => {
-    const sport = sports.find(s => s.id === sportId);
-    onUpdate({ sportId, sportName: sport?.name });
+    // Only update if value actually changed
+    if (details.sportId !== sportId) {
+      const sport = sports.find(s => s.id === sportId);
+      onUpdate({ sportId, sportName: sport?.name });
+    }
   };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import VenueWizard from '../../components/venues/VenueWizard';
 import { venueService, Venue } from '../../services/venueService';
+import ErrorBoundary from '../../components/ErrorBoundary';
 
 const VenueCreateWizard: React.FC = () => {
   const navigate = useNavigate();
@@ -31,9 +32,11 @@ const VenueCreateWizard: React.FC = () => {
   };
 
   return (
-    <div className="venue-create-page">
-      <VenueWizard onSave={handleSave} onCancel={handleCancel} isSuperAdmin={true} />
-    </div>
+    <ErrorBoundary>
+      <div className="venue-create-page">
+        <VenueWizard onSave={handleSave} onCancel={handleCancel} isSuperAdmin={true} />
+      </div>
+    </ErrorBoundary>
   );
 };
 
