@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from 'react';
 import { Stage, Layer, Rect, Circle, Line, Text, Group } from 'react-konva';
 import { Stand } from '../../services/venueService';
@@ -189,13 +190,16 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
   };
 
   const renderStands = () => {
-    return stands.map(stand => {
+    return stands.map((stand, index) => {
+      // Defensive coding: Ensure ID exists for key, fallback to index + random (unlikely to clash in short session)
+      const standId = stand.id || `stand-${index}-${Date.now()}`;
       const geometry = getStandGeometry(stand.position);
       const isSelected = stand.id === selectedStandId;
+      const standColor = stand.color || '#999';
 
       return (
         <Group
-          key={stand.id}
+          key={standId}
           onClick={(e) => {
             e.cancelBubble = true;
             onStandClick(stand.id!);
@@ -210,7 +214,7 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
             y={geometry.y}
             width={geometry.width}
             height={geometry.height}
-            fill={stand.color}
+            fill={standColor}
             opacity={isSelected ? 0.9 : 0.7}
             stroke={isSelected ? '#FFD700' : '#333'}
             strokeWidth={isSelected ? 4 : 2}

@@ -63,7 +63,10 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
           photoUrl: initialVenue.photoUrl || '',
           capacity: initialVenue.capacity || 0
         },
-        stands: initialVenue.stands || [],
+        stands: (initialVenue.stands || []).map(s => ({
+          ...s,
+          id: s.id || uuidv4()
+        })),
         selectedStandId: null,
         errors: {}
       };
