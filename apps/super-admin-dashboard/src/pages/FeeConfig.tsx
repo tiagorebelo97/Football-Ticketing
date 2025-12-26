@@ -15,6 +15,7 @@ const FeeConfig: React.FC = () => {
 
   useEffect(() => {
     loadConfig();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clubId]);
 
   const loadConfig = async () => {

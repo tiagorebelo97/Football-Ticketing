@@ -9,6 +9,10 @@ import feeConfigRoutes from './routes/fee-config';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
 import settingsRoutes from './routes/settings';
+import countriesRoutes from './routes/countries';
+import venuesRoutes from './routes/venues';
+import competitionsRoutes from './routes/competitions';
+import seasonsRoutes from './routes/seasons';
 
 dotenv.config();
 
@@ -29,7 +33,11 @@ app.get('/health', (req, res) => {
 });
 
 // Routes
+app.use('/api/countries', countriesRoutes);
 app.use('/api/clubs', clubRoutes);
+app.use('/api/venues', venuesRoutes);
+app.use('/api/competitions', competitionsRoutes);
+app.use('/api/seasons', seasonsRoutes);
 app.use('/api/nfc-stock', nfcStockRoutes);
 app.use('/api/fee-config', feeConfigRoutes);
 app.use('/api/auth', authRoutes);

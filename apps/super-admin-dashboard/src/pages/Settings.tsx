@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaCog, FaSave, FaUndo } from 'react-icons/fa';
 
-interface Settings {
+interface SettingsData {
     session_duration_hours: {
         value: string;
         description: string;
@@ -16,7 +16,7 @@ interface Settings {
 }
 
 const Settings: React.FC = () => {
-    const [settings, setSettings] = useState<Settings | null>(null);
+    const [settings, setSettings] = useState<SettingsData | null>(null);
     const [sessionDuration, setSessionDuration] = useState('24');
     const [rememberMeDuration, setRememberMeDuration] = useState('30');
     const [loading, setLoading] = useState(true);

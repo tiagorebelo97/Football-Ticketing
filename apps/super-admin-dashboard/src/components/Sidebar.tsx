@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaBuilding, FaPlusCircle, FaUsers, FaCog } from 'react-icons/fa';
+import { FaGlobe, FaBuilding, FaMapMarkerAlt, FaTrophy, FaCalendarAlt, FaUsers, FaCog } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
 const Sidebar: React.FC = () => {
@@ -8,12 +8,15 @@ const Sidebar: React.FC = () => {
     const { user } = useAuth();
 
     const menuItems = [
-        { path: '/', label: 'Overview', icon: <FaBuilding /> },
-        { path: '/provision', label: 'Provisioning', icon: <FaPlusCircle /> },
+        { path: '/countries', label: 'Countries', icon: <FaGlobe /> },
+        { path: '/clubs', label: 'Clubs', icon: <FaBuilding /> },
+        { path: '/venues', label: 'Venues', icon: <FaMapMarkerAlt /> },
+        { path: '/competitions', label: 'Competitions', icon: <FaTrophy /> },
+        { path: '/seasons', label: 'Seasons', icon: <FaCalendarAlt /> },
     ];
 
     if (user?.role === 'super_admin') {
-        menuItems.push({ path: '/users', label: 'Management', icon: <FaUsers /> });
+        menuItems.push({ path: '/users', label: 'Users', icon: <FaUsers /> });
         menuItems.push({ path: '/settings', label: 'Settings', icon: <FaCog /> });
     }
 
@@ -39,7 +42,7 @@ const Sidebar: React.FC = () => {
 
             <nav style={{ flex: 1, padding: '0 16px' }}>
                 {menuItems.map((item) => {
-                    const isActive = location.pathname === item.path;
+                    const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
                     return (
                         <Link
                             key={item.path}
