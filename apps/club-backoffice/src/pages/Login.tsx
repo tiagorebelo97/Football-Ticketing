@@ -19,8 +19,9 @@ const Login: React.FC = () => {
         try {
             await login(slug, email, password);
             navigate('/');
-        } catch (error) {
-            setError('Login failed. Please check the Club Slug.');
+        } catch (error: any) {
+            console.error('Login error:', error);
+            setError(error.message || 'Login failed. Please check your credentials.');
         } finally {
             setLoading(false);
         }
@@ -30,81 +31,133 @@ const Login: React.FC = () => {
         <div style={{
             minHeight: '100vh',
             display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
             alignItems: 'center',
-            background: '#f0f2f5',
-            backgroundImage: 'linear-gradient(135deg, #1e1e2f 0%, #2c3e50 100%)',
-            padding: '20px'
+            justifyContent: 'center',
+            background: 'radial-gradient(circle at top left, #1e1e2f 0%, #05070a 100%)',
+            padding: '24px',
+            position: 'relative',
+            overflow: 'hidden'
         }}>
-            <div className="card" style={{
-                width: '100%',
-                maxWidth: '450px',
-                padding: '50px',
-                borderRadius: '16px',
-                boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
-                background: 'white'
-            }}>
-                <h2 style={{ textAlign: 'center', marginBottom: '10px', color: '#1e1e2f' }}>Club Administration</h2>
-                <p style={{ textAlign: 'center', marginBottom: '40px', color: '#7f8c8d' }}>
-                    Secure access to your club management console
-                </p>
+            {/* Background Decorations */}
+            <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '40%', height: '40%', background: 'var(--accent-primary)', filter: 'blur(150px)', opacity: 0.05, borderRadius: '50%' }} />
+            <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '40%', height: '40%', background: 'var(--accent-vibrant)', filter: 'blur(150px)', opacity: 0.05, borderRadius: '50%' }} />
 
-                {error && <div style={{ color: 'red', marginBottom: '20px', textAlign: 'center' }}>{error}</div>}
+            <div className="glass-card" style={{
+                width: '100%',
+                maxWidth: '440px',
+                padding: '48px',
+                position: 'relative',
+                zIndex: 1
+            }}>
+                <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                    <div style={{
+                        width: '64px',
+                        height: '64px',
+                        borderRadius: '20px',
+                        background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 24px auto',
+                        boxShadow: '0 8px 16px rgba(0, 242, 254, 0.2)'
+                    }}>
+                        <span style={{ fontSize: '32px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>🛡️</span>
+                    </div>
+                    <h1 className="text-gradient" style={{ fontSize: '32px', fontWeight: 800, marginBottom: '8px' }}>Club Admin</h1>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>Access your club management console</p>
+                </div>
+
+                {error && (
+                    <div className="glass-effect" style={{
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        color: '#ef4444',
+                        padding: '16px',
+                        borderRadius: '12px',
+                        marginBottom: '24px',
+                        fontSize: '14px',
+                        textAlign: 'center',
+                        border: '1px solid rgba(239, 68, 68, 0.2)'
+                    }}>
+                        {error}
+                    </div>
+                )}
 
                 <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label>Club Slug (e.g., clube-futebol-benfica)</label>
+                    <div className="form-group" style={{ marginBottom: '24px' }}>
+                        <label style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Club Slug</label>
                         <input
                             type="text"
                             value={slug}
                             onChange={(e) => setSlug(e.target.value)}
-                            placeholder="your-club-slug"
+                            placeholder="e.g. sporting-cp"
                             required
-                            style={{ padding: '15px' }}
+                            className="glass-effect"
+                            style={{
+                                width: '100%',
+                                padding: '14px 18px',
+                                color: 'white',
+                                borderRadius: '12px',
+                                background: 'rgba(255,255,255,0.03)'
+                            }}
                         />
                     </div>
 
-                    <div className="form-group">
-                        <label>Admin Email</label>
+                    <div className="form-group" style={{ marginBottom: '24px' }}>
+                        <label style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Admin Email</label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="admin@club.com"
                             required
-                            style={{ padding: '15px' }}
+                            className="glass-effect"
+                            style={{
+                                width: '100%',
+                                padding: '14px 18px',
+                                color: 'white',
+                                borderRadius: '12px',
+                                background: 'rgba(255,255,255,0.03)'
+                            }}
                         />
                     </div>
 
-                    <div className="form-group">
-                        <label>Password</label>
+                    <div className="form-group" style={{ marginBottom: '24px' }}>
+                        <label style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Password</label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="••••••••"
-                            style={{ padding: '15px' }}
+                            required
+                            className="glass-effect"
+                            style={{
+                                width: '100%',
+                                padding: '14px 18px',
+                                color: 'white',
+                                borderRadius: '12px',
+                                background: 'rgba(255,255,255,0.03)'
+                            }}
                         />
                     </div>
 
                     <button
                         type="submit"
-                        className="btn btn-success"
+                        className="premium-btn premium-btn-primary"
+                        style={{ width: '100%', padding: '16px', fontSize: '16px' }}
                         disabled={loading}
-                        style={{
-                            width: '100%',
-                            padding: '15px',
-                            fontSize: '16px',
-                            marginTop: '20px',
-                            fontWeight: 600
-                        }}
                     >
                         {loading ? 'Authenticating...' : 'Access Dashboard'}
                     </button>
                 </form>
+
+                <div style={{ marginTop: '32px', textAlign: 'center', fontSize: '14px' }}>
+                    <span style={{ color: 'var(--text-dim)' }}>Need help? </span>
+                    <a href="#" style={{ color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: 600 }}>
+                        Contact Support
+                    </a>
+                </div>
             </div>
-            <div style={{ marginTop: '20px', color: 'rgba(255,255,255,0.6)', fontSize: '14px' }}>
+            <div style={{ position: 'absolute', bottom: '20px', color: 'rgba(255,255,255,0.3)', fontSize: '12px' }}>
                 Football Ticketing Platform &copy; 2025
             </div>
         </div>

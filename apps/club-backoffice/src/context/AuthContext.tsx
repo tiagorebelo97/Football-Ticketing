@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [user, setUser] = useState<User | null>(() => {
         const storedUser = localStorage.getItem('club_user');
         const expiresAt = localStorage.getItem('club_expires_at');
-        
+
         if (!storedUser) return null;
 
         // Check if session has expired (only if expiresAt exists)
@@ -99,8 +99,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // The Nginx proxy at port 3102 forwards /api to port 3002 (club-backoffice-api)
             const response = await fetch(`/api/auth/${slug}`);
 
-            if (response.status === 404) {
-                throw new Error('Club not found');
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error('Club not found');
+                }
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Authentication failed');
             }
 
             const foundClub = await response.json();

@@ -23,31 +23,36 @@ const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUp
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadSports();
-    if (isSuperAdmin) {
-      loadClubs();
-    }
+    let mounted = true;
+
+    const loadData = async () => {
+      try {
+        const promises: Promise<any>[] = [sportService.getSports()];
+
+        if (isSuperAdmin) {
+          promises.push(axios.get('/api/clubs', { params: { perPage: 300 } }));
+        }
+
+        const results = await Promise.all(promises);
+
+        if (!mounted) return;
+
+        setSports(results[0] || []);
+
+        if (isSuperAdmin && results[1]) {
+          setClubs(results[1].data.data || results[1].data || []);
+        }
+      } catch (error) {
+        console.error('Error loading venue data:', error);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    loadData();
+
+    return () => { mounted = false; };
   }, [isSuperAdmin]);
-
-  const loadSports = async () => {
-    try {
-      const data = await sportService.getSports();
-      setSports(data);
-    } catch (error) {
-      console.error('Error loading sports:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadClubs = async () => {
-    try {
-      const response = await axios.get('/api/clubs', { params: { perPage: 300 } });
-      setClubs(response.data.data || response.data);
-    } catch (error) {
-      console.error('Error loading clubs:', error);
-    }
-  };
 
   const handleSportSelect = (sportId: string) => {
     const sport = sports.find(s => s.id === sportId);

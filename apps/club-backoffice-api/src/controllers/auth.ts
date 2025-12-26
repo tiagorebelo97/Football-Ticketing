@@ -12,7 +12,7 @@ export async function getClubBySlug(req: Request, res: Response) {
         const { slug } = req.params;
 
         const result = await pool.query(
-            'SELECT id, name, slug, primary_color, secondary_color FROM clubs WHERE slug = $1',
+            'SELECT id, name, slug, primary_color, secondary_color, logo_url FROM clubs WHERE slug = $1',
             [slug]
         );
 
