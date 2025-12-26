@@ -2,16 +2,18 @@
 
 ## Issues Addressed
 
-### 1. ✅ Stadium Creation Feature Not Visible
+### 1. ✅ Stadium Creation Feature Now Available in Super Admin Dashboard
 **Problem:** "a feature de criação do estadio não está a funcionar, não me está a aparecer em nenhum lado a nova feature que criaste"
 
 **Solution:**
-- The advanced stadium/venue creation feature is located in the **Club Backoffice** application, not the Super Admin Dashboard
-- Added an informational banner in the Super Admin Dashboard's VenuesList page explaining where to find the advanced feature
-- Created comprehensive documentation: `STADIUM_CONFIGURATION_GUIDE.md`
-- The feature is fully functional and accessible at:
-  - URL: `http://localhost:3102/venues` or `http://club.localhost/venues`
-  - Navigation: Club Backoffice → Sidebar Menu → "Venues" → "+ Create Venue"
+- The advanced stadium/venue creation wizard has been **copied to the Super Admin Dashboard**
+- It's now available in both applications:
+  - **Super Admin Dashboard:** `http://localhost:3101/venues` → "+ Add Venue"
+  - **Club Backoffice:** `http://localhost:3102/venues` → "+ Create Venue"
+- The Super Admin version includes club selection (required field)
+- All venue wizard components, services, and hooks have been copied
+- Dependencies added: konva, react-konva, uuid, @types/uuid
+- Full feature parity with the Club Backoffice version
 
 ### 2. ✅ View Buttons Missing
 **Problem:** "preciso também de adicionar novamente o botão de view e manter o edit nos registos de clubs, venues, competitions e seasons"
@@ -52,7 +54,27 @@
 
 ## Files Changed
 
-### Super Admin Dashboard
+### Super Admin Dashboard - Venue Wizard
+- `apps/super-admin-dashboard/package.json` - Added konva, react-konva, uuid dependencies
+- `apps/super-admin-dashboard/src/App.tsx` - Updated routes to use wizard pages
+- `apps/super-admin-dashboard/src/pages/venues/VenueCreateWizard.tsx` - New create page with wizard
+- `apps/super-admin-dashboard/src/pages/venues/VenueEditWizard.tsx` - New edit page with wizard
+- `apps/super-admin-dashboard/src/pages/VenueFormSimple.tsx` - Renamed old simple form (kept as backup)
+- `apps/super-admin-dashboard/src/components/venues/VenueWizard.tsx` - Copied from club-backoffice
+- `apps/super-admin-dashboard/src/components/venues/VenueDetailsTab.tsx` - Copied with club selection added
+- `apps/super-admin-dashboard/src/components/venues/VenueStadiumTab.tsx` - Copied from club-backoffice
+- `apps/super-admin-dashboard/src/components/venues/StadiumCanvas2D.tsx` - Copied 2D visualization
+- `apps/super-admin-dashboard/src/components/venues/StandConfigPanel.tsx` - Copied stand config
+- `apps/super-admin-dashboard/src/components/venues/SectorModal.tsx` - Copied sector modal
+- `apps/super-admin-dashboard/src/components/venues/SectorCanvas2D.tsx` - Copied sector visualization
+- `apps/super-admin-dashboard/src/components/venues/RowConfigTable.tsx` - Copied row config
+- `apps/super-admin-dashboard/src/components/venues/SportSelector.tsx` - Copied sport selector
+- `apps/super-admin-dashboard/src/components/venues/VenueWizard.css` - Copied all wizard styles
+- `apps/super-admin-dashboard/src/hooks/useVenueBuilder.ts` - Copied with clubId support
+- `apps/super-admin-dashboard/src/services/venueService.ts` - Copied venue API service
+- `apps/super-admin-dashboard/src/services/sportService.ts` - Copied sport API service
+
+### Super Admin Dashboard - List Pages
 - `apps/super-admin-dashboard/src/pages/ClubsList.tsx` - Added View button
 - `apps/super-admin-dashboard/src/pages/VenuesList.tsx` - Added View button + informational banner
 - `apps/super-admin-dashboard/src/pages/CompetitionsList.tsx` - Added View button
@@ -70,12 +92,23 @@
 
 ✅ View buttons added to all list pages
 ✅ Edit buttons remain functional
-✅ Advanced stadium configuration feature exists and is accessible in Club Backoffice
-✅ All venue wizard components are in place
-✅ Routing is correctly configured
+✅ **Advanced stadium configuration wizard now available in Super Admin Dashboard**
+✅ Club selection added to Super Admin venue wizard
+✅ All venue wizard components copied and integrated
+✅ All necessary dependencies added
+✅ Routing correctly configured
 ✅ Error handling improved for better debugging
+✅ Documentation updated to reflect new availability
 
 ## What Needs Testing
+
+⚠️ Verify the stadium creation wizard works in Super Admin Dashboard:
+1. Accessing the Super Admin Dashboard at `http://localhost:3101`
+2. Logging in with super admin credentials
+3. Navigating to Venues → + Add Venue
+4. Testing the complete venue creation wizard with club selection
+5. Verifying all tabs, components, and 2D visualizations work correctly
+6. Testing venue editing functionality
 
 ⚠️ Test the "Failed to get club" error by:
 1. Starting the application with `docker compose up`
@@ -84,10 +117,15 @@
 4. Observing the console logs for detailed error information
 
 ⚠️ Verify the stadium creation feature by:
-1. Accessing the Club Backoffice at `http://localhost:3102`
-2. Logging in with club administrator credentials
-3. Navigating to Venues → Create Venue
-4. Testing the complete venue creation wizard
+1. Accessing **both** the Super Admin Dashboard (3101) and Club Backoffice (3102)
+2. In Super Admin Dashboard:
+   - Navigate to Venues → Create Venue
+   - Ensure club selection dropdown appears
+   - Test the complete venue creation wizard
+3. In Club Backoffice:
+   - Navigate to Venues → Create Venue
+   - Ensure wizard works without club selection (auto-populated)
+   - Test the complete venue creation wizard
 
 ## Architecture Notes
 
@@ -97,10 +135,19 @@
 - **Backend APIs**: Separate APIs for super-admin (3001) and club-backoffice (3002)
 
 ### Stadium Configuration
-The advanced stadium configuration is **intentionally** only in the Club Backoffice because:
-1. It's a club-specific feature (clubs manage their own venues in detail)
-2. Super admins only need basic venue management (name, city, capacity)
-3. The complexity of the stadium wizard (stands, floors, sectors, rows) is better suited for club administrators
+The advanced stadium configuration is now available in **both** Super Admin Dashboard and Club Backoffice:
+
+**Super Admin Dashboard:**
+- Super admins can create venues for any club
+- Must manually select the club from a dropdown
+- Full access to all venue features
+
+**Club Backoffice:**
+- Club admins can create venues for their own club
+- Club is automatically set based on login
+- Limited to managing own club's venues
+
+Both versions use the same wizard with identical features.
 
 ## Deployment Checklist
 
@@ -117,11 +164,17 @@ Before deploying these changes to production:
 
 ## How to Use the Stadium Creation Feature
 
-1. **Access:** Log into Club Backoffice at `http://localhost:3102`
-2. **Navigate:** Click "Venues" in the left sidebar
-3. **Create:** Click "+ Create Venue" button
+### In Super Admin Dashboard (port 3101)
+
+1. **Access:** Log into Super Admin Dashboard at `http://localhost:3101`
+2. **Navigate:** Click "Venues" in the sidebar
+3. **Create:** Click "+ Add Venue" button
 4. **Configure:**
-   - **Tab 1 - Details:** Enter name, city, address, select sport, upload photo
+   - **Tab 1 - Details:** 
+     - Select the club (required)
+     - Enter name, city, address
+     - Select sport
+     - Upload photo
    - **Tab 2 - Stadium Configuration:** 
      - Add stands (North, South, East, West)
      - Add floors to each stand
@@ -129,6 +182,26 @@ Before deploying these changes to production:
      - Configure rows and seats for each sector
    - Real-time 2D visualization shows your stadium layout
 5. **Save:** Click "Save Venue" when complete
+
+### In Club Backoffice (port 3102)
+
+1. **Access:** Log into Club Backoffice at `http://localhost:3102`
+2. **Navigate:** Click "Venues" in the left sidebar
+3. **Create:** Click "+ Create Venue" button
+4. **Configure:**
+   - **Tab 1 - Details:** 
+     - Enter name, city, address (club auto-selected)
+     - Select sport
+     - Upload photo
+   - **Tab 2 - Stadium Configuration:** 
+     - Add stands (North, South, East, West)
+     - Add floors to each stand
+     - Add sectors to each floor
+     - Configure rows and seats for each sector
+   - Real-time 2D visualization shows your stadium layout
+5. **Save:** Click "Save Venue" when complete
+
+**Note:** The wizard works identically in both applications, the only difference is club selection.
 
 ## Additional Resources
 
