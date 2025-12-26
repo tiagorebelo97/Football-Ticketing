@@ -48,9 +48,18 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
 
   const handleNext = () => {
     if (state.currentTab === 0) {
-      if (validateTab1()) {
-        nextTab();
+      // Validate basic fields using the hook's validation
+      if (!validateTab1()) {
+        return;
       }
+      
+      // Additional validation for super admin: clubId is required
+      if (isSuperAdmin && !state.details.clubId) {
+        setSaveError('Por favor, selecione um clube');
+        return;
+      }
+      
+      nextTab();
     }
   };
 
