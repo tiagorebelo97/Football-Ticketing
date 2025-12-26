@@ -30,7 +30,6 @@ const VenueEditWizard: React.FC = () => {
     if (!id) return;
 
     await venueService.updateVenue(id, {
-      clubId: venue.clubId,
       name: venue.name,
       city: venue.city,
       address: venue.address,
@@ -57,9 +56,9 @@ const VenueEditWizard: React.FC = () => {
 
   return (
     <div className="venue-edit-page">
-      <VenueWizard 
-        onSave={handleSave} 
-        onCancel={handleCancel} 
+      <VenueWizard
+        onSave={handleSave}
+        onCancel={handleCancel}
         initialData={initialData || undefined}
         isSuperAdmin={true}
       />

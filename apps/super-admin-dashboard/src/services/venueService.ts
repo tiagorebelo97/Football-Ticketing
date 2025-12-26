@@ -87,7 +87,7 @@ export const venueService = {
   /**
    * Get single venue by ID with full hierarchy
    */
-  async getVenueById(id: string): Promise<Venue> {
+  async getVenue(id: string): Promise<Venue> {
     const response = await axios.get(`/api/venues/${id}`);
     return response.data;
   },

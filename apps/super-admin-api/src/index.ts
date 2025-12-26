@@ -13,6 +13,7 @@ import countriesRoutes from './routes/countries';
 import venuesRoutes from './routes/venues';
 import competitionsRoutes from './routes/competitions';
 import seasonsRoutes from './routes/seasons';
+import sportsRoutes from './routes/sports';
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use('/api/clubs', clubRoutes);
 app.use('/api/venues', venuesRoutes);
 app.use('/api/competitions', competitionsRoutes);
 app.use('/api/seasons', seasonsRoutes);
+app.use('/api/sports', sportsRoutes);
 app.use('/api/nfc-stock', nfcStockRoutes);
 app.use('/api/fee-config', feeConfigRoutes);
 app.use('/api/auth', authRoutes);

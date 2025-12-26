@@ -39,7 +39,7 @@ export async function listClubs(req: Request, res: Response) {
       WHERE (c.name ILIKE $1 OR c.short_name ILIKE $1)
     `;
     let queryParams: any[] = [searchPattern];
-    
+
     if (includeDeleted !== 'true') {
       countQuery += ' AND c.deleted_at IS NULL';
     }
@@ -57,7 +57,7 @@ export async function listClubs(req: Request, res: Response) {
       LEFT JOIN countries co ON c.country_id = co.id
       WHERE (c.name ILIKE $1 OR c.short_name ILIKE $1)
     `;
-    
+
     let dataParams: any[] = [searchPattern];
     if (includeDeleted !== 'true') {
       dataQuery += ' AND c.deleted_at IS NULL';
@@ -90,7 +90,7 @@ export async function listClubs(req: Request, res: Response) {
 export async function getClub(req: Request, res: Response) {
   try {
     const { clubId } = req.params;
-    
+
     const clubQuery = `
       SELECT c.*, co.name as country_name, co.code as country_code
       FROM clubs c
@@ -110,7 +110,7 @@ export async function getClub(req: Request, res: Response) {
     // Get competitions
     const competitionsQuery = `
       SELECT DISTINCT comp.id, comp.name, comp.short_name, comp.type,
-             s.name as season_name, s.id as season_id
+             s.name as season_name, s.id as season_id, s.start_date
       FROM club_competition cc
       INNER JOIN competitions comp ON cc.competition_id = comp.id
       LEFT JOIN seasons s ON cc.season_id = s.id
@@ -132,7 +132,7 @@ export async function getClub(req: Request, res: Response) {
       detail: error.detail,
       stack: error.stack
     });
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to get club',
       details: error.message || 'Unknown error',
       code: error.code
