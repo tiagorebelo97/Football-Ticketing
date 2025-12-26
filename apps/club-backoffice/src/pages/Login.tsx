@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 const Login: React.FC = () => {
     const [slug, setSlug] = useState('');
     const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { login } = useAuth();
@@ -16,7 +17,7 @@ const Login: React.FC = () => {
         setLoading(true);
         setError('');
         try {
-            await login(slug, email);
+            await login(slug, email, password);
             navigate('/');
         } catch (error) {
             setError('Login failed. Please check the Club Slug.');
@@ -80,6 +81,8 @@ const Login: React.FC = () => {
                         <label>Password</label>
                         <input
                             type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                             placeholder="••••••••"
                             style={{ padding: '15px' }}
                         />

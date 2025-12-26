@@ -20,6 +20,9 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy (required for running behind Traefik/Nginx)
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(helmet());
 app.use(cors());

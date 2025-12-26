@@ -18,7 +18,7 @@ export const sportService = {
    */
   async getSports(): Promise<Sport[]> {
     const response = await axios.get('/api/sports');
-    return response.data;
+    return Array.isArray(response.data) ? response.data : [];
   },
 
   /**

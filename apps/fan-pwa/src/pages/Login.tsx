@@ -13,7 +13,7 @@ const Login: React.FC = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            await login(email);
+            await login(email, 'dummy-password');
             navigate('/');
         } catch (error) {
             console.error('Login failed', error);
