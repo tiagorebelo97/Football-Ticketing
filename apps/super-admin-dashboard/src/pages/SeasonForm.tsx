@@ -32,8 +32,9 @@ const SeasonForm: React.FC = () => {
                 end_date: data.end_date ? data.end_date.split('T')[0] : '',
                 is_active: data.is_active || false
             });
-        } catch (err) {
-            setError('Failed to load season');
+        } catch (err: any) {
+            console.error('Error loading season:', err);
+            setError(err.response?.data?.error || err.message || 'Failed to load season');
         }
     };
 
@@ -50,10 +51,17 @@ const SeasonForm: React.FC = () => {
         }
 
         try {
+            const payload = {
+                name: formData.name,
+                startDate: formData.start_date,
+                endDate: formData.end_date,
+                isActive: formData.is_active
+            };
+
             if (isEdit) {
-                await axios.put(`/api/seasons/${id}`, formData);
+                await axios.put(`/api/seasons/${id}`, payload);
             } else {
-                await axios.post('/api/seasons', formData);
+                await axios.post('/api/seasons', payload);
             }
             navigate('/seasons');
         } catch (err: any) {

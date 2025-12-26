@@ -45,9 +45,11 @@ const UserManagement: React.FC = () => {
             if (clubFilter) params.append('clubId', clubFilter);
 
             const response = await axios.get(`/api/users?${params.toString()}`);
-            setUsers(response.data);
+            setUsers(Array.isArray(response.data) ? response.data : []);
         } catch (err) {
+            console.error('Fetch users error:', err);
             setError('Failed to load users');
+            setUsers([]);
         } finally {
             setLoading(false);
         }
@@ -56,9 +58,10 @@ const UserManagement: React.FC = () => {
     const fetchClubs = async () => {
         try {
             const response = await axios.get('/api/clubs');
-            setClubs(response.data);
+            setClubs(Array.isArray(response.data.data) ? response.data.data : (Array.isArray(response.data) ? response.data : []));
         } catch (err) {
-            console.error('Failed to fetch clubs');
+            console.error('Failed to fetch clubs', err);
+            setClubs([]);
         }
     };
 

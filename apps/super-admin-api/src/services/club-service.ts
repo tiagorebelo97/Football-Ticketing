@@ -8,18 +8,40 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 
 export async function createClub(data: {
   name: string;
+  shortName?: string;
   slug: string;
   keycloakRealmId: string;
   stripeAccountId?: string;
   logoUrl?: string;
+  countryId?: string;
+  foundedYear?: number;
+  stadiumCapacity?: number;
+  website?: string;
   primaryColor?: string;
   secondaryColor?: string;
 }) {
   const result = await pool.query(
-    `INSERT INTO clubs (name, slug, keycloak_realm_id, stripe_account_id, logo_url, primary_color, secondary_color)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `INSERT INTO clubs (
+      name, short_name, slug, keycloak_realm_id, stripe_account_id, 
+      logo_url, country_id, founded_year, stadium_capacity, website, 
+      primary_color, secondary_color
+    )
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
      RETURNING *`,
-    [data.name, data.slug, data.keycloakRealmId, data.stripeAccountId, data.logoUrl, data.primaryColor, data.secondaryColor]
+    [
+      data.name,
+      data.shortName || null,
+      data.slug,
+      data.keycloakRealmId,
+      data.stripeAccountId || null,
+      data.logoUrl || null,
+      data.countryId || null,
+      data.foundedYear || null,
+      data.stadiumCapacity || null,
+      data.website || null,
+      data.primaryColor || null,
+      data.secondaryColor || null
+    ]
   );
 
   return result.rows[0];

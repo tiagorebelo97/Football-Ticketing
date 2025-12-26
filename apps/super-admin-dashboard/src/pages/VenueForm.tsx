@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import SearchableSelect from '../components/SearchableSelect';
 
 interface Club {
     id: string;
@@ -35,7 +36,7 @@ const VenueForm: React.FC = () => {
     const loadClubs = async () => {
         try {
             // Need perPage to get all clubs
-            const response = await axios.get('/api/clubs', { params: { perPage: 200 } });
+            const response = await axios.get('/api/clubs', { params: { perPage: 300 } });
             setClubs(response.data.data || []);
         } catch (err) {
             console.error('Failed to load clubs');
@@ -55,8 +56,9 @@ const VenueForm: React.FC = () => {
                 latitude: data.latitude || '',
                 longitude: data.longitude || ''
             });
-        } catch (err) {
-            setError('Failed to load venue');
+        } catch (err: any) {
+            console.error('Error loading venue:', err);
+            setError(err.response?.data?.error || err.message || 'Failed to load venue');
         }
     };
 
@@ -71,6 +73,7 @@ const VenueForm: React.FC = () => {
                 capacity: formData.capacity ? parseInt(formData.capacity.toString()) : null,
                 latitude: formData.latitude ? parseFloat(formData.latitude.toString()) : null,
                 longitude: formData.longitude ? parseFloat(formData.longitude.toString()) : null,
+                clubId: formData.club_id, // Map snake_case state to camelCase API expectation
             };
 
             if (isEdit) {
@@ -150,25 +153,13 @@ const VenueForm: React.FC = () => {
                         <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>
                             Home Club <span style={{ color: '#ef4444' }}>*</span>
                         </label>
-                        <select
-                            required
+                        <SearchableSelect
+                            options={clubs.map(c => ({ id: c.id, name: c.name }))}
                             value={formData.club_id}
-                            onChange={(e) => setFormData({ ...formData, club_id: e.target.value })}
-                            style={{
-                                width: '100%',
-                                padding: '12px 16px',
-                                background: 'rgba(255,255,255,0.05)',
-                                border: '1px solid var(--border-glass)',
-                                borderRadius: 'var(--radius-sm)',
-                                color: 'var(--text-main)',
-                                fontSize: '15px'
-                            }}
-                        >
-                            <option value="">Select a club</option>
-                            {clubs.map((club) => (
-                                <option key={club.id} value={club.id}>{club.name}</option>
-                            ))}
-                        </select>
+                            onChange={(val) => setFormData({ ...formData, club_id: val })}
+                            placeholder="Select a club"
+                            required
+                        />
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', marginBottom: '24px' }}>

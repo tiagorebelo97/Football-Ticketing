@@ -39,9 +39,9 @@ const ClubsList: React.FC = () => {
     }
   };
 
-  const filteredClubs = clubs.filter(c => 
-    (!search || c.name.toLowerCase().includes(search.toLowerCase()) || 
-     c.short_name?.toLowerCase().includes(search.toLowerCase())) &&
+  const filteredClubs = clubs.filter(c =>
+    (!search || c.name.toLowerCase().includes(search.toLowerCase()) ||
+      c.short_name?.toLowerCase().includes(search.toLowerCase())) &&
     (!countryFilter || c.country_name === countryFilter)
   );
 
@@ -129,7 +129,6 @@ const ClubsList: React.FC = () => {
                   </td>
                   <td style={{ padding: '20px 24px' }}>
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                      <button className="premium-btn premium-btn-secondary" style={{ padding: '8px 16px', fontSize: '13px' }} onClick={() => navigate(`/clubs/${club.id}`)}>View</button>
                       <button className="premium-btn premium-btn-secondary" style={{ padding: '8px 16px', fontSize: '13px' }} onClick={() => navigate(`/clubs/${club.id}/edit`)}>Edit</button>
                     </div>
                   </td>

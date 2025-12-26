@@ -39,7 +39,7 @@ const VenuesList: React.FC = () => {
                   <td style={{ padding: '20px 24px' }}>{v.club_name}</td>
                   <td style={{ padding: '20px 24px' }}>{v.city}</td>
                   <td style={{ padding: '20px 24px' }}><div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                    <button className="premium-btn premium-btn-secondary" style={{ padding: '8px 16px', fontSize: '13px' }} onClick={() => navigate(`/venues/${v.id}`)}>View</button>
+                    <button className="premium-btn premium-btn-secondary" style={{ padding: '8px 16px', fontSize: '13px' }} onClick={() => navigate(`/venues/${v.id}/edit`)}>Edit</button>
                   </div></td>
                 </tr>
               ))}

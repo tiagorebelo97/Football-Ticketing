@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import SearchableSelect from '../components/SearchableSelect';
 
 interface Country {
     id: string;
@@ -32,7 +33,7 @@ const CompetitionForm: React.FC = () => {
 
     const loadCountries = async () => {
         try {
-            const response = await axios.get('/api/countries', { params: { perPage: 100 } });
+            const response = await axios.get('/api/countries', { params: { perPage: 300 } });
             setCountries(response.data.data || []);
         } catch (err) {
             console.error('Failed to load countries');
@@ -50,8 +51,9 @@ const CompetitionForm: React.FC = () => {
                 country_id: data.country_id || '',
                 logo_url: data.logo_url || ''
             });
-        } catch (err) {
-            setError('Failed to load competition');
+        } catch (err: any) {
+            console.error('Error loading competition:', err);
+            setError(err.response?.data?.error || err.message || 'Failed to load competition');
         }
     };
 
@@ -61,10 +63,18 @@ const CompetitionForm: React.FC = () => {
         setError('');
 
         try {
+            const payload = {
+                name: formData.name,
+                shortName: formData.short_name,
+                type: formData.type,
+                countryId: formData.country_id,
+                logoUrl: formData.logo_url || null
+            };
+
             if (isEdit) {
-                await axios.put(`/api/competitions/${id}`, formData);
+                await axios.put(`/api/competitions/${id}`, payload);
             } else {
-                await axios.post('/api/competitions', formData);
+                await axios.post('/api/competitions', payload);
             }
             navigate('/competitions');
         } catch (err: any) {
@@ -184,25 +194,13 @@ const CompetitionForm: React.FC = () => {
                         <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>
                             Country <span style={{ color: '#ef4444' }}>*</span>
                         </label>
-                        <select
-                            required
+                        <SearchableSelect
+                            options={countries.map(c => ({ id: c.id, name: c.name }))}
                             value={formData.country_id}
-                            onChange={(e) => setFormData({ ...formData, country_id: e.target.value })}
-                            style={{
-                                width: '100%',
-                                padding: '12px 16px',
-                                background: 'rgba(255,255,255,0.05)',
-                                border: '1px solid var(--border-glass)',
-                                borderRadius: 'var(--radius-sm)',
-                                color: 'var(--text-main)',
-                                fontSize: '15px'
-                            }}
-                        >
-                            <option value="">Select a country</option>
-                            {countries.map((country) => (
-                                <option key={country.id} value={country.id}>{country.name}</option>
-                            ))}
-                        </select>
+                            onChange={(val) => setFormData({ ...formData, country_id: val })}
+                            placeholder="Select a country"
+                            required
+                        />
                     </div>
 
                     <div style={{ marginBottom: '32px' }}>

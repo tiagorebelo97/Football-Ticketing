@@ -19,7 +19,7 @@ const Login: React.FC = () => {
 
         try {
             const response = await axios.post('/api/auth/login', { email, password });
-            login(response.data.token, response.data.user, rememberMe);
+            await login(response.data.token, response.data.user, rememberMe);
             navigate('/');
         } catch (err: any) {
             setError(err.response?.data?.error || 'Login failed');

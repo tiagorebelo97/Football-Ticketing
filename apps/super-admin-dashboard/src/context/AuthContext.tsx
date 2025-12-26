@@ -67,6 +67,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     const login = async (newToken: string, newUser: User, rememberMe: boolean = false) => {
+        // optimistically update state
+        setToken(newToken);
+        setUser(newUser);
+
         localStorage.setItem('sa_token', newToken);
         localStorage.setItem('sa_user', JSON.stringify(newUser));
 
@@ -99,9 +103,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 localStorage.setItem('sa_expires_at', expiresAt.toString());
             }
         }
-
-        setToken(newToken);
-        setUser(newUser);
     };
 
     const logout = () => {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import SearchableSelect from '../components/SearchableSelect';
 
 const ClubForm: React.FC = () => {
   const { id } = useParams();
@@ -20,7 +21,7 @@ const ClubForm: React.FC = () => {
   }, [id]);
 
   const loadCountries = async () => {
-    const res = await axios.get('/api/countries', { params: { perPage: 100 } });
+    const res = await axios.get('/api/countries', { params: { perPage: 300 } });
     setCountries(res.data.data || res.data);
   };
 
@@ -37,8 +38,9 @@ const ClubForm: React.FC = () => {
         stadiumCapacity: club.stadium_capacity || '',
         website: club.website || ''
       });
-    } catch (err) {
-      setError('Failed to load club');
+    } catch (err: any) {
+      console.error('Error loading club:', err);
+      setError(err.response?.data?.error || err.message || 'Failed to load club');
     }
   };
 
@@ -46,10 +48,24 @@ const ClubForm: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
+      const payload: any = {
+        name: formData.name,
+        shortName: formData.shortName || undefined,
+        countryId: formData.countryId,
+        logoUrl: formData.logoUrl || undefined, // Send undefined if empty to skip validation or allow null if schema supports it
+        foundedYear: formData.foundedYear ? parseInt(formData.foundedYear.toString()) : undefined,
+        stadiumCapacity: formData.stadiumCapacity ? parseInt(formData.stadiumCapacity.toString()) : undefined,
+        website: formData.website || undefined
+      };
+
+      if (!isEdit) {
+        payload.slug = formData.name.toLowerCase().replace(/\s+/g, '-');
+      }
+
       if (isEdit) {
-        await axios.put(`/api/clubs/${id}`, formData);
+        await axios.put(`/api/clubs/${id}`, payload);
       } else {
-        await axios.post('/api/clubs', { ...formData, slug: formData.name.toLowerCase().replace(/\s+/g, '-') });
+        await axios.post('/api/clubs', payload);
       }
       navigate('/clubs');
     } catch (err: any) {
@@ -62,10 +78,10 @@ const ClubForm: React.FC = () => {
     <div>
       <button onClick={() => navigate('/clubs')} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', marginBottom: '16px' }}>← Back</button>
       <h1 className="text-gradient" style={{ fontSize: '36px', fontWeight: 800, marginBottom: '32px' }}>{isEdit ? 'Edit Club' : 'Add Club'}</h1>
-      
+
       <div className="glass-card" style={{ padding: '32px', maxWidth: '700px' }}>
         {error && <div style={{ padding: '16px', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-sm)', color: '#ef4444', marginBottom: '24px' }}>{error}</div>}
-        
+
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600 }}>Club Name *</label>
@@ -79,10 +95,14 @@ const ClubForm: React.FC = () => {
 
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600 }}>Country *</label>
-            <select required value={formData.countryId} onChange={(e) => setFormData({ ...formData, countryId: e.target.value })} style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', color: 'var(--text-main)' }}>
-              <option value="">Select Country</option>
-              {countries.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
+            <SearchableSelect
+              options={countries.map(c => ({ id: c.id, name: c.name, image_url: c.flag_url }))}
+              value={formData.countryId}
+              onChange={(val) => setFormData({ ...formData, countryId: val })}
+              placeholder="Select Country"
+              required
+              imageProp="image_url"
+            />
           </div>
 
           <div style={{ marginBottom: '24px' }}>
