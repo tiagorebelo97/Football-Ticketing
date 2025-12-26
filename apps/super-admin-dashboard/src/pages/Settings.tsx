@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FaCog, FaSave, FaUndo } from 'react-icons/fa';
+import { FaCog, FaSave, FaUndo, FaList } from 'react-icons/fa';
 
 interface SettingsData {
     session_duration_hours: {
@@ -13,12 +13,18 @@ interface SettingsData {
         description: string;
         updated_at: string;
     };
+    default_pagination_limit: {
+        value: string;
+        description: string;
+        updated_at: string;
+    };
 }
 
 const Settings: React.FC = () => {
     const [settings, setSettings] = useState<SettingsData | null>(null);
     const [sessionDuration, setSessionDuration] = useState('24');
     const [rememberMeDuration, setRememberMeDuration] = useState('30');
+    const [defaultPaginationLimit, setDefaultPaginationLimit] = useState('10');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
@@ -32,8 +38,9 @@ const Settings: React.FC = () => {
         try {
             const response = await axios.get('/api/settings');
             setSettings(response.data);
-            setSessionDuration(response.data.session_duration_hours.value);
-            setRememberMeDuration(response.data.remember_me_duration_days.value);
+            setSessionDuration(response.data.session_duration_hours?.value || '24');
+            setRememberMeDuration(response.data.remember_me_duration_days?.value || '30');
+            setDefaultPaginationLimit(response.data.default_pagination_limit?.value || '10');
         } catch (err) {
             setError('Failed to load settings');
         } finally {
@@ -49,10 +56,11 @@ const Settings: React.FC = () => {
         try {
             await Promise.all([
                 axios.put('/api/settings/session_duration_hours', { value: sessionDuration }),
-                axios.put('/api/settings/remember_me_duration_days', { value: rememberMeDuration })
+                axios.put('/api/settings/remember_me_duration_days', { value: rememberMeDuration }),
+                axios.put('/api/settings/default_pagination_limit', { value: defaultPaginationLimit })
             ]);
 
-            setSuccess('Settings saved successfully! Changes will apply to new logins.');
+            setSuccess('Settings saved successfully! Changes will apply to new logins and list views.');
             await fetchSettings();
         } catch (err: any) {
             setError(err.response?.data?.error || 'Failed to save settings');
@@ -63,8 +71,9 @@ const Settings: React.FC = () => {
 
     const handleReset = () => {
         if (settings) {
-            setSessionDuration(settings.session_duration_hours.value);
-            setRememberMeDuration(settings.remember_me_duration_days.value);
+            setSessionDuration(settings.session_duration_hours?.value || '24');
+            setRememberMeDuration(settings.remember_me_duration_days?.value || '30');
+            setDefaultPaginationLimit(settings.default_pagination_limit?.value || '10');
             setError('');
             setSuccess('');
         }
@@ -205,6 +214,53 @@ const Settings: React.FC = () => {
                         />
                         <p style={{ fontSize: '13px', color: 'var(--text-dim)', marginTop: '8px' }}>
                             Session expires after this many days when "Remember Me" is checked (1-365 days)
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="glass-card" style={{ padding: '40px', marginBottom: '24px' }}>
+                <div style={{ marginBottom: '32px' }}>
+                    <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <FaList /> Access & Lists
+                    </h2>
+                    <p style={{ fontSize: '14px', color: 'var(--text-dim)' }}>
+                        Configure default behaviors for data lists and pagination
+                    </p>
+                </div>
+
+                <div style={{ display: 'grid', gap: '32px' }}>
+                    <div>
+                        <label style={{
+                            display: 'block',
+                            marginBottom: '12px',
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            color: 'var(--text-muted)',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px'
+                        }}>
+                            Default Pagination Limit
+                        </label>
+                        <input
+                            type="number"
+                            min="5"
+                            max="100"
+                            step="5"
+                            value={defaultPaginationLimit}
+                            onChange={(e) => setDefaultPaginationLimit(e.target.value)}
+                            className="glass-effect"
+                            style={{
+                                width: '100%',
+                                padding: '14px 20px',
+                                borderRadius: '12px',
+                                color: 'white',
+                                background: 'rgba(255,255,255,0.03)',
+                                fontSize: '16px'
+                            }}
+                        />
+                        <p style={{ fontSize: '13px', color: 'var(--text-dim)', marginTop: '8px' }}>
+                            Number of items to show per page in list views by default (5-100)
                         </p>
                     </div>
                 </div>
