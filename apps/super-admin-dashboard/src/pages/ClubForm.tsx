@@ -41,7 +41,9 @@ const ClubForm: React.FC = () => {
     } catch (err: any) {
       console.error('Error loading club:', err);
       console.error('Error response:', err.response);
-      setError(err.response?.data?.error || err.message || 'Failed to load club');
+      const errorMsg = err.response?.data?.error || err.message || 'Failed to load club';
+      const errorDetails = err.response?.data?.details ? ` (${err.response.data.details})` : '';
+      setError(errorMsg + errorDetails);
     }
   };
 
