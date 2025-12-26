@@ -1,28 +1,24 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
 
-const Login: React.FC = () => {
+const ForgotPassword: React.FC = () => {
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [rememberMe, setRememberMe] = useState(false);
+    const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
-    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setMessage('');
         setLoading(true);
 
         try {
-            const response = await axios.post('/api/auth/login', { email, password });
-            login(response.data.token, response.data.user, rememberMe);
-            navigate('/');
+            const response = await axios.post('/api/auth/forgot-password', { email });
+            setMessage(response.data.message);
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Login failed');
+            setError(err.response?.data?.error || 'Failed to request password reset');
         } finally {
             setLoading(false);
         }
@@ -62,11 +58,26 @@ const Login: React.FC = () => {
                         margin: '0 auto 24px auto',
                         boxShadow: '0 8px 16px rgba(0, 242, 254, 0.2)'
                     }}>
-                        <span style={{ fontSize: '32px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>⚡</span>
+                        <span style={{ fontSize: '32px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>🔐</span>
                     </div>
-                    <h1 className="text-gradient" style={{ fontSize: '32px', fontWeight: 800, marginBottom: '8px' }}>Welcome Back</h1>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>Enter your credentials to access the portal</p>
+                    <h1 className="text-gradient" style={{ fontSize: '32px', fontWeight: 800, marginBottom: '8px' }}>Forgot Password</h1>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>Enter your email to receive a reset link</p>
                 </div>
+
+                {message && (
+                    <div className="glass-effect" style={{
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        color: '#10b981',
+                        padding: '16px',
+                        borderRadius: '12px',
+                        marginBottom: '24px',
+                        fontSize: '14px',
+                        textAlign: 'center',
+                        border: '1px solid rgba(16, 185, 129, 0.2)'
+                    }}>
+                        {message}
+                    </div>
+                )}
 
                 {error && (
                     <div className="glass-effect" style={{
@@ -103,63 +114,19 @@ const Login: React.FC = () => {
                         />
                     </div>
 
-                    <div className="form-group" style={{ marginBottom: '24px' }}>
-                        <label style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Password</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            className="glass-effect"
-                            style={{
-                                width: '100%',
-                                padding: '14px 18px',
-                                color: 'white',
-                                borderRadius: '12px',
-                                background: 'rgba(255,255,255,0.03)'
-                            }}
-                            placeholder="••••••••"
-                        />
-                    </div>
-
-                    <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <input
-                            type="checkbox"
-                            id="rememberMe"
-                            checked={rememberMe}
-                            onChange={(e) => setRememberMe(e.target.checked)}
-                            style={{
-                                width: '18px',
-                                height: '18px',
-                                cursor: 'pointer',
-                                accentColor: 'var(--accent-primary)'
-                            }}
-                        />
-                        <label htmlFor="rememberMe" style={{ color: 'var(--text-muted)', fontSize: '14px', cursor: 'pointer', userSelect: 'none' }}>
-                            Keep me signed in
-                        </label>
-                    </div>
-
-                    <div style={{ marginBottom: '24px', textAlign: 'right' }}>
-                        <Link to="/forgot-password" style={{ color: 'var(--text-dim)', fontSize: '13px', textDecoration: 'none' }}>
-                            Forgot Password?
-                        </Link>
-                    </div>
-
                     <button
                         type="submit"
                         className="premium-btn premium-btn-primary"
                         style={{ width: '100%', padding: '16px', fontSize: '16px' }}
                         disabled={loading}
                     >
-                        {loading ? 'Authenticating...' : 'Sign Into Portal'}
+                        {loading ? 'Sending Link...' : 'Send Reset Link'}
                     </button>
                 </form>
 
                 <div style={{ marginTop: '32px', textAlign: 'center', fontSize: '14px' }}>
-                    <span style={{ color: 'var(--text-dim)' }}>New to the platform? </span>
-                    <Link to="/register" style={{ color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: 600 }}>
-                        Create Account
+                    <Link to="/login" style={{ color: 'var(--text-muted)', textDecoration: 'none', transition: 'color 0.2s' }}>
+                        ← Back to Login
                     </Link>
                 </div>
             </div>
@@ -167,4 +134,4 @@ const Login: React.FC = () => {
     );
 };
 
-export default Login;
+export default ForgotPassword;

@@ -61,7 +61,7 @@ export async function login(req: Request, res: Response) {
         }
 
         if (!user.password_hash) {
-             return res.status(401).json({ error: 'Invalid authentication method for this user' });
+            return res.status(401).json({ error: 'Invalid authentication method for this user' });
         }
 
         const validPassword = await bcrypt.compare(password, user.password_hash);
@@ -102,6 +102,70 @@ export async function verifyEmail(req: Request, res: Response) {
         res.json({ message: 'Email verified successfully' });
     } catch (error) {
         console.error('Verification error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+export async function forgotPassword(req: Request, res: Response) {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ error: 'Email is required' });
+        }
+
+        const userResult = await pool.query('SELECT id FROM users WHERE email = $1 AND role = $2', [email, 'super_admin']);
+
+        if (userResult.rows.length === 0) {
+            // Return success even if user not found to prevent enumeration
+            return res.json({ message: 'If an account exists with this email, a password reset link has been sent.' });
+        }
+
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const tokenExpires = new Date(Date.now() + 3600000); // 1 hour
+
+        await pool.query(
+            'UPDATE users SET reset_token = $1, reset_token_expires = $2 WHERE email = $3',
+            [resetToken, tokenExpires, email]
+        );
+
+        await import('../services/email').then(service => service.sendPasswordResetEmail(email, resetToken));
+
+        res.json({ message: 'If an account exists with this email, a password reset link has been sent.' });
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+export async function resetPassword(req: Request, res: Response) {
+    try {
+        const { token, newPassword } = req.body;
+
+        if (!token || !newPassword) {
+            return res.status(400).json({ error: 'Token and new password are required' });
+        }
+
+        const userResult = await pool.query(
+            'SELECT id FROM users WHERE reset_token = $1 AND reset_token_expires > NOW()',
+            [token]
+        );
+
+        if (userResult.rows.length === 0) {
+            return res.status(400).json({ error: 'Invalid or expired token' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(newPassword, salt);
+
+        await pool.query(
+            'UPDATE users SET password_hash = $1, reset_token = NULL, reset_token_expires = NULL WHERE reset_token = $2',
+            [passwordHash, token]
+        );
+
+        res.json({ message: 'Password has been reset successfully. You can now login.' });
+    } catch (error) {
+        console.error('Reset password error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 }

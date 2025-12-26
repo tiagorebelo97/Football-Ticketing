@@ -1,32 +1,66 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
 
-const Login: React.FC = () => {
-    const [email, setEmail] = useState('');
+const ResetPassword: React.FC = () => {
     const [password, setPassword] = useState('');
-    const [rememberMe, setRememberMe] = useState(false);
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+    const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+
+    const token = searchParams.get('token');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setMessage('');
+
+        if (password !== confirmPassword) {
+            setError('Passwords do not match');
+            return;
+        }
+
+        if (!token) {
+            setError('Invalid or missing reset token');
+            return;
+        }
+
         setLoading(true);
 
         try {
-            const response = await axios.post('/api/auth/login', { email, password });
-            login(response.data.token, response.data.user, rememberMe);
-            navigate('/');
+            await axios.post('/api/auth/reset-password', { token, newPassword: password });
+            setMessage('Password reset successfully. Redirecting to login...');
+            setTimeout(() => {
+                navigate('/login');
+            }, 3000);
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Login failed');
+            setError(err.response?.data?.error || 'Failed to reset password');
         } finally {
             setLoading(false);
         }
     };
+
+    if (!token) {
+        return (
+            <div style={{
+                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'radial-gradient(circle at top left, #1e1e2f 0%, #05070a 100%)',
+                color: 'white'
+            }}>
+                <div className="glass-card" style={{ padding: '32px', textAlign: 'center' }}>
+                    <h2>Invalid Link</h2>
+                    <p style={{ color: 'var(--text-muted)', marginBottom: '20px' }}>This password reset link is invalid or has expired.</p>
+                    <Link to="/forgot-password" style={{ color: 'var(--accent-primary)' }}>Request a new link</Link>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div style={{
@@ -62,11 +96,26 @@ const Login: React.FC = () => {
                         margin: '0 auto 24px auto',
                         boxShadow: '0 8px 16px rgba(0, 242, 254, 0.2)'
                     }}>
-                        <span style={{ fontSize: '32px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>⚡</span>
+                        <span style={{ fontSize: '32px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>🔑</span>
                     </div>
-                    <h1 className="text-gradient" style={{ fontSize: '32px', fontWeight: 800, marginBottom: '8px' }}>Welcome Back</h1>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>Enter your credentials to access the portal</p>
+                    <h1 className="text-gradient" style={{ fontSize: '32px', fontWeight: 800, marginBottom: '8px' }}>Reset Password</h1>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>Enter your new password below</p>
                 </div>
+
+                {message && (
+                    <div className="glass-effect" style={{
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        color: '#10b981',
+                        padding: '16px',
+                        borderRadius: '12px',
+                        marginBottom: '24px',
+                        fontSize: '14px',
+                        textAlign: 'center',
+                        border: '1px solid rgba(16, 185, 129, 0.2)'
+                    }}>
+                        {message}
+                    </div>
+                )}
 
                 {error && (
                     <div className="glass-effect" style={{
@@ -85,26 +134,7 @@ const Login: React.FC = () => {
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group" style={{ marginBottom: '24px' }}>
-                        <label style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Email Address</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            className="glass-effect"
-                            style={{
-                                width: '100%',
-                                padding: '14px 18px',
-                                color: 'white',
-                                borderRadius: '12px',
-                                background: 'rgba(255,255,255,0.03)'
-                            }}
-                            placeholder="admin@platform.com"
-                        />
-                    </div>
-
-                    <div className="form-group" style={{ marginBottom: '24px' }}>
-                        <label style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Password</label>
+                        <label style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>New Password</label>
                         <input
                             type="password"
                             value={password}
@@ -122,28 +152,23 @@ const Login: React.FC = () => {
                         />
                     </div>
 
-                    <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div className="form-group" style={{ marginBottom: '24px' }}>
+                        <label style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Confirm Password</label>
                         <input
-                            type="checkbox"
-                            id="rememberMe"
-                            checked={rememberMe}
-                            onChange={(e) => setRememberMe(e.target.checked)}
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
+                            className="glass-effect"
                             style={{
-                                width: '18px',
-                                height: '18px',
-                                cursor: 'pointer',
-                                accentColor: 'var(--accent-primary)'
+                                width: '100%',
+                                padding: '14px 18px',
+                                color: 'white',
+                                borderRadius: '12px',
+                                background: 'rgba(255,255,255,0.03)'
                             }}
+                            placeholder="••••••••"
                         />
-                        <label htmlFor="rememberMe" style={{ color: 'var(--text-muted)', fontSize: '14px', cursor: 'pointer', userSelect: 'none' }}>
-                            Keep me signed in
-                        </label>
-                    </div>
-
-                    <div style={{ marginBottom: '24px', textAlign: 'right' }}>
-                        <Link to="/forgot-password" style={{ color: 'var(--text-dim)', fontSize: '13px', textDecoration: 'none' }}>
-                            Forgot Password?
-                        </Link>
                     </div>
 
                     <button
@@ -152,19 +177,12 @@ const Login: React.FC = () => {
                         style={{ width: '100%', padding: '16px', fontSize: '16px' }}
                         disabled={loading}
                     >
-                        {loading ? 'Authenticating...' : 'Sign Into Portal'}
+                        {loading ? 'Resetting...' : 'Reset Password'}
                     </button>
                 </form>
-
-                <div style={{ marginTop: '32px', textAlign: 'center', fontSize: '14px' }}>
-                    <span style={{ color: 'var(--text-dim)' }}>New to the platform? </span>
-                    <Link to="/register" style={{ color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: 600 }}>
-                        Create Account
-                    </Link>
-                </div>
             </div>
         </div>
     );
 };
 
-export default Login;
+export default ResetPassword;

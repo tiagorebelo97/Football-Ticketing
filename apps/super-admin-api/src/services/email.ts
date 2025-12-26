@@ -28,3 +28,28 @@ export const sendVerificationEmail = async (email: string, token: string) => {
         return false;
     }
 };
+
+export const sendPasswordResetEmail = async (email: string, token: string) => {
+    const resetLink = `${process.env.SUPER_ADMIN_DASHBOARD_URL || 'http://localhost:3101'}/reset-password?token=${token}`;
+
+    try {
+        const info = await transporter.sendMail({
+            from: '"Super Admin Auth" <auth@football-ticketing.com>',
+            to: email,
+            subject: "Reset your Password",
+            html: `
+        <h1>Password Reset Request</h1>
+        <p>You requested a password reset. Please click the link below to reset your password:</p>
+        <a href="${resetLink}">${resetLink}</a>
+        <p>This link will expire in 1 hour.</p>
+        <p>If you did not request this, please ignore this email.</p>
+      `,
+        });
+
+        console.log("Password reset email sent: %s", info.messageId);
+        return true;
+    } catch (error) {
+        console.error("Error sending password reset email: ", error);
+        return false;
+    }
+};

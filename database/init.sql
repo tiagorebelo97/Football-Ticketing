@@ -53,6 +53,8 @@ CREATE TABLE users (
     last_name VARCHAR(100),
     phone VARCHAR(20),
     role VARCHAR(50) NOT NULL, -- super_admin, club_admin, staff, fan
+    reset_token VARCHAR(255),
+    reset_token_expires TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
