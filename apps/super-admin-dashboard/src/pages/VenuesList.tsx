@@ -21,6 +21,22 @@ const VenuesList: React.FC = () => {
         <div><h1 className="text-gradient" style={{ fontSize: '36px', fontWeight: 800 }}>Venues</h1><p style={{ color: 'var(--text-muted)' }}>Manage stadiums and venues</p></div>
         <button className="premium-btn premium-btn-primary" onClick={() => navigate('/venues/new')}>+ Add Venue</button>
       </div>
+
+      {/* Info box about advanced venue configuration */}
+      <div className="glass-card" style={{ padding: '20px', marginBottom: '24px', background: 'rgba(0, 242, 254, 0.05)', border: '1px solid rgba(0, 242, 254, 0.2)' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+          <div style={{ fontSize: '24px' }}>ℹ️</div>
+          <div>
+            <h4 style={{ margin: '0 0 8px 0', color: 'var(--accent-primary)' }}>Advanced Stadium Configuration</h4>
+            <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-muted)' }}>
+              For advanced stadium configuration with stands, floors, sectors, and seating arrangements, 
+              please use the <strong>Club Backoffice</strong> application (accessible at <code style={{ background: 'rgba(0,0,0,0.3)', padding: '2px 6px', borderRadius: '4px' }}>http://localhost:3102</code> or <code style={{ background: 'rgba(0,0,0,0.3)', padding: '2px 6px', borderRadius: '4px' }}>http://club.localhost</code>).
+              Club administrators can access the full venue builder in the Venues menu.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {venues.length === 0 ? (
         <div className="glass-card" style={{ padding: '80px', textAlign: 'center' }}><h3>No Venues Found</h3></div>
       ) : (
