@@ -7,7 +7,8 @@ import CountriesList from './pages/CountriesList';
 import CountryForm from './pages/CountryForm';
 import CountryDetail from './pages/CountryDetail';
 import VenuesList from './pages/VenuesList';
-import VenueForm from './pages/VenueForm';
+import VenueCreateWizard from './pages/venues/VenueCreateWizard';
+import VenueEditWizard from './pages/venues/VenueEditWizard';
 import CompetitionsList from './pages/CompetitionsList';
 import CompetitionForm from './pages/CompetitionForm';
 import SeasonsList from './pages/SeasonsList';
@@ -74,8 +75,8 @@ function App() {
 
             {/* Venues */}
             <Route path="/venues" element={<VenuesList />} />
-            <Route path="/venues/new" element={<VenueForm />} />
-            <Route path="/venues/:id/edit" element={<VenueForm />} />
+            <Route path="/venues/new" element={<VenueCreateWizard />} />
+            <Route path="/venues/:id/edit" element={<VenueEditWizard />} />
 
             {/* Competitions */}
             <Route path="/competitions" element={<CompetitionsList />} />
