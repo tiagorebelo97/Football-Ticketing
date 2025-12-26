@@ -167,6 +167,7 @@ CREATE INDEX idx_clubs_slug ON clubs(slug);
 CREATE INDEX idx_clubs_keycloak_realm ON clubs(keycloak_realm_id);
 CREATE INDEX idx_users_keycloak_id ON users(keycloak_id);
 CREATE INDEX idx_users_club_id ON users(club_id);
+CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_nfc_cards_uid ON nfc_cards(card_uid);
 CREATE INDEX idx_nfc_cards_club_id ON nfc_cards(club_id);
 CREATE INDEX idx_nfc_cards_status ON nfc_cards(status);
@@ -176,10 +177,14 @@ CREATE INDEX idx_tickets_match_id ON tickets(match_id);
 CREATE INDEX idx_tickets_user_id ON tickets(user_id);
 CREATE INDEX idx_tickets_status ON tickets(status);
 CREATE INDEX idx_transactions_club_id ON transactions(club_id);
+CREATE INDEX idx_transactions_user_id ON transactions(user_id);
+CREATE INDEX idx_transactions_ticket_id ON transactions(ticket_id);
 CREATE INDEX idx_transactions_type ON transactions(type);
 CREATE INDEX idx_entry_logs_match_id ON entry_logs(match_id);
 CREATE INDEX idx_staff_sessions_user_id ON staff_sessions(user_id);
 CREATE INDEX idx_staff_sessions_active ON staff_sessions(is_active);
+-- Index for system_settings
+CREATE INDEX idx_system_settings_key ON system_settings(setting_key);
 
 -- Trigger to update updated_at timestamps
 CREATE OR REPLACE FUNCTION update_updated_at_column()

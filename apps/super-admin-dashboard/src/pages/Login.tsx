@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 const Login: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { login } = useAuth();
@@ -18,7 +19,7 @@ const Login: React.FC = () => {
 
         try {
             const response = await axios.post('/api/auth/login', { email, password });
-            login(response.data.token, response.data.user);
+            login(response.data.token, response.data.user, rememberMe);
             navigate('/');
         } catch (err: any) {
             setError(err.response?.data?.error || 'Login failed');
@@ -102,7 +103,7 @@ const Login: React.FC = () => {
                         />
                     </div>
 
-                    <div className="form-group" style={{ marginBottom: '32px' }}>
+                    <div className="form-group" style={{ marginBottom: '24px' }}>
                         <label style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Password</label>
                         <input
                             type="password"
@@ -119,6 +120,24 @@ const Login: React.FC = () => {
                             }}
                             placeholder="••••••••"
                         />
+                    </div>
+
+                    <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <input
+                            type="checkbox"
+                            id="rememberMe"
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
+                            style={{
+                                width: '18px',
+                                height: '18px',
+                                cursor: 'pointer',
+                                accentColor: 'var(--accent-primary)'
+                            }}
+                        />
+                        <label htmlFor="rememberMe" style={{ color: 'var(--text-muted)', fontSize: '14px', cursor: 'pointer', userSelect: 'none' }}>
+                            Keep me signed in
+                        </label>
                     </div>
 
                     <button

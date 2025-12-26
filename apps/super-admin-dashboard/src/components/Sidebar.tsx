@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaBuilding, FaPlusCircle, FaUsers } from 'react-icons/fa';
+import { FaBuilding, FaPlusCircle, FaUsers, FaCog } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
 const Sidebar: React.FC = () => {
@@ -14,6 +14,7 @@ const Sidebar: React.FC = () => {
 
     if (user?.role === 'super_admin') {
         menuItems.push({ path: '/users', label: 'Management', icon: <FaUsers /> });
+        menuItems.push({ path: '/settings', label: 'Settings', icon: <FaCog /> });
     }
 
     return (

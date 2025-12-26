@@ -6,6 +6,7 @@ import ClubProvisioning from './pages/ClubProvisioning';
 import NFCStockConfig from './pages/NFCStockConfig';
 import FeeConfig from './pages/FeeConfig';
 import UserManagement from './pages/UserManagement';
+import Settings from './pages/Settings';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import VerifyEmail from './pages/VerifyEmail';
@@ -48,6 +49,7 @@ function App() {
             <Route path="/nfc-config/:clubId" element={<NFCStockConfig />} />
             <Route path="/fee-config/:clubId" element={<FeeConfig />} />
             <Route path="/users" element={<UserManagement />} />
+            <Route path="/settings" element={<Settings />} />
           </Route>
         </Routes>
       </Router>

@@ -151,7 +151,7 @@ const UserManagement: React.FC = () => {
                         value={query}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
                         className="glass-effect"
-                        style={{ width: '100%', padding: '14px 20px', borderRadius: '12px', color: 'white', background: 'rgba(255,255,255,0.03)' }}
+                        style={{ width: '100%', padding: '14px 20px', height: '48px', borderRadius: '12px', color: 'white', background: 'rgba(255,255,255,0.03)' }}
                     />
                 </div>
                 <div style={{ minWidth: '180px' }}>
@@ -159,7 +159,7 @@ const UserManagement: React.FC = () => {
                         value={roleFilter}
                         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setRoleFilter(e.target.value)}
                         className="glass-effect"
-                        style={{ width: '100%', padding: '14px', borderRadius: '12px', color: 'white', background: 'rgba(255,255,255,0.03)' }}
+                        style={{ width: '100%', padding: '14px 20px', height: '48px', borderRadius: '12px', color: 'white', background: 'rgba(255,255,255,0.03)' }}
                     >
                         <option value="" style={{ background: '#0f111a' }}>All Roles</option>
                         <option value="super_admin" style={{ background: '#0f111a' }}>Super Admin</option>
@@ -174,7 +174,7 @@ const UserManagement: React.FC = () => {
                         value={clubFilter}
                         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setClubFilter(e.target.value)}
                         className="glass-effect"
-                        style={{ width: '100%', padding: '14px', borderRadius: '12px', color: 'white', background: 'rgba(255,255,255,0.03)' }}
+                        style={{ width: '100%', padding: '14px 20px', height: '48px', borderRadius: '12px', color: 'white', background: 'rgba(255,255,255,0.03)' }}
                     >
                         <option value="" style={{ background: '#0f111a' }}>Global Access</option>
                         {clubs.map(c => <option key={c.id} value={c.id} style={{ background: '#0f111a' }}>{c.name}</option>)}
