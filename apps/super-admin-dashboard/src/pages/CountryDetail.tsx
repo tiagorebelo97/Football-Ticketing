@@ -22,6 +22,7 @@ const CountryDetail: React.FC = () => {
 
   useEffect(() => {
     loadCountry();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const loadCountry = async () => {

@@ -16,6 +16,7 @@ const ClubForm: React.FC = () => {
   useEffect(() => {
     loadCountries();
     if (isEdit && id) loadClub();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const loadCountries = async () => {

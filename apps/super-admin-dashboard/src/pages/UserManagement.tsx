@@ -64,10 +64,12 @@ const UserManagement: React.FC = () => {
 
     useEffect(() => {
         fetchUsers();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [query, roleFilter, clubFilter]);
 
     useEffect(() => {
         fetchClubs();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleToggleVerify = async (user: User) => {

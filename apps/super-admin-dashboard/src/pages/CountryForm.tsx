@@ -19,6 +19,7 @@ const CountryForm: React.FC = () => {
     if (isEdit && id) {
       loadCountry();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const loadCountry = async () => {
