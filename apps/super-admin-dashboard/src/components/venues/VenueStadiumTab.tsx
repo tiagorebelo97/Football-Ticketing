@@ -12,6 +12,7 @@ interface VenueStadiumTabProps {
   onAddStand: (position: 'north' | 'south' | 'east' | 'west') => void;
   onRemoveStand: (standId: string) => void;
   onSelectStand: (standId: string | null) => void;
+  onUpdateStandName: (standId: string, newName: string) => void;
   onAddFloor: (standId: string) => void;
   onRemoveFloor: (standId: string, floorId: string) => void;
   onAddSector: (standId: string, floorId: string) => void;
@@ -30,6 +31,7 @@ const VenueStadiumTab: React.FC<VenueStadiumTabProps> = ({
   onAddStand,
   onRemoveStand,
   onSelectStand,
+  onUpdateStandName,
   onAddFloor,
   onRemoveFloor,
   onAddSector,
@@ -180,6 +182,7 @@ const VenueStadiumTab: React.FC<VenueStadiumTabProps> = ({
               selectedStandId && onRemoveSector(selectedStandId, floorId, sectorId)
             }
             onConfigureSector={handleConfigureSector}
+            onUpdateStandName={(newName) => selectedStandId && onUpdateStandName(selectedStandId, newName)}
             errors={errors}
           />
 

@@ -7,7 +7,7 @@ interface SectorModalProps {
   isOpen: boolean;
   sector: Sector | null;
   onClose: () => void;
-  onSave: (totalSeats: number) => void;
+  onSave: (totalSeats: number, name?: string) => void;
   onAddRow: (seatsCount: number) => void;
   onRemoveRow: (rowId: string) => void;
   onUpdateRow: (rowId: string, seatsCount: number) => void;
@@ -23,18 +23,20 @@ const SectorModal: React.FC<SectorModalProps> = ({
   onUpdateRow
 }) => {
   const [totalSeats, setTotalSeats] = useState<number>(0);
+  const [sectorName, setSectorName] = useState<string>('');
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     if (sector) {
       setTotalSeats(sector.totalSeats || 0);
+      setSectorName(sector.name || '');
       setHasChanges(false);
     }
   }, [sector]);
 
   const handleSave = () => {
     if (sector && (sector.configuredSeats || 0) === totalSeats) {
-      onSave(totalSeats);
+      onSave(totalSeats, sectorName.trim() || sector.name);
       onClose();
     }
   };
@@ -75,6 +77,18 @@ const SectorModal: React.FC<SectorModalProps> = ({
             {/* Right side: Configuration */}
             <div className="sector-config-section">
               <div className="form-group">
+                <label htmlFor="sectorName">Nome do Setor *</label>
+                <input
+                  id="sectorName"
+                  type="text"
+                  className="form-control"
+                  value={sectorName}
+                  onChange={(e) => setSectorName(e.target.value)}
+                  placeholder="Ex: Setor A"
+                />
+              </div>
+
+              <div className="form-group">
                 <label htmlFor="totalSeats">Capacidade Total do Setor *</label>
                 <input
                   id="totalSeats"
@@ -93,7 +107,7 @@ const SectorModal: React.FC<SectorModalProps> = ({
               {totalSeats > 0 && (
                 <>
                   <div className="divider"></div>
-                  
+
                   <RowConfigTable
                     rows={sector.rows || []}
                     totalSeats={totalSeats}

@@ -190,62 +190,251 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
   };
 
   const renderStands = () => {
-    return stands.map(stand => {
+    const elements: JSX.Element[] = [];
+
+    stands.forEach((stand, index) => {
+      if (!stand.id) return;
+
       const geometry = getStandGeometry(stand.position);
       const isSelected = stand.id === selectedStandId;
+      const numFloors = stand.floors?.length || 1;
+      const isHorizontal = stand.position === 'north' || stand.position === 'south';
 
-      return (
-        <Group key={stand.id}>
-          <Rect
-            x={geometry.x}
-            y={geometry.y}
-            width={geometry.width}
-            height={geometry.height}
-            fill={stand.color}
-            opacity={isSelected ? 0.9 : 0.7}
-            stroke={isSelected ? '#FFD700' : '#333'}
-            strokeWidth={isSelected ? 4 : 2}
-            shadowBlur={isSelected ? 10 : 5}
-            shadowColor="black"
-            onClick={() => onStandClick(stand.id!)}
-            onTap={() => onStandClick(stand.id!)}
-            onMouseEnter={(e) => {
-              const container = e.target.getStage()?.container();
+      // Rect for the stand background
+      elements.push(
+        <Rect
+          key={`stand-rect-${stand.id}`}
+          x={geometry.x}
+          y={geometry.y}
+          width={geometry.width}
+          height={geometry.height}
+          fill={stand.color}
+          opacity={0.3}
+          stroke={isSelected ? '#FFD700' : '#333'}
+          strokeWidth={isSelected ? 4 : 2}
+          shadowBlur={isSelected ? 10 : 5}
+          shadowColor="black"
+          onClick={() => stand.id && onStandClick(stand.id)}
+          onTap={() => stand.id && onStandClick(stand.id)}
+          onMouseEnter={(e) => {
+            try {
+              const stage = e.target.getStage();
+              const container = stage?.container();
               if (container) container.style.cursor = 'pointer';
-            }}
-            onMouseLeave={(e) => {
-              const container = e.target.getStage()?.container();
+            } catch (error) {
+              // Ignore
+            }
+          }}
+          onMouseLeave={(e) => {
+            try {
+              const stage = e.target.getStage();
+              const container = stage?.container();
               if (container) container.style.cursor = 'default';
-            }}
-          />
-          <Text
-            x={geometry.x}
-            y={geometry.y + geometry.height / 2 - 10}
-            width={geometry.width}
-            height={20}
-            text={stand.name}
-            fontSize={14}
-            fontStyle="bold"
-            fill="#FFFFFF"
-            align="center"
-            verticalAlign="middle"
-          />
-          {stand.totalCapacity && stand.totalCapacity > 0 && (
-            <Text
-              x={geometry.x}
-              y={geometry.y + geometry.height / 2 + 10}
-              width={geometry.width}
-              height={20}
-              text={`${stand.totalCapacity} lugares`}
-              fontSize={11}
-              fill="#FFFFFF"
-              align="center"
-              verticalAlign="middle"
-            />
-          )}
-        </Group>
+            } catch (error) {
+              // Ignore
+            }
+          }}
+        />
       );
+
+      // Render floors with divisions
+      if (stand.floors && stand.floors.length > 0) {
+        stand.floors.forEach((floor, floorIdx) => {
+          const floorHeight = isHorizontal
+            ? geometry.height / numFloors
+            : geometry.height / numFloors;
+          const floorWidth = isHorizontal
+            ? geometry.width / numFloors
+            : geometry.width / numFloors;
+
+          let floorX, floorY, floorW, floorH;
+
+          if (isHorizontal) {
+            // North/South: stack floors vertically
+            floorX = geometry.x;
+            floorY = geometry.y + (floorIdx * floorHeight);
+            floorW = geometry.width;
+            floorH = floorHeight;
+          } else {
+            // East/West: stack floors horizontally
+            floorX = geometry.x + (floorIdx * floorWidth);
+            floorY = geometry.y;
+            floorW = floorWidth;
+            floorH = geometry.height;
+          }
+
+          // Floor background with different opacity
+          elements.push(
+            <Rect
+              key={`floor-${stand.id}-${floor.id}`}
+              x={floorX}
+              y={floorY}
+              width={floorW}
+              height={floorH}
+              fill={stand.color}
+              opacity={0.4 + (floorIdx * 0.1)}
+              stroke="#FFFFFF"
+              strokeWidth={1}
+              listening={false}
+            />
+          );
+
+          // Render sectors within floor
+          const numSectors = floor.sectors?.length || 0;
+          if (numSectors > 0) {
+            floor.sectors?.forEach((sector, sectorIdx) => {
+              const sectorWidth = isHorizontal
+                ? floorW / numSectors
+                : floorW / numSectors;
+              const sectorHeight = isHorizontal
+                ? floorH / numSectors
+                : floorH / numSectors;
+
+              let sectorX, sectorY, sectorW, sectorH;
+
+              if (isHorizontal) {
+                // North/South: sectors side by side
+                sectorX = floorX + (sectorIdx * sectorWidth);
+                sectorY = floorY;
+                sectorW = sectorWidth;
+                sectorH = floorH;
+              } else {
+                // East/West: sectors top to bottom
+                sectorX = floorX;
+                sectorY = floorY + (sectorIdx * sectorHeight);
+                sectorW = floorW;
+                sectorH = sectorHeight;
+              }
+
+              // Sector background
+              elements.push(
+                <Rect
+                  key={`sector-${stand.id}-${floor.id}-${sector.id}`}
+                  x={sectorX}
+                  y={sectorY}
+                  width={sectorW}
+                  height={sectorH}
+                  fill={stand.color}
+                  opacity={0.5 + (sectorIdx * 0.05)}
+                  stroke="#FFFFFF"
+                  strokeWidth={0.5}
+                  listening={false}
+                />
+              );
+
+              // Sector label (only if there's space)
+              if (sectorW > 30 && sectorH > 15) {
+                elements.push(
+                  <Text
+                    key={`sector-label-${stand.id}-${floor.id}-${sector.id}`}
+                    x={sectorX}
+                    y={sectorY + sectorH / 2 - 10}
+                    width={sectorW}
+                    text={String(sector.name || '')}
+                    fontSize={9}
+                    fontStyle="bold"
+                    fill="#FFFFFF"
+                    align="center"
+                    listening={false}
+                  />
+                );
+
+                // Sector capacity (only if configured)
+                if (sector.configuredSeats && sector.configuredSeats > 0) {
+                  elements.push(
+                    <Text
+                      key={`sector-capacity-${stand.id}-${floor.id}-${sector.id}`}
+                      x={sectorX}
+                      y={sectorY + sectorH / 2 + 2}
+                      width={sectorW}
+                      text={String(sector.configuredSeats)}
+                      fontSize={8}
+                      fill="#FFFFFF"
+                      align="center"
+                      listening={false}
+                    />
+                  );
+                }
+              }
+            });
+          }
+
+          // Floor labels removed per user request
+        });
+      }
+
+      // Text for the stand name - positioned OUTSIDE the rectangle
+      let nameX, nameY, nameAlign;
+      let capacityX, capacityY, capacityAlign;
+
+      if (stand.position === 'north') {
+        // North: labels above the stand
+        nameX = geometry.x;
+        nameY = geometry.y - 25;
+        capacityX = geometry.x;
+        capacityY = geometry.y - 10;
+        nameAlign = 'center';
+        capacityAlign = 'center';
+      } else if (stand.position === 'south') {
+        // South: labels below the stand
+        nameX = geometry.x;
+        nameY = geometry.y + geometry.height + 10;
+        capacityX = geometry.x;
+        capacityY = geometry.y + geometry.height + 25;
+        nameAlign = 'center';
+        capacityAlign = 'center';
+      } else if (stand.position === 'east') {
+        // East: labels to the right
+        nameX = geometry.x + geometry.width + 10;
+        nameY = geometry.y + geometry.height / 2 - 10;
+        capacityX = geometry.x + geometry.width + 10;
+        capacityY = geometry.y + geometry.height / 2 + 5;
+        nameAlign = 'left';
+        capacityAlign = 'left';
+      } else {
+        // West: labels to the left
+        nameX = geometry.x - 10;
+        nameY = geometry.y + geometry.height / 2 - 10;
+        capacityX = geometry.x - 10;
+        capacityY = geometry.y + geometry.height / 2 + 5;
+        nameAlign = 'right';
+        capacityAlign = 'right';
+      }
+
+      elements.push(
+        <Text
+          key={`stand-text-${stand.id}`}
+          x={nameX}
+          y={nameY}
+          width={stand.position === 'north' || stand.position === 'south' ? geometry.width : 100}
+          text={String(stand.name || '')}
+          fontSize={14}
+          fontStyle="bold"
+          fill="#333333"
+          align={nameAlign}
+          listening={false}
+        />
+      );
+
+      // Text for the total capacity
+      if (stand.totalCapacity && stand.totalCapacity > 0) {
+        elements.push(
+          <Text
+            key={`stand-capacity-${stand.id}`}
+            x={capacityX}
+            y={capacityY}
+            width={stand.position === 'north' || stand.position === 'south' ? geometry.width : 100}
+            text={String(stand.totalCapacity) + ' lugares'}
+            fontSize={11}
+            fill="#666666"
+            align={capacityAlign}
+            listening={false}
+          />
+        );
+      }
     });
+
+    return elements;
   };
 
   return (
@@ -259,6 +448,7 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
             width={dimensions.width}
             height={dimensions.height}
             fill="#1a1a1a"
+            listening={false}
           />
 
           {/* Field */}

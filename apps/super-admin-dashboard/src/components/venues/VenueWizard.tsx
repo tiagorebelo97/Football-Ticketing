@@ -25,6 +25,7 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
     removeStand,
     selectStand,
     updateStand,
+    updateStandName,
     addFloor,
     removeFloor,
     updateFloor,
@@ -144,6 +145,7 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
               onAddStand={addStand}
               onRemoveStand={removeStand}
               onSelectStand={selectStand}
+              onUpdateStandName={updateStandName}
               onAddFloor={addFloor}
               onRemoveFloor={removeFloor}
               onAddSector={addSector}

@@ -8,6 +8,7 @@ interface StandConfigPanelProps {
   onAddSector: (floorId: string) => void;
   onRemoveSector: (floorId: string, sectorId: string) => void;
   onConfigureSector: (floorId: string, sectorId: string) => void;
+  onUpdateStandName: (newName: string) => void;
   errors: { [key: string]: string };
 }
 
@@ -18,9 +19,12 @@ const StandConfigPanel: React.FC<StandConfigPanelProps> = ({
   onAddSector,
   onRemoveSector,
   onConfigureSector,
+  onUpdateStandName,
   errors
 }) => {
   const [expandedFloors, setExpandedFloors] = useState<Set<string>>(new Set());
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState('');
 
   const toggleFloor = (floorId: string) => {
     setExpandedFloors(prev => {
@@ -32,6 +36,23 @@ const StandConfigPanel: React.FC<StandConfigPanelProps> = ({
       }
       return next;
     });
+  };
+
+  const handleStartEdit = () => {
+    setEditedName(stand?.name || '');
+    setIsEditingName(true);
+  };
+
+  const handleSaveName = () => {
+    if (editedName.trim()) {
+      onUpdateStandName(editedName.trim());
+    }
+    setIsEditingName(false);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditingName(false);
+    setEditedName('');
   };
 
   if (!stand) {
@@ -47,7 +68,28 @@ const StandConfigPanel: React.FC<StandConfigPanelProps> = ({
   return (
     <div className="stand-config-panel">
       <div className="panel-header">
-        <h3>{stand.name}</h3>
+        {isEditingName ? (
+          <div className="edit-name-container">
+            <input
+              type="text"
+              value={editedName}
+              onChange={(e) => setEditedName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSaveName();
+                if (e.key === 'Escape') handleCancelEdit();
+              }}
+              autoFocus
+              className="edit-name-input"
+            />
+            <button onClick={handleSaveName} className="btn-icon" title="Guardar">✓</button>
+            <button onClick={handleCancelEdit} className="btn-icon" title="Cancelar">✕</button>
+          </div>
+        ) : (
+          <div className="name-display">
+            <h3>{stand.name}</h3>
+            <button onClick={handleStartEdit} className="btn-icon" title="Editar nome">✎</button>
+          </div>
+        )}
         <div className="stand-color-badge" style={{ backgroundColor: stand.color }}></div>
       </div>
 

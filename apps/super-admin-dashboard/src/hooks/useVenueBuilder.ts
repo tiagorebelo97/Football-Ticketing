@@ -124,14 +124,24 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
       west: '#E91E63'
     };
 
+    // Create default first floor
+    const defaultFloor: Floor = {
+      id: uuidv4(),
+      name: 'Piso 1',
+      floorNumber: 1,
+      totalSectors: 0,
+      totalCapacity: 0,
+      sectors: []
+    };
+
     const newStand: Stand = {
       id: uuidv4(),
       name: `Bancada ${positionNames[position]}`,
       position,
       color: colors[position],
-      totalFloors: 0,
+      totalFloors: 1,
       totalCapacity: 0,
-      floors: []
+      floors: [defaultFloor]
     };
 
     setState(prev => ({
@@ -158,6 +168,13 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
     setState(prev => ({
       ...prev,
       stands: prev.stands.map(s => s.id === standId ? { ...s, ...updates } : s)
+    }));
+  }, []);
+
+  const updateStandName = useCallback((standId: string, newName: string) => {
+    setState(prev => ({
+      ...prev,
+      stands: prev.stands.map(s => s.id === standId ? { ...s, name: newName } : s)
     }));
   }, []);
 
@@ -530,6 +547,7 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
     removeStand,
     selectStand,
     updateStand,
+    updateStandName,
 
     // Floors
     addFloor,
