@@ -62,7 +62,7 @@ const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUp
     // Only update if value actually changed
     if (details.sportId !== sportId) {
       const sport = sports.find(s => s.id === sportId);
-      onUpdate({ sportId, sportName: sport?.name });
+      onUpdate({ sportId, sportCode: sport?.code, sportName: sport?.name });
     }
   };
 

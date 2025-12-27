@@ -137,7 +137,7 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
         {state.currentTab === 1 && (
           <ErrorBoundary>
             <VenueStadiumTab
-              sportCode={state.details.sportName?.toLowerCase() || 'football'}
+              sportCode={state.details.sportCode || 'football'}
               stands={state.stands}
               selectedStandId={state.selectedStandId}
               errors={state.errors}

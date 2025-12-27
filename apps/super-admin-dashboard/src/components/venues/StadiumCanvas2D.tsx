@@ -191,8 +191,8 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
 
   const renderStands = () => {
     return stands.map((stand, index) => {
-      // Defensive coding: Ensure ID exists for key, fallback to index + random (unlikely to clash in short session)
-      const standId = stand.id || `stand-${index}-${Date.now()}`;
+      // Defensive coding: Ensure ID exists for key. DO NOT use Date.now() as it causes re-mounts on every render
+      const standId = stand.id || `stand-${index}`;
       const geometry = getStandGeometry(stand.position);
       const isSelected = stand.id === selectedStandId;
       const standColor = stand.color || '#999';
@@ -200,14 +200,6 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
       return (
         <Group
           key={standId}
-          onClick={(e) => {
-            e.cancelBubble = true;
-            onStandClick(stand.id!);
-          }}
-          onTap={(e) => {
-            e.cancelBubble = true;
-            onStandClick(stand.id!);
-          }}
         >
           <Rect
             x={geometry.x}
@@ -220,7 +212,14 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
             strokeWidth={isSelected ? 4 : 2}
             shadowBlur={isSelected ? 10 : 5}
             shadowColor="black"
-            listening={false}
+            onClick={(e) => {
+              e.cancelBubble = true;
+              if (stand.id) onStandClick(stand.id);
+            }}
+            onTap={(e) => {
+              e.cancelBubble = true;
+              if (stand.id) onStandClick(stand.id);
+            }}
           />
           <Text
             x={geometry.x}
@@ -233,7 +232,14 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
             fill="#FFFFFF"
             align="center"
             verticalAlign="middle"
-            listening={false}
+            onClick={(e) => {
+              e.cancelBubble = true;
+              if (stand.id) onStandClick(stand.id);
+            }}
+            onTap={(e) => {
+              e.cancelBubble = true;
+              if (stand.id) onStandClick(stand.id);
+            }}
           />
           {stand.totalCapacity && stand.totalCapacity > 0 && (
             <Text
@@ -246,7 +252,14 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
               fill="#FFFFFF"
               align="center"
               verticalAlign="middle"
-              listening={false}
+              onClick={(e) => {
+                e.cancelBubble = true;
+                if (stand.id) onStandClick(stand.id);
+              }}
+              onTap={(e) => {
+                e.cancelBubble = true;
+                if (stand.id) onStandClick(stand.id);
+              }}
             />
           )}
         </Group>

@@ -8,6 +8,7 @@ export interface VenueDetails {
   city: string;
   address: string;
   sportId: string;
+  sportCode?: string;
   sportName?: string;
   photoUrl: string;
   capacity: number;
@@ -39,6 +40,7 @@ const initialState: VenueBuilderState = {
     city: '',
     address: '',
     sportId: '',
+    sportCode: '',
     sportName: '',
     photoUrl: '',
     capacity: 0
@@ -59,6 +61,7 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
           city: initialVenue.city,
           address: initialVenue.address || '',
           sportId: initialVenue.sportId,
+          sportCode: '', // We don't have code in Venue type unfortunately, unless we fetch it. But for now initialize empty.
           sportName: initialVenue.sportName || '',
           photoUrl: initialVenue.photoUrl || '',
           capacity: initialVenue.capacity || 0
