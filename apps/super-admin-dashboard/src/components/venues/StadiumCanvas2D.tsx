@@ -94,7 +94,7 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
   const renderField = () => {
     if (sportCode === 'football') {
       return (
-        <Group listening={false}>
+        <Group>
           {/* Field */}
           <Rect
             x={fieldX}
@@ -163,7 +163,7 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
 
     // Simple field for other sports
     return (
-      <Group listening={false}>
+      <Group>
         <Rect
           x={fieldX}
           y={fieldY}
@@ -190,35 +190,32 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
   };
 
   const renderStands = () => {
-    return stands.map((stand, index) => {
-      // Defensive coding: Ensure ID exists for key. DO NOT use Date.now() as it causes re-mounts on every render
-      const standId = stand.id || `stand-${index}`;
+    return stands.map(stand => {
       const geometry = getStandGeometry(stand.position);
       const isSelected = stand.id === selectedStandId;
-      const standColor = stand.color || '#999';
 
       return (
-        <Group
-          key={standId}
-        >
+        <Group key={stand.id}>
           <Rect
             x={geometry.x}
             y={geometry.y}
             width={geometry.width}
             height={geometry.height}
-            fill={standColor}
+            fill={stand.color}
             opacity={isSelected ? 0.9 : 0.7}
             stroke={isSelected ? '#FFD700' : '#333'}
             strokeWidth={isSelected ? 4 : 2}
             shadowBlur={isSelected ? 10 : 5}
             shadowColor="black"
-            onClick={(e) => {
-              e.cancelBubble = true;
-              if (stand.id) onStandClick(stand.id);
+            onClick={() => onStandClick(stand.id!)}
+            onTap={() => onStandClick(stand.id!)}
+            onMouseEnter={(e) => {
+              const container = e.target.getStage()?.container();
+              if (container) container.style.cursor = 'pointer';
             }}
-            onTap={(e) => {
-              e.cancelBubble = true;
-              if (stand.id) onStandClick(stand.id);
+            onMouseLeave={(e) => {
+              const container = e.target.getStage()?.container();
+              if (container) container.style.cursor = 'default';
             }}
           />
           <Text
@@ -232,14 +229,6 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
             fill="#FFFFFF"
             align="center"
             verticalAlign="middle"
-            onClick={(e) => {
-              e.cancelBubble = true;
-              if (stand.id) onStandClick(stand.id);
-            }}
-            onTap={(e) => {
-              e.cancelBubble = true;
-              if (stand.id) onStandClick(stand.id);
-            }}
           />
           {stand.totalCapacity && stand.totalCapacity > 0 && (
             <Text
@@ -252,14 +241,6 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
               fill="#FFFFFF"
               align="center"
               verticalAlign="middle"
-              onClick={(e) => {
-                e.cancelBubble = true;
-                if (stand.id) onStandClick(stand.id);
-              }}
-              onTap={(e) => {
-                e.cancelBubble = true;
-                if (stand.id) onStandClick(stand.id);
-              }}
             />
           )}
         </Group>
@@ -278,7 +259,6 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
             width={dimensions.width}
             height={dimensions.height}
             fill="#1a1a1a"
-            listening={false}
           />
 
           {/* Field */}
