@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Stand, Sector } from '../../services/venueService';
+import { Stand, Sector, Row } from '../../services/venueService';
 import StadiumCanvas2D from './StadiumCanvas2D';
 import StandConfigPanel from './StandConfigPanel';
 import SectorModal from './SectorModal';
@@ -20,7 +20,7 @@ interface VenueStadiumTabProps {
   onUpdateSector: (standId: string, floorId: string, sectorId: string, updates: Partial<Sector>) => void;
   onAddRow: (standId: string, floorId: string, sectorId: string, seatsCount: number) => void;
   onRemoveRow: (standId: string, floorId: string, sectorId: string, rowId: string) => void;
-  onUpdateRow: (standId: string, floorId: string, sectorId: string, rowId: string, seatsCount: number) => void;
+  onUpdateRow: (standId: string, floorId: string, sectorId: string, rowId: string, updates: Partial<Row>) => void;
 }
 
 const VenueStadiumTab: React.FC<VenueStadiumTabProps> = ({
@@ -99,16 +99,15 @@ const VenueStadiumTab: React.FC<VenueStadiumTabProps> = ({
     }
   };
 
-  const handleUpdateRowInSector = (rowId: string, seatsCount: number) => {
-    if (editingSector) {
-      onUpdateRow(
-        editingSector.standId,
-        editingSector.floorId,
-        editingSector.sector.id!,
-        rowId,
-        seatsCount
-      );
-    }
+  const handleUpdateRowInSector = (rowId: string, updates: Partial<Row>) => {
+    if (!editingSector) return;
+    onUpdateRow(
+      editingSector.standId,
+      editingSector.floorId,
+      editingSector.sector.id!,
+      rowId,
+      updates
+    );
   };
 
   const existingPositions = stands.map(s => s.position);
@@ -178,10 +177,9 @@ const VenueStadiumTab: React.FC<VenueStadiumTabProps> = ({
             onAddFloor={() => selectedStandId && onAddFloor(selectedStandId)}
             onRemoveFloor={(floorId) => selectedStandId && onRemoveFloor(selectedStandId, floorId)}
             onAddSector={(floorId) => selectedStandId && onAddSector(selectedStandId, floorId)}
-            onRemoveSector={(floorId, sectorId) =>
-              selectedStandId && onRemoveSector(selectedStandId, floorId, sectorId)
-            }
-            onConfigureSector={handleConfigureSector}
+            onRemoveSector={(floorId, sectorId) => selectedStandId && onRemoveSector(selectedStandId, floorId, sectorId)}
+            onUpdateSector={(floorId, sectorId, updates) => selectedStandId && onUpdateSector(selectedStandId, floorId, sectorId, updates)}
+            onConfigureSector={(floorId, sectorId) => handleConfigureSector(floorId, sectorId)}
             onUpdateStandName={(newName) => selectedStandId && onUpdateStandName(selectedStandId, newName)}
             errors={errors}
           />

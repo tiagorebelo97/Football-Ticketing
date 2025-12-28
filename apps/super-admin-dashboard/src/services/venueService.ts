@@ -67,6 +67,7 @@ export interface CreateVenuePayload {
 
 export interface UpdateVenuePayload {
   name?: string;
+  clubId?: string;
   city?: string;
   address?: string;
   sportId?: string;

@@ -7,7 +7,7 @@ interface RowConfigTableProps {
   configuredSeats: number;
   onAddRow: (seatsCount: number) => void;
   onRemoveRow: (rowId: string) => void;
-  onUpdateRow: (rowId: string, seatsCount: number) => void;
+  onUpdateRow: (rowId: string, updates: Partial<Row>) => void;
 }
 
 const RowConfigTable: React.FC<RowConfigTableProps> = ({
@@ -21,6 +21,7 @@ const RowConfigTable: React.FC<RowConfigTableProps> = ({
   const [newRowSeats, setNewRowSeats] = useState<number>(10);
   const [editingRowId, setEditingRowId] = useState<string | null>(null);
   const [editingSeats, setEditingSeats] = useState<number>(0);
+  const [editingName, setEditingName] = useState<string>('');
 
   const handleAddRow = () => {
     if (newRowSeats > 0 && configuredSeats + newRowSeats <= totalSeats) {
@@ -32,11 +33,12 @@ const RowConfigTable: React.FC<RowConfigTableProps> = ({
   const handleStartEdit = (row: Row) => {
     setEditingRowId(row.id!);
     setEditingSeats(row.seatsCount);
+    setEditingName(row.name);
   };
 
   const handleSaveEdit = () => {
-    if (editingRowId && editingSeats > 0) {
-      onUpdateRow(editingRowId, editingSeats);
+    if (editingRowId && editingSeats > 0 && editingName.trim()) {
+      onUpdateRow(editingRowId, { seatsCount: editingSeats, name: editingName });
       setEditingRowId(null);
     }
   };
@@ -74,7 +76,20 @@ const RowConfigTable: React.FC<RowConfigTableProps> = ({
           <tbody>
             {rows.map((row) => (
               <tr key={row.id}>
-                <td className="row-name">{row.name}</td>
+                <td className="row-name">
+                  {editingRowId === row.id ? (
+                    <input
+                      type="text"
+                      className="form-control-sm"
+                      value={editingName}
+                      onChange={(e) => setEditingName(e.target.value)}
+                      autoFocus
+                      style={{ width: '80px', marginRight: '5px' }}
+                    />
+                  ) : (
+                    row.name
+                  )}
+                </td>
                 <td>
                   {editingRowId === row.id ? (
                     <input
@@ -84,10 +99,9 @@ const RowConfigTable: React.FC<RowConfigTableProps> = ({
                       className="form-control-sm"
                       value={editingSeats}
                       onChange={(e) => setEditingSeats(parseInt(e.target.value) || 0)}
-                      autoFocus
                     />
                   ) : (
-                    <span className="seats-count">{row.seatsCount}</span>
+                    row.seatsCount
                   )}
                 </td>
                 <td className="actions">

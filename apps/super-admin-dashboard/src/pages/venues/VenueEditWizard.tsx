@@ -32,6 +32,7 @@ const VenueEditWizard: React.FC = () => {
     await venueService.updateVenue(id, {
       name: venue.name,
       city: venue.city,
+      clubId: venue.clubId,
       address: venue.address,
       sportId: venue.sportId,
       photoUrl: venue.photoUrl,

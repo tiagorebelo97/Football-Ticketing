@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Sector } from '../../services/venueService';
+import React from 'react';
+import { Sector, Row } from '../../services/venueService';
 import SectorCanvas2D from './SectorCanvas2D';
 import RowConfigTable from './RowConfigTable';
 
@@ -10,7 +10,7 @@ interface SectorModalProps {
   onSave: (totalSeats: number, name?: string) => void;
   onAddRow: (seatsCount: number) => void;
   onRemoveRow: (rowId: string) => void;
-  onUpdateRow: (rowId: string, seatsCount: number) => void;
+  onUpdateRow: (rowId: string, updates: Partial<Row>) => void;
 }
 
 const SectorModal: React.FC<SectorModalProps> = ({
@@ -22,38 +22,21 @@ const SectorModal: React.FC<SectorModalProps> = ({
   onRemoveRow,
   onUpdateRow
 }) => {
-  const [totalSeats, setTotalSeats] = useState<number>(0);
-  const [sectorName, setSectorName] = useState<string>('');
-  const [hasChanges, setHasChanges] = useState(false);
-
-  useEffect(() => {
-    if (sector) {
-      setTotalSeats(sector.totalSeats || 0);
-      setSectorName(sector.name || '');
-      setHasChanges(false);
-    }
-  }, [sector]);
-
-  const handleSave = () => {
-    if (sector && (sector.configuredSeats || 0) === totalSeats) {
-      onSave(totalSeats, sectorName.trim() || sector.name);
-      onClose();
-    }
-  };
-
-  const handleTotalSeatsChange = (value: number) => {
-    if (value >= (sector?.configuredSeats || 0)) {
-      setTotalSeats(value);
-      setHasChanges(true);
-    }
-  };
-
   if (!isOpen || !sector) {
     return null;
   }
 
-  const isComplete = (sector.configuredSeats || 0) === totalSeats && totalSeats > 0;
-  const canSave = isComplete;
+  const totalSeats = sector.totalSeats || 0;
+  const configuredSeats = sector.configuredSeats || 0;
+  const isComplete = configuredSeats === totalSeats && totalSeats > 0;
+
+  const handleDone = () => {
+    if (isComplete) {
+      // We still call onSave to trigger any parent logic, though primarily it's just closing
+      onSave(totalSeats, sector.name);
+      onClose();
+    }
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -76,32 +59,10 @@ const SectorModal: React.FC<SectorModalProps> = ({
 
             {/* Right side: Configuration */}
             <div className="sector-config-section">
-              <div className="form-group">
-                <label htmlFor="sectorName">Nome do Setor *</label>
-                <input
-                  id="sectorName"
-                  type="text"
-                  className="form-control"
-                  value={sectorName}
-                  onChange={(e) => setSectorName(e.target.value)}
-                  placeholder="Ex: Setor A"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="totalSeats">Capacidade Total do Setor *</label>
-                <input
-                  id="totalSeats"
-                  type="number"
-                  min="1"
-                  max="10000"
-                  className="form-control"
-                  value={totalSeats}
-                  onChange={(e) => handleTotalSeatsChange(parseInt(e.target.value) || 0)}
-                />
-                <small className="form-text">
-                  Defina o número total de assentos disponíveis neste setor.
-                </small>
+              <div className="sector-summary">
+                <p><strong>Setor:</strong> {sector.name}</p>
+                <p><strong>Capacidade:</strong> {totalSeats}</p>
+                <p className="text-muted small">Para alterar o nome ou a capacidade total, utilize o painel principal na lista de setores.</p>
               </div>
 
               {totalSeats > 0 && (
@@ -111,7 +72,7 @@ const SectorModal: React.FC<SectorModalProps> = ({
                   <RowConfigTable
                     rows={sector.rows || []}
                     totalSeats={totalSeats}
-                    configuredSeats={sector.configuredSeats || 0}
+                    configuredSeats={configuredSeats}
                     onAddRow={onAddRow}
                     onRemoveRow={onRemoveRow}
                     onUpdateRow={onUpdateRow}
@@ -140,10 +101,10 @@ const SectorModal: React.FC<SectorModalProps> = ({
           </button>
           <button
             className="btn btn-primary"
-            onClick={handleSave}
-            disabled={!canSave}
+            onClick={handleDone}
+            disabled={!isComplete}
           >
-            Guardar Configuração
+            Concluir
           </button>
         </div>
       </div>

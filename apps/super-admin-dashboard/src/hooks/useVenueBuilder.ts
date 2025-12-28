@@ -61,7 +61,7 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
           city: initialVenue.city,
           address: initialVenue.address || '',
           sportId: initialVenue.sportId,
-          sportCode: '', // We don't have code in Venue type unfortunately, unless we fetch it. But for now initialize empty.
+          sportCode: initialVenue.sportCode || '',
           sportName: initialVenue.sportName || '',
           photoUrl: initialVenue.photoUrl || '',
           capacity: initialVenue.capacity || 0
@@ -97,6 +97,34 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
       details: { ...prev.details, ...details },
       errors: { ...prev.errors, details: '' }
     }));
+  }, []);
+
+  // Helper function to recalculate capacities throughout the hierarchy
+  const recalculateCapacities = useCallback((stands: Stand[]): Stand[] => {
+    return stands.map(stand => {
+      const floors = (stand.floors || []).map(floor => {
+        // Sum up all sector seats to get floor capacity
+        const floorCapacity = (floor.sectors || []).reduce((sum, sector) => {
+          return sum + (sector.totalSeats || 0);
+        }, 0);
+
+        return {
+          ...floor,
+          totalCapacity: floorCapacity
+        };
+      });
+
+      // Sum up all floor capacities to get stand capacity
+      const standCapacity = floors.reduce((sum, floor) => {
+        return sum + (floor.totalCapacity || 0);
+      }, 0);
+
+      return {
+        ...stand,
+        floors,
+        totalCapacity: standCapacity
+      };
+    });
   }, []);
 
   // Stand management
@@ -282,9 +310,8 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
   }, []);
 
   const removeSector = useCallback((standId: string, floorId: string, sectorId: string) => {
-    setState(prev => ({
-      ...prev,
-      stands: prev.stands.map(s =>
+    setState(prev => {
+      const updatedStands = prev.stands.map(s =>
         s.id === standId
           ? {
             ...s,
@@ -299,14 +326,18 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
             )
           }
           : s
-      )
-    }));
-  }, []);
+      );
+
+      return {
+        ...prev,
+        stands: recalculateCapacities(updatedStands)
+      };
+    });
+  }, [recalculateCapacities]);
 
   const updateSector = useCallback((standId: string, floorId: string, sectorId: string, updates: Partial<Sector>) => {
-    setState(prev => ({
-      ...prev,
-      stands: prev.stands.map(s =>
+    setState(prev => {
+      const updatedStands = prev.stands.map(s =>
         s.id === standId
           ? {
             ...s,
@@ -322,9 +353,14 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
             )
           }
           : s
-      )
-    }));
-  }, []);
+      );
+
+      return {
+        ...prev,
+        stands: recalculateCapacities(updatedStands)
+      };
+    });
+  }, [recalculateCapacities]);
 
   // Row management
   const addRow = useCallback((standId: string, floorId: string, sectorId: string, seatsCount: number) => {
@@ -420,10 +456,9 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
     }));
   }, []);
 
-  const updateRow = useCallback((standId: string, floorId: string, sectorId: string, rowId: string, seatsCount: number) => {
-    setState(prev => ({
-      ...prev,
-      stands: prev.stands.map(s =>
+  const updateRow = useCallback((standId: string, floorId: string, sectorId: string, rowId: string, updates: Partial<Row>) => {
+    setState(prev => {
+      const updatedStands = prev.stands.map(s =>
         s.id === standId
           ? {
             ...s,
@@ -436,13 +471,15 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
 
                     const oldRow = (sec.rows || []).find(r => r.id === rowId);
                     const oldSeats = oldRow?.seatsCount || 0;
-                    const newSeats = seatsCount;
+
+                    // Determine new seats count (if updated)
+                    const newSeats = updates.seatsCount !== undefined ? updates.seatsCount : oldSeats;
                     const seatsDiff = newSeats - oldSeats;
 
                     return {
                       ...sec,
                       rows: (sec.rows || []).map(r =>
-                        r.id === rowId ? { ...r, seatsCount } : r
+                        r.id === rowId ? { ...r, ...updates } : r
                       ),
                       configuredSeats: (sec.configuredSeats || 0) + seatsDiff
                     };
@@ -452,9 +489,14 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
             )
           }
           : s
-      )
-    }));
-  }, []);
+      );
+
+      return {
+        ...prev,
+        stands: recalculateCapacities(updatedStands)
+      };
+    });
+  }, [recalculateCapacities]);
 
   // Internal Validation (Pure functions)
   const getTab1Errors = useCallback((details: VenueDetails) => {

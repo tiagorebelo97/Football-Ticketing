@@ -11,12 +11,10 @@ const Header: React.FC = () => {
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '0 40px',
-            position: 'fixed',
-            left: 'var(--sidebar-width)',
-            right: 0,
-            top: 0,
+            position: 'relative',
             zIndex: 900,
-            borderBottom: '1px solid var(--border-glass)'
+            borderBottom: '1px solid var(--border-glass)',
+            flexShrink: 0
         }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{

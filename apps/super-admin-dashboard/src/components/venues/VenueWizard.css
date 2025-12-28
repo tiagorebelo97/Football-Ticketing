@@ -5,6 +5,7 @@
 }
 
 /* Venue Wizard Styles */
+/* Venue Wizard Styles */
 .venue-wizard {
   background: var(--bg-glass-light);
   backdrop-filter: blur(20px);
@@ -12,14 +13,29 @@
   border: 1px solid var(--border-glass);
   border-radius: 12px;
   box-shadow: var(--shadow-premium);
-  overflow: hidden;
+  /* overflow: hidden; Removed to prevent cutting off content */
   color: var(--text-main);
 }
 
-.wizard-header {
-  background: linear-gradient(135deg, var(--color-primary, #2196F3) 0%, var(--color-secondary, #1976D2) 100%);
-  color: white;
-  padding: 2rem;
+/* ... existing styles ... */
+
+.stadium-layout {
+  display: grid;
+  /* Use minmax(0, 1fr) to allow the canvas column to shrink below content size */
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 1500px) {
+  .stadium-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .stadium-config-section {
+    max-width: 100%;
+  }
 }
 
 .wizard-header h1 {
@@ -259,10 +275,34 @@
 
 .stadium-layout {
   display: grid;
-  grid-template-columns: 1fr 400px;
+  /* Use minmax(0, 1fr) to allow the canvas column to shrink below content size */
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
   gap: 2rem;
   margin-top: 2rem;
 }
+
+@media (max-width: 1500px) {
+  .stadium-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .stadium-config-section {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 1200px) {
+  .stadium-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .stadium-config-section {
+    max-width: 100%;
+  }
+}
+
 
 .stadium-canvas-section {
   background: rgba(255, 255, 255, 0.03);
@@ -488,16 +528,74 @@
 
 .sector-item {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border-glass);
-  border-radius: 4px;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.sector-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(33, 150, 243, 0.3);
+  transform: translateY(-1px);
 }
 
 .sector-info {
   flex: 1;
+}
+
+.sector-info-inline {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.sector-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 120px;
+}
+
+.sector-input-group label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sector-input-group .small-input {
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: var(--text-main);
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.sector-input-group .small-input:focus {
+  outline: none;
+  background: rgba(0, 0, 0, 0.3);
+  border-color: var(--color-primary, #2196F3);
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+.sector-stats-summary {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: rgba(33, 150, 243, 0.1);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primary, #2196F3);
 }
 
 .sector-name {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useVenueBuilder } from '../../hooks/useVenueBuilder';
 import { Venue } from '../../services/venueService';
 import VenueDetailsTab from './VenueDetailsTab';
@@ -48,6 +48,9 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
     { id: 0, label: 'Detalhes da Venue', icon: '📋' },
     { id: 1, label: 'Configuração do Estádio', icon: '🏟️' }
   ];
+
+  // Memoize total capacity calculation to ensure it updates when stands change
+  const totalCapacity = useMemo(() => calculateTotalCapacity(), [state.stands]);
 
   const handleNext = () => {
     if (state.currentTab === 0) {
@@ -176,7 +179,7 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
           {state.currentTab === 1 && (
             <div className="capacity-display">
               <span className="capacity-label">Capacidade Total:</span>
-              <span className="capacity-value">{calculateTotalCapacity()}</span>
+              <span className="capacity-value">{totalCapacity}</span>
               <span className="capacity-unit">lugares</span>
             </div>
           )}
