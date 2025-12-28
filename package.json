@@ -10,8 +10,10 @@
   "scripts": {
     "dev": "docker-compose up",
     "build": "npm run build --workspaces",
-    "test": "npm run test --workspaces",
-    "clean": "docker-compose down -v"
+    "test": "npm run test --workspaces --if-present",
+    "test:regression": "npm run test --workspace=apps/fan-api --workspace=apps/club-backoffice-api --workspace=apps/pos-api --workspace=apps/entry-api --workspace=apps/super-admin-api",
+    "clean": "docker-compose down -v",
+    "prepare": "husky"
   },
   "keywords": [
     "football",
@@ -20,5 +22,8 @@
     "multi-tenant"
   ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
 }
