@@ -9,6 +9,7 @@ import venueRoutes from './routes/venues';
 import sportRoutes from './routes/sports';
 import reportRoutes from './routes/reports';
 import authRoutes from './routes/auth';
+import userRoutes from './routes/users';
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.use('/api/venues', venueRoutes);
 app.use('/api/sports', sportRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/clubs', userRoutes);
 
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);

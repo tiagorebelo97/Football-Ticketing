@@ -12,6 +12,7 @@ import Login from './pages/Login';
 import VenueList from './pages/venues/VenueList';
 import VenueCreate from './pages/venues/VenueCreate';
 import VenueEdit from './pages/venues/VenueEdit';
+import UserManagement from './pages/UserManagement';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './App.css';
 
@@ -53,6 +54,7 @@ function App() {
             <Route path="/venues/:id/edit" element={<VenueEdit />} />
             <Route path="/nfc-inventory" element={<NFCInventory />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/user-management" element={<UserManagement />} />
           </Route>
         </Routes>
       </Router>
