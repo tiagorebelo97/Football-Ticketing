@@ -24,6 +24,8 @@ const ClubSettings: React.FC = () => {
 
     useEffect(() => {
         loadData();
+        // loadData is intentionally not in the dependency array to prevent infinite loops
+        // We only want to reload data when the clubId changes
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user?.clubId]);
 
@@ -69,12 +71,10 @@ const ClubSettings: React.FC = () => {
 
             await clubService.updateClub(user.clubId, formData);
 
-            setMessage({ type: 'success', text: 'Club information updated successfully!' });
-
-            // Reload the page after 1.5 seconds to refresh the club data in context
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
+            setMessage({ 
+                type: 'success', 
+                text: 'Club information updated successfully! Please refresh the page to see the changes in the sidebar.' 
+            });
         } catch (error: any) {
             console.error('Error updating club:', error);
             setMessage({ 
