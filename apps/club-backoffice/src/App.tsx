@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
 import Layout from './components/Layout';
@@ -12,6 +11,7 @@ import Login from './pages/Login';
 import VenueList from './pages/venues/VenueList';
 import VenueCreate from './pages/venues/VenueCreate';
 import VenueEdit from './pages/venues/VenueEdit';
+import ClubSettings from './pages/ClubSettings';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './App.css';
 
@@ -53,6 +53,7 @@ function App() {
             <Route path="/venues/:id/edit" element={<VenueEdit />} />
             <Route path="/nfc-inventory" element={<NFCInventory />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/settings" element={<ClubSettings />} />
           </Route>
         </Routes>
       </Router>
