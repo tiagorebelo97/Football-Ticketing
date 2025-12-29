@@ -14,6 +14,8 @@ import clubRoutes from './routes/clubs';
 import clubsRoutes from './routes/clubs';
 import membersRoutes from './routes/members';
 
+import dashboardRoutes from './routes/dashboard';
+
 dotenv.config();
 
 const app = express();
@@ -41,6 +43,7 @@ app.use('/api/clubs', userRoutes);
 app.use('/api/clubs', clubRoutes);
 app.use('/api/clubs', clubsRoutes);
 app.use('/api/clubs', membersRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);

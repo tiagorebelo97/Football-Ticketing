@@ -1,29 +1,17 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const data = [
-    { name: 'JAN', value: 100 },
-    { name: 'FEB', value: 200 },
-    { name: 'MAR', value: 180 },
-    { name: 'APR', value: 278 },
-    { name: 'MAY', value: 350 },
-    { name: 'JUN', value: 300 },
-    { name: 'JUL', value: 130 },
-    { name: 'AUG', value: 180 },
-    { name: 'SEP', value: 220 },
-    { name: 'OCT', value: 190 },
-    { name: 'NOV', value: 390 },
-    { name: 'DEC', value: 410 },
-];
+interface ActivityChartProps {
+    data?: Array<{ name: string; value: number }>;
+}
 
-const ActivityChart: React.FC = () => {
+const ActivityChart: React.FC<ActivityChartProps> = ({ data = [] }) => {
     return (
         <div className="card" style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h3>Activity</h3>
+                <h3>Revenue Activity</h3>
                 <select style={{ border: 'none', background: 'transparent', color: 'var(--color-text)', fontWeight: 600, cursor: 'pointer' }}>
-                    <option>Month</option>
-                    <option>Year</option>
+                    <option style={{ color: 'black' }}>Last 6 Months</option>
                 </select>
             </div>
             <div style={{ flex: 1 }}>
@@ -32,10 +20,13 @@ const ActivityChart: React.FC = () => {
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
                         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#aaa' }} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#aaa' }} />
-                        <Tooltip cursor={{ fill: 'transparent' }} />
+                        <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ color: 'black' }} />
                         <Bar dataKey="value" fill="var(--color-primary-dark)" radius={[10, 10, 10, 10]} background={{ fill: '#eafaf1', radius: 10 }} />
                     </BarChart>
                 </ResponsiveContainer>
+                {data.length === 0 && (
+                    <div style={{ textAlign: 'center', color: '#aaa', marginTop: '-150px' }}>No revenue data available</div>
+                )}
             </div>
         </div>
     );

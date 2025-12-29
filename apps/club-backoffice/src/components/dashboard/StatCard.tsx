@@ -18,14 +18,14 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, trend }) => {
                 <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{value}</div>
                 {trend && (
                     <div style={{
-                        color: trend.isPositive ? 'var(--color-primary)' : 'var(--color-danger)',
+                        color: trend.value > 0 ? '#2ecc71' : trend.value < 0 ? 'var(--color-danger)' : '#bdc3c7',
                         display: 'flex',
                         alignItems: 'center',
                         fontSize: '14px',
                         fontWeight: 500
                     }}>
-                        {trend.value}%
-                        {trend.isPositive ? <FaArrowUp style={{ marginLeft: '4px', fontSize: '12px' }} /> : <FaArrowDown style={{ marginLeft: '4px', fontSize: '12px' }} />}
+                        {trend.value > 0 && '+'}{trend.value}%
+                        {trend.value > 0 ? <FaArrowUp style={{ marginLeft: '4px', fontSize: '12px' }} /> : trend.value < 0 ? <FaArrowDown style={{ marginLeft: '4px', fontSize: '12px' }} /> : null}
                     </div>
                 )}
             </div>

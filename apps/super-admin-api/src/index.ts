@@ -14,6 +14,7 @@ import venuesRoutes from './routes/venues';
 import competitionsRoutes from './routes/competitions';
 import seasonsRoutes from './routes/seasons';
 import sportsRoutes from './routes/sports';
+import dashboardRoutes from './routes/dashboard';
 
 dotenv.config();
 
@@ -48,6 +49,7 @@ app.use('/api/fee-config', feeConfigRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

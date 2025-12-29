@@ -138,18 +138,14 @@ const MemberList: React.FC = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    const colors: Record<string, string> = {
-      active: '#4caf50',
-      suspended: '#ff9800',
-      cancelled: '#f44336'
-    };
+    const isSuccess = status === 'active';
+    const isWarning = status === 'suspended';
+
     return (
-      <span style={{
-        padding: '4px 8px',
-        borderRadius: '4px',
-        backgroundColor: colors[status] || '#999',
-        color: 'white',
-        fontSize: '12px'
+      <span className={`badge ${isSuccess ? 'badge-success' : isWarning ? 'badge-warning' : ''}`} style={{
+        backgroundColor: !isSuccess && !isWarning ? 'rgba(255, 255, 255, 0.05)' : undefined,
+        color: !isSuccess && !isWarning ? 'var(--text-muted)' : undefined,
+        border: !isSuccess && !isWarning ? '1px solid var(--border-glass)' : undefined,
       }}>
         {status}
       </span>
@@ -157,20 +153,21 @@ const MemberList: React.FC = () => {
   };
 
   const getTypeBadge = (type: string) => {
-    const colors: Record<string, string> = {
-      regular: '#2196f3',
-      premium: '#9c27b0',
-      vip: '#ff9800',
-      junior: '#4caf50',
-      senior: '#607d8b'
+    const colors: Record<string, { bg: string, text: string }> = {
+      regular: { bg: 'rgba(79, 172, 254, 0.1)', text: 'var(--accent-secondary)' },
+      premium: { bg: 'rgba(112, 0, 255, 0.1)', text: '#a855f7' },
+      vip: { bg: 'rgba(245, 158, 11, 0.1)', text: '#f59e0b' },
+      junior: { bg: 'rgba(16, 185, 129, 0.1)', text: '#10b981' },
+      senior: { bg: 'rgba(94, 114, 228, 0.1)', text: '#5e72e4' }
     };
+
+    const style = colors[type] || { bg: 'rgba(255, 255, 255, 0.05)', text: 'var(--text-muted)' };
+
     return (
-      <span style={{
-        padding: '4px 8px',
-        borderRadius: '4px',
-        backgroundColor: colors[type] || '#999',
-        color: 'white',
-        fontSize: '12px'
+      <span className="badge" style={{
+        backgroundColor: style.bg,
+        color: style.text,
+        border: `1px solid ${style.bg.replace('0.1', '0.2')}`
       }}>
         {type}
       </span>
@@ -178,140 +175,194 @@ const MemberList: React.FC = () => {
   };
 
   return (
-    <div className="card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2>Club Members / Sócios do Clube</h2>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button onClick={() => setShowImportModal(true)} className="btn-secondary">
-            Import Excel
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      {/* Page Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h1 style={{ margin: 0, color: '#ffffff', fontSize: '2.5rem' }}>Club Members</h1>
+          <p style={{ margin: '8px 0 0', color: 'var(--text-muted)', fontSize: '1.1rem' }}>
+            Manage and monitor your club's member base and revenue
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button onClick={() => setShowImportModal(true)} className="premium-btn premium-btn-secondary">
+            <span>📥</span> Import Excel
           </button>
-          <Link to="/members/create" className="btn">
-            Add New Member
+          <Link to="/members/create" className="premium-btn premium-btn-primary" style={{ textDecoration: 'none' }}>
+            <span>+</span> Add Member
           </Link>
         </div>
       </div>
 
-      {/* Statistics Cards */}
+      {/* Statistics Row */}
       {stats && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '20px' }}>
-          <div className="card" style={{ padding: '15px', background: '#f5f5f5' }}>
-            <h4 style={{ margin: '0 0 10px 0', color: '#666' }}>Total Members</h4>
-            <p style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>{stats.members.total_members}</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
+          <div className="glass-card" style={{ padding: '24px' }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>Total Members</div>
+            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#ffffff' }}>{stats.members.total_members}</div>
           </div>
-          <div className="card" style={{ padding: '15px', background: '#e8f5e9' }}>
-            <h4 style={{ margin: '0 0 10px 0', color: '#666' }}>Active Members</h4>
-            <p style={{ fontSize: '24px', fontWeight: 'bold', margin: 0, color: '#4caf50' }}>{stats.members.active_members}</p>
+          <div className="glass-card" style={{ padding: '24px' }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>Active Members</div>
+            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#10b981' }}>{stats.members.active_members}</div>
           </div>
-          <div className="card" style={{ padding: '15px', background: '#fff3e0' }}>
-            <h4 style={{ margin: '0 0 10px 0', color: '#666' }}>Overdue Quotas</h4>
-            <p style={{ fontSize: '24px', fontWeight: 'bold', margin: 0, color: '#ff9800' }}>{stats.quotas.overdue_quotas}</p>
+          <div className="glass-card" style={{ padding: '24px' }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>Overdue Quotas</div>
+            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#f59e0b' }}>{stats.quotas.overdue_quotas}</div>
           </div>
-          <div className="card" style={{ padding: '15px', background: '#e3f2fd' }}>
-            <h4 style={{ margin: '0 0 10px 0', color: '#666' }}>Total Revenue</h4>
-            <p style={{ fontSize: '24px', fontWeight: 'bold', margin: 0, color: '#2196f3' }}>€{parseFloat(stats.quotas.total_revenue).toFixed(2)}</p>
+          <div className="glass-card" style={{ padding: '24px' }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>Total Revenue</div>
+            <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'var(--accent-primary)' }}>
+              €{parseFloat(stats.quotas.total_revenue).toLocaleString('pt-PT', { minimumFractionDigits: 2 })}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Filters */}
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
-        <input
-          type="text"
-          placeholder="Search by name, email, or member number..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ flex: 1, minWidth: '200px', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-        />
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-        >
-          <option value="">All Status</option>
-          <option value="active">Active</option>
-          <option value="suspended">Suspended</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-        <select
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value)}
-          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-        >
-          <option value="">All Types</option>
-          <option value="regular">Regular</option>
-          <option value="premium">Premium</option>
-          <option value="vip">VIP</option>
-          <option value="junior">Junior</option>
-          <option value="senior">Senior</option>
-        </select>
-      </div>
+      {/* Members Main Section */}
+      <div className="glass-card" style={{ padding: '24px' }}>
+        {/* Filters Panel */}
+        <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
+          <div style={{ flex: 1, minWidth: '300px', position: 'relative' }}>
+            <input
+              type="text"
+              placeholder="Search by name, email, or member number..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid var(--border-glass)',
+                borderRadius: '12px',
+                color: '#ffffff',
+                outline: 'none'
+              }}
+            />
+          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            style={{
+              padding: '12px 16px',
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid var(--border-glass)',
+              borderRadius: '12px',
+              color: '#ffffff',
+              minWidth: '150px'
+            }}
+          >
+            <option value="" style={{ background: '#1a1c23' }}>All Status</option>
+            <option value="active" style={{ background: '#1a1c23' }}>Active</option>
+            <option value="suspended" style={{ background: '#1a1c23' }}>Suspended</option>
+            <option value="cancelled" style={{ background: '#1a1c23' }}>Cancelled</option>
+          </select>
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            style={{
+              padding: '12px 16px',
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid var(--border-glass)',
+              borderRadius: '12px',
+              color: '#ffffff',
+              minWidth: '150px'
+            }}
+          >
+            <option value="" style={{ background: '#1a1c23' }}>All Types</option>
+            <option value="regular" style={{ background: '#1a1c23' }}>Regular</option>
+            <option value="premium" style={{ background: '#1a1c23' }}>Premium</option>
+            <option value="vip" style={{ background: '#1a1c23' }}>VIP</option>
+            <option value="junior" style={{ background: '#1a1c23' }}>Junior</option>
+            <option value="senior" style={{ background: '#1a1c23' }}>Senior</option>
+          </select>
+        </div>
 
-      {loading && <p>Loading members...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+        {loading && <div className="loading">Updating member list...</div>}
+        {error && <div className="error">{error}</div>}
 
-      {!loading && !error && (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#f5f5f5', textAlign: 'left' }}>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Member #</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Name</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Email</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Status</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Type</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Member Since</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Quota</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Quotas Status</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {members.length === 0 ? (
+        {!loading && !error && (
+          <div style={{ overflowX: 'auto' }}>
+            <table className="table">
+              <thead>
                 <tr>
-                  <td colSpan={9} style={{ padding: '20px', textAlign: 'center' }}>
-                    No members found. Click "Add New Member" to create one or import from Excel.
-                  </td>
+                  <th>Member #</th>
+                  <th>Name</th>
+                  <th>Status</th>
+                  <th>Type</th>
+                  <th>Member Since</th>
+                  <th>Quota</th>
+                  <th>Quotas Status</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
-              ) : (
-                members.map((member) => (
-                  <tr key={member.id} style={{ borderBottom: '1px solid #eee' }}>
-                    <td style={{ padding: '10px' }}>{member.member_number}</td>
-                    <td style={{ padding: '10px' }}>{member.first_name} {member.last_name}</td>
-                    <td style={{ padding: '10px' }}>{member.email}</td>
-                    <td style={{ padding: '10px' }}>{getStatusBadge(member.status)}</td>
-                    <td style={{ padding: '10px' }}>{getTypeBadge(member.member_type)}</td>
-                    <td style={{ padding: '10px' }}>{new Date(member.member_since).toLocaleDateString()}</td>
-                    <td style={{ padding: '10px' }}>€{parseFloat(member.quota_amount.toString()).toFixed(2)}</td>
-                    <td style={{ padding: '10px' }}>
-                      <span style={{ color: '#4caf50' }}>{member.paid_quotas} paid</span>
-                      {member.overdue_quotas > 0 && (
-                        <span style={{ color: '#f44336', marginLeft: '5px' }}> / {member.overdue_quotas} overdue</span>
-                      )}
-                    </td>
-                    <td style={{ padding: '10px' }}>
-                      <div style={{ display: 'flex', gap: '5px' }}>
-                        <Link to={`/members/${member.id}`} className="btn-secondary" style={{ fontSize: '12px', padding: '4px 8px' }}>
-                          View
-                        </Link>
-                        <Link to={`/members/${member.id}/edit`} className="btn-secondary" style={{ fontSize: '12px', padding: '4px 8px' }}>
-                          Edit
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(member.id)}
-                          className="btn-danger"
-                          style={{ fontSize: '12px', padding: '4px 8px' }}
-                        >
-                          Deactivate
-                        </button>
-                      </div>
+              </thead>
+              <tbody>
+                {members.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                      No members found matching your search criteria.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+                ) : (
+                  members.map((member) => (
+                    <tr key={member.id}>
+                      <td style={{ fontWeight: '500', color: 'var(--accent-secondary)' }}>{member.member_number}</td>
+                      <td>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <span style={{ fontWeight: '600' }}>{member.first_name} {member.last_name}</span>
+                          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{member.email}</span>
+                        </div>
+                      </td>
+                      <td>{getStatusBadge(member.status)}</td>
+                      <td>{getTypeBadge(member.member_type)}</td>
+                      <td>{new Date(member.member_since).toLocaleDateString()}</td>
+                      <td style={{ fontWeight: '500' }}>€{parseFloat(member.quota_amount.toString()).toFixed(2)}</td>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ color: '#10b981', fontWeight: '500' }}>{member.paid_quotas} paid</span>
+                          {member.overdue_quotas > 0 && (
+                            <span style={{
+                              color: 'var(--color-danger)',
+                              fontSize: '12px',
+                              background: 'rgba(231, 76, 60, 0.1)',
+                              padding: '2px 6px',
+                              borderRadius: '4px'
+                            }}>
+                              {member.overdue_quotas} overdue
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                          <Link to={`/members/${member.id}`} className="premium-btn premium-btn-secondary" style={{ padding: '6px 12px', fontSize: '13px', textDecoration: 'none' }}>
+                            View
+                          </Link>
+                          <Link to={`/members/${member.id}/edit`} className="premium-btn premium-btn-secondary" style={{ padding: '6px 12px', fontSize: '13px', textDecoration: 'none' }}>
+                            Edit
+                          </Link>
+                          <button
+                            onClick={() => handleDelete(member.id)}
+                            className="premium-btn"
+                            style={{
+                              padding: '6px 12px',
+                              fontSize: '13px',
+                              background: 'rgba(231, 76, 60, 0.1)',
+                              color: 'var(--color-danger)',
+                              border: '1px solid rgba(231, 76, 60, 0.2)'
+                            }}
+                          >
+                            Deactivate
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       {/* Import Modal */}
       {showImportModal && (
@@ -321,39 +372,70 @@ const MemberList: React.FC = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)',
+          backgroundColor: 'rgba(0,0,0,0.8)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 1000
+          zIndex: 1000,
+          backdropFilter: 'blur(10px)'
         }}>
-          <div className="card" style={{ width: '500px', maxWidth: '90%' }}>
-            <h3>Import Members from Excel</h3>
-            <p>Upload an Excel (.xlsx) or CSV file with member information.</p>
+          <div className="glass-card" style={{ width: '540px', maxWidth: '95%', padding: '32px' }}>
+            <h3 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>Import Members</h3>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>Upload an Excel (.xlsx) or CSV file with member information to batch create records.</p>
 
-            <button onClick={downloadTemplate} className="btn-secondary" style={{ marginBottom: '15px', width: '100%' }}>
-              Download Template
+            <button onClick={downloadTemplate} className="premium-btn premium-btn-secondary" style={{ marginBottom: '16px', width: '100%', justifyContent: 'center' }}>
+              📥 Download CSV Template
             </button>
 
-            <input
-              type="file"
-              accept=".xlsx,.xls,.csv"
-              onChange={(e) => setImportFile(e.target.files?.[0] || null)}
-              style={{ marginBottom: '15px', width: '100%' }}
-            />
+            <div style={{
+              border: '2px dashed var(--border-glass)',
+              borderRadius: '16px',
+              padding: '24px',
+              textAlign: 'center',
+              marginBottom: '24px',
+              background: 'rgba(255, 255, 255, 0.02)'
+            }}>
+              <input
+                type="file"
+                id="member-import-file"
+                accept=".xlsx,.xls,.csv"
+                onChange={(e) => setImportFile(e.target.files?.[0] || null)}
+                style={{ display: 'none' }}
+              />
+              <label htmlFor="member-import-file" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <span style={{ fontSize: '24px' }}>📄</span>
+                <span style={{ fontWeight: '600' }}>{importFile ? importFile.name : 'Select or drop file here'}</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Supported formats: .xlsx, .xls, .csv</span>
+              </label>
+            </div>
 
             {importStatus && (
-              <p style={{ color: importStatus.includes('failed') ? 'red' : 'green', marginBottom: '15px' }}>
+              <div style={{
+                padding: '12px',
+                borderRadius: '8px',
+                marginBottom: '24px',
+                background: importStatus.includes('failed') ? 'rgba(231, 76, 60, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                color: importStatus.includes('failed') ? 'var(--color-danger)' : '#10b981',
+                fontSize: '14px',
+                textAlign: 'center'
+              }}>
                 {importStatus}
-              </p>
+              </div>
             )}
 
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowImportModal(false)} className="btn-secondary">
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => {
+                  setShowImportModal(false);
+                  setImportFile(null);
+                  setImportStatus(null);
+                }}
+                className="premium-btn premium-btn-secondary"
+              >
                 Cancel
               </button>
-              <button onClick={handleImport} className="btn" disabled={!importFile}>
-                Import
+              <button onClick={handleImport} className="premium-btn premium-btn-primary" disabled={!importFile || importStatus === 'Importing...'}>
+                {importStatus === 'Importing...' ? 'Processing...' : 'Start Import'}
               </button>
             </div>
           </div>
@@ -361,6 +443,7 @@ const MemberList: React.FC = () => {
       )}
     </div>
   );
+
 };
 
 export default MemberList;

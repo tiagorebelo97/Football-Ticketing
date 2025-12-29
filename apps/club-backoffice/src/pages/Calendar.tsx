@@ -80,14 +80,17 @@ const Calendar: React.FC = () => {
 
     // Empty cells for days before month starts
     for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push(<div key={`empty-${i}`} className="calendar-day empty" />);
+      days.push(<div key={`empty-${i}`} className="calendar-day empty" style={{
+        background: 'rgba(255, 255, 255, 0.01)',
+        minHeight: '120px'
+      }} />);
     }
 
     // Days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month, day);
       const dayMatches = getMatchesForDate(date);
-      const isToday = 
+      const isToday =
         date.getDate() === today.getDate() &&
         date.getMonth() === today.getMonth() &&
         date.getFullYear() === today.getFullYear();
@@ -97,43 +100,57 @@ const Calendar: React.FC = () => {
           key={day}
           className={`calendar-day ${isToday ? 'today' : ''}`}
           style={{
-            minHeight: '100px',
-            border: '1px solid #e0e0e0',
-            padding: '8px',
-            backgroundColor: isToday ? '#e3f2fd' : '#fff',
+            minHeight: '120px',
+            padding: '12px',
+            background: isToday ? 'rgba(79, 172, 254, 0.05)' : 'rgba(255, 255, 255, 0.02)',
             cursor: dayMatches.length > 0 ? 'pointer' : 'default',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            transition: 'background 0.2s'
           }}
         >
-          <div style={{ 
-            fontWeight: isToday ? 'bold' : 'normal',
-            color: isToday ? '#1976d2' : '#333',
-            marginBottom: '5px',
+          <div style={{
+            fontWeight: isToday ? 'bold' : '500',
+            color: isToday ? 'var(--accent-secondary)' : '#ffffff',
             fontSize: '14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
           }}>
             {day}
+            {isToday && <span style={{ fontSize: '10px', background: 'var(--accent-secondary)', color: '#000', padding: '1px 4px', borderRadius: '4px' }}>TODAY</span>}
           </div>
-          {dayMatches.map(match => (
-            <div
-              key={match.id}
-              onClick={() => navigate('/matches')}
-              style={{
-                backgroundColor: match.status === 'scheduled' ? '#4caf50' : 
-                                match.status === 'ongoing' ? '#ff9800' : '#9e9e9e',
-                color: 'white',
-                padding: '4px 6px',
-                borderRadius: '4px',
-                fontSize: '11px',
-                marginBottom: '3px',
-                cursor: 'pointer',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-              title={`${match.home_team} vs ${match.away_team} - ${new Date(match.match_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
-            >
-              {new Date(match.match_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} {match.home_team} vs {match.away_team}
-            </div>
-          ))}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {dayMatches.map(match => (
+              <div
+                key={match.id}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate('/matches');
+                }}
+                style={{
+                  backgroundColor: match.status === 'scheduled' ? 'rgba(16, 185, 129, 0.15)' :
+                    match.status === 'ongoing' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(158, 158, 158, 0.1)',
+                  color: match.status === 'scheduled' ? '#10b981' :
+                    match.status === 'ongoing' ? '#f59e0b' : '#9e9e9e',
+                  padding: '4px 8px',
+                  borderRadius: '6px',
+                  fontSize: '10px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  border: `1px solid ${match.status === 'scheduled' ? 'rgba(16, 185, 129, 0.2)' :
+                    match.status === 'ongoing' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(158, 158, 158, 0.2)'}`
+                }}
+                title={`${match.home_team} vs ${match.away_team} - ${new Date(match.match_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+              >
+                {new Date(match.match_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} | {match.home_team}
+              </div>
+            ))}
+          </div>
         </div>
       );
     }
@@ -149,67 +166,80 @@ const Calendar: React.FC = () => {
     'July', 'August', 'September', 'October', 'November', 'December'];
 
   return (
-    <div style={{ padding: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '0 0 40px' }}>
+      {/* Page Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <h2 style={{ margin: 0, color: 'var(--color-secondary)' }}>Match Calendar</h2>
-          <p style={{ margin: '5px 0 0', color: 'var(--color-text-light)' }}>Organize your season schedule</p>
+          <h1 style={{ margin: 0, color: '#ffffff', fontSize: '2.5rem' }}>Match Calendar</h1>
+          <p style={{ margin: '8px 0 0', color: 'var(--text-muted)', fontSize: '1.1rem' }}>
+            Organize and manage your season schedule
+          </p>
         </div>
-        <button className="btn btn-success" onClick={() => navigate('/create-match')}>
+        <button className="premium-btn premium-btn-primary" onClick={() => navigate('/create-match')}>
           + New Match
         </button>
       </div>
 
-      <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <button className="btn" onClick={goToPreviousMonth} style={{ padding: '8px 16px' }}>
+      <div className="glass-card" style={{ padding: '24px' }}>
+        {/* Calendar Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+          <button className="premium-btn premium-btn-secondary" onClick={goToPreviousMonth}>
             ← Previous
           </button>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <h3 style={{ margin: 0, fontSize: '20px' }}>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <h3 style={{ margin: 0, fontSize: '1.5rem', color: '#ffffff' }}>
               {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
             </h3>
-            <button className="btn btn-primary" onClick={goToToday} style={{ padding: '6px 12px', fontSize: '12px' }}>
+            <button className="premium-btn" onClick={goToToday} style={{
+              padding: '6px 12px',
+              fontSize: '13px',
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid var(--border-glass)'
+            }}>
               Today
             </button>
           </div>
-          <button className="btn" onClick={goToNextMonth} style={{ padding: '8px 16px' }}>
+          <button className="premium-btn premium-btn-secondary" onClick={goToNextMonth}>
             Next →
           </button>
         </div>
 
         {/* Legend */}
-        <div style={{ display: 'flex', gap: '20px', marginBottom: '15px', fontSize: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <div style={{ width: '12px', height: '12px', backgroundColor: '#4caf50', borderRadius: '2px' }} />
-            <span>Scheduled</span>
+        <div style={{ display: 'flex', gap: '24px', marginBottom: '24px', padding: '12px', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--text-muted)' }}>
+            <div style={{ width: '10px', height: '10px', backgroundColor: '#10b981', borderRadius: '50%' }} />
+            Scheduled
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <div style={{ width: '12px', height: '12px', backgroundColor: '#ff9800', borderRadius: '2px' }} />
-            <span>Ongoing</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--text-muted)' }}>
+            <div style={{ width: '10px', height: '10px', backgroundColor: '#f59e0b', borderRadius: '50%' }} />
+            Ongoing
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <div style={{ width: '12px', height: '12px', backgroundColor: '#9e9e9e', borderRadius: '2px' }} />
-            <span>Completed/Cancelled</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--text-muted)' }}>
+            <div style={{ width: '10px', height: '10px', backgroundColor: 'rgba(255, 255, 255, 0.3)', borderRadius: '50%' }} />
+            Completed/Cancelled
           </div>
         </div>
 
-        {/* Day headers */}
-        <div style={{ 
-          display: 'grid', 
+        {/* Day names */}
+        <div style={{
+          display: 'grid',
           gridTemplateColumns: 'repeat(7, 1fr)',
-          gap: '0',
-          marginBottom: '10px',
+          gap: '1px',
+          background: 'var(--border-glass)',
+          border: '1px solid var(--border-glass)',
+          borderRadius: '12px 12px 0 0',
+          overflow: 'hidden'
         }}>
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} style={{ 
-              padding: '10px',
+            <div key={day} style={{
+              padding: '12px',
               textAlign: 'center',
-              fontWeight: 'bold',
-              fontSize: '14px',
-              color: '#666',
-              backgroundColor: '#f5f5f5',
-              border: '1px solid #e0e0e0',
+              fontWeight: '600',
+              fontSize: '13px',
+              color: 'var(--text-muted)',
+              background: 'rgba(255, 255, 255, 0.03)',
+              textTransform: 'uppercase',
+              letterSpacing: '1px'
             }}>
               {day}
             </div>
@@ -217,10 +247,15 @@ const Calendar: React.FC = () => {
         </div>
 
         {/* Calendar grid */}
-        <div style={{ 
-          display: 'grid', 
+        <div style={{
+          display: 'grid',
           gridTemplateColumns: 'repeat(7, 1fr)',
-          gap: '0',
+          gap: '1px',
+          background: 'var(--border-glass)',
+          border: '1px solid var(--border-glass)',
+          borderTop: 'none',
+          borderRadius: '0 0 12px 12px',
+          overflow: 'hidden'
         }}>
           {renderCalendar()}
         </div>
@@ -228,53 +263,75 @@ const Calendar: React.FC = () => {
 
       {/* Upcoming matches summary */}
       <div style={{ marginTop: '30px' }}>
-        <h3 style={{ marginBottom: '15px', color: 'var(--color-secondary)' }}>Upcoming Matches</h3>
-        <div style={{ display: 'grid', gap: '10px' }}>
+        <h3 style={{ marginBottom: '20px', color: '#ffffff', fontSize: '1.5rem' }}>Next Scheduled Events</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '20px' }}>
           {matches
             .filter(m => new Date(m.match_date) >= new Date() && m.status === 'scheduled')
             .sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime())
-            .slice(0, 5)
+            .slice(0, 4)
             .map(match => (
-              <div 
-                key={match.id} 
-                className="card"
-                style={{ 
-                  padding: '15px',
+              <div
+                key={match.id}
+                className="glass-card"
+                style={{
+                  padding: '20px',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   cursor: 'pointer',
+                  transition: 'transform 0.2s',
+                  border: '1px solid var(--border-glass)'
                 }}
                 onClick={() => navigate('/matches')}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-4px)')}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
               >
-                <div>
-                  <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                    {match.home_team} vs {match.away_team}
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                  <div style={{
+                    padding: '12px',
+                    background: 'rgba(16, 185, 129, 0.1)',
+                    borderRadius: '12px',
+                    color: '#10b981',
+                    fontSize: '20px'
+                  }}>
+                    ⚽
                   </div>
-                  <div style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>
-                    📅 {new Date(match.match_date).toLocaleDateString()} at {new Date(match.match_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    {' '} | 📍 {match.venue}
+                  <div>
+                    <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#ffffff' }}>
+                      {match.home_team} vs {match.away_team}
+                    </div>
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px', display: 'flex', gap: '12px' }}>
+                      <span>📅 {new Date(match.match_date).toLocaleDateString()}</span>
+                      <span>⏰ {new Date(match.match_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--accent-secondary)', marginTop: '4px' }}>
+                      📍 {match.venue}
+                    </div>
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '14px', color: '#666' }}>
-                    {match.current_attendance} / {match.total_capacity} fans
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                    Ticket Price
                   </div>
-                  <div style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--color-primary)' }}>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--accent-primary)' }}>
                     €{Number(match.ticket_price).toFixed(2)}
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#10b981', marginTop: '4px' }}>
+                    {match.current_attendance} booked
                   </div>
                 </div>
               </div>
             ))}
           {matches.filter(m => new Date(m.match_date) >= new Date() && m.status === 'scheduled').length === 0 && (
-            <div className="card" style={{ textAlign: 'center', padding: '30px', color: '#666' }}>
-              No upcoming matches scheduled
+            <div className="glass-card" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+              No upcoming matches scheduled currently.
             </div>
           )}
         </div>
       </div>
     </div>
   );
+
 };
 
 export default Calendar;

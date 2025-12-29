@@ -1,27 +1,24 @@
 import React from 'react';
 
-const members = [
-    { name: 'ZéPincel23', status: null },
-    { name: 'Matumbo', status: null },
-    { name: 'ArthurPicanhas', status: null },
-    { name: 'Esgalha', status: null },
-    { name: 'Caoceição', status: 'Join' },
-];
+interface NewMembersListProps {
+    members?: Array<{
+        name: string;
+        status: string;
+    }>;
+}
 
-const NewMembersList: React.FC = () => {
+const NewMembersList: React.FC<NewMembersListProps> = ({ members = [] }) => {
     return (
         <div className="card">
-            <h3 style={{ marginBottom: '20px' }}>New Members Live</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+            <h3 style={{ marginBottom: '20px' }}>New Members</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '15px', maxHeight: '300px', overflowY: 'auto' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                     {members.map((member, idx) => (
-                        <MemberItem key={`l-${idx}`} member={member} />
+                        <MemberItem key={`m-${idx}`} member={member} />
                     ))}
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                    {members.map((member, idx) => (
-                        <MemberItem key={`r-${idx}`} member={member} />
-                    ))}
+                    {members.length === 0 && (
+                        <div style={{ textAlign: 'center', color: '#bdc3c7', padding: '20px' }}>No new members recently</div>
+                    )}
                 </div>
             </div>
         </div>
@@ -44,7 +41,7 @@ const MemberItem: React.FC<{ member: { name: string, status: string | null } }> 
                 marginLeft: 'auto',
                 fontSize: '10px',
                 padding: '2px 6px',
-                backgroundColor: 'var(--color-primary)',
+                backgroundColor: member.status === 'Active' ? 'var(--color-primary)' : '#95a5a6',
                 color: 'white',
                 borderRadius: '4px'
             }}>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
 import Layout from './components/Layout';
+import Dashboard from './pages/Dashboard';
 import ClubsList from './pages/ClubsList';
 import ClubForm from './pages/ClubForm';
 import CountriesList from './pages/CountriesList';
@@ -58,7 +59,8 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
 
           <Route element={<ProtectedLayout />}>
-            <Route path="/" element={<Navigate to="/countries" replace />} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<Dashboard />} />
 
             {/* Countries */}
             <Route path="/countries" element={<CountriesList />} />
