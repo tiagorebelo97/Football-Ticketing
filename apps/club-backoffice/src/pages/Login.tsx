@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
-    const [slug, setSlug] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -17,19 +16,17 @@ const Login: React.FC = () => {
         setLoading(true);
         setError('');
         try {
-            await login(slug, email, password);
+            await login(email, password);
             navigate('/');
         } catch (error: any) {
             console.error('Login error:', error);
             let errorMessage = error.message || 'Login failed. Please check your credentials.';
-            
+
             // Provide more helpful error messages
-            if (error.message === 'Club not found') {
-                errorMessage = 'Club not found. Please check the club slug. Example: "sporting-cp", "benfica", "fc-porto"';
-            } else if (error.message && error.message.includes('Failed to fetch')) {
+            if (error.message && error.message.includes('Failed to fetch')) {
                 errorMessage = 'Unable to connect to the server. Please ensure the services are running.';
             }
-            
+
             setError(errorMessage);
         } finally {
             setLoading(false);
@@ -93,25 +90,6 @@ const Login: React.FC = () => {
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group" style={{ marginBottom: '24px' }}>
-                        <label style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Club Slug</label>
-                        <input
-                            type="text"
-                            value={slug}
-                            onChange={(e) => setSlug(e.target.value)}
-                            placeholder="e.g. sporting-cp"
-                            required
-                            className="glass-effect"
-                            style={{
-                                width: '100%',
-                                padding: '14px 18px',
-                                color: 'white',
-                                borderRadius: '12px',
-                                background: 'rgba(255,255,255,0.03)'
-                            }}
-                        />
-                    </div>
-
-                    <div className="form-group" style={{ marginBottom: '24px' }}>
                         <label style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Admin Email</label>
                         <input
                             type="email"
@@ -160,7 +138,7 @@ const Login: React.FC = () => {
                 </form>
 
                 <div style={{ marginTop: '24px', padding: '12px', background: 'rgba(79, 172, 254, 0.1)', border: '1px solid rgba(79, 172, 254, 0.3)', borderRadius: '8px', fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center' }}>
-                    <strong style={{ color: 'var(--accent-primary)' }}>Development Mode:</strong> Enter your club slug to access the dashboard. Password is not required.
+                    <strong style={{ color: 'var(--accent-primary)' }}>Development Mode:</strong> Login with your club admin email. Password is not verified yet.
                 </div>
 
                 <div style={{ marginTop: '32px', textAlign: 'center', fontSize: '14px' }}>
