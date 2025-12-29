@@ -1,12 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaThLarge, FaUsers, FaCalendarAlt, FaMapMarkerAlt, FaChartBar, FaUsersCog, FaCog } from 'react-icons/fa';
+import { FaThLarge, FaUsers, FaCalendarAlt, FaMapMarkerAlt, FaChartBar, FaUsersCog, FaCog, FaBars } from 'react-icons/fa';
 import '../index.css';
 import { useAuth } from '../context/AuthContext';
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+    onCollapsedChange?: (collapsed: boolean) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onCollapsedChange }) => {
     const location = useLocation();
     const { club, user } = useAuth();
+    const [isCollapsed, setIsCollapsed] = useState(false);
+
+    const toggleCollapsed = () => {
+        const newCollapsed = !isCollapsed;
+        setIsCollapsed(newCollapsed);
+        onCollapsedChange?.(newCollapsed);
+    };
 
     const menuItems = [
         { path: '/', label: 'Dashboard', icon: <FaThLarge /> },
@@ -20,30 +31,70 @@ const Sidebar: React.FC = () => {
 
     return (
         <div className="glass-effect" style={{
-            width: 'var(--sidebar-width)',
+            width: isCollapsed ? '80px' : 'var(--sidebar-width)',
             color: 'var(--text-main)',
             height: '100vh',
             display: 'flex',
             flexDirection: 'column',
             position: 'fixed',
             zIndex: 1000,
-            overflow: 'hidden'
+            overflow: 'hidden',
+            transition: 'width 0.3s ease'
         }}>
-            <div style={{ padding: '32px', marginBottom: '10px', textAlign: 'center' }}>
-                {club?.logoUrl ? (
+            {/* Toggle Button */}
+            <button
+                onClick={toggleCollapsed}
+                style={{
+                    position: 'absolute',
+                    top: '20px',
+                    right: isCollapsed ? '50%' : '20px',
+                    transform: isCollapsed ? 'translateX(50%)' : 'none',
+                    background: 'rgba(255,255,255,0.1)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                    color: 'var(--text-main)',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    fontSize: '18px',
+                    zIndex: 10
+                }}
+                className="glass-effect"
+            >
+                <FaBars />
+            </button>
+
+            <div style={{ padding: isCollapsed ? '60px 10px 20px' : '60px 32px 20px', textAlign: 'center', transition: 'padding 0.3s ease' }}>
+                {club?.logoUrl && (
                     <img
                         src={club.logoUrl}
                         alt={`${club.name} logo`}
-                        style={{ maxWidth: '80%', maxHeight: '80px', objectFit: 'contain', marginBottom: '16px' }}
+                        style={{
+                            maxWidth: isCollapsed ? '40px' : '80%',
+                            maxHeight: isCollapsed ? '40px' : '80px',
+                            objectFit: 'contain',
+                            transition: 'all 0.3s ease'
+                        }}
                     />
-                ) : (
-                    <h1 className="text-gradient" style={{ fontSize: '22px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                        {club?.name || 'Club'}
-                    </h1>
                 )}
-                <p style={{ fontSize: '10px', color: 'var(--text-dim)', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '2px' }}>
-                    Club Backoffice
-                </p>
+                {!isCollapsed && (
+                    <>
+                        <h2 style={{
+                            fontSize: '16px',
+                            fontWeight: 700,
+                            marginTop: '12px',
+                            color: 'var(--text-main)',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
+                        }}>
+                            {club?.name || 'Club'}
+                        </h2>
+                        <p style={{ fontSize: '10px', color: 'var(--text-dim)', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '2px' }}>
+                            Club Backoffice
+                        </p>
+                    </>
+                )}
             </div>
 
             <nav style={{ flex: 1, padding: '0 16px' }}>
@@ -53,10 +104,12 @@ const Sidebar: React.FC = () => {
                         <Link
                             key={item.path}
                             to={item.path}
+                            title={isCollapsed ? item.label : ''}
                             style={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                padding: '14px 20px',
+                                justifyContent: isCollapsed ? 'center' : 'flex-start',
+                                padding: isCollapsed ? '14px 10px' : '14px 20px',
                                 textDecoration: 'none',
                                 borderRadius: 'var(--radius-sm)',
                                 color: isActive ? 'var(--accent-primary)' : 'var(--text-muted)',
@@ -77,8 +130,8 @@ const Sidebar: React.FC = () => {
                                     borderRadius: '0 4px 4px 0'
                                 }} />
                             )}
-                            <span style={{ marginRight: '16px', fontSize: '18px', display: 'flex' }}>{item.icon}</span>
-                            <span style={{ fontWeight: isActive ? 600 : 500, fontSize: '15px' }}>{item.label}</span>
+                            <span style={{ marginRight: isCollapsed ? '0' : '16px', fontSize: '18px', display: 'flex' }}>{item.icon}</span>
+                            {!isCollapsed && <span style={{ fontWeight: isActive ? 600 : 500, fontSize: '15px' }}>{item.label}</span>}
                         </Link>
                     );
                 })}

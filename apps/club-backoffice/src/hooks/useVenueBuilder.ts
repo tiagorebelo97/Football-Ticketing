@@ -15,16 +15,16 @@ export interface VenueDetails {
 export interface VenueBuilderState {
   // Tab state
   currentTab: number;
-  
+
   // Venue details (Tab 1)
   details: VenueDetails;
-  
+
   // Stadium configuration (Tab 2)
   stands: Stand[];
-  
+
   // Selected stand for editing
   selectedStandId: string | null;
-  
+
   // Validation errors
   errors: {
     [key: string]: string;
@@ -51,7 +51,7 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
   const [state, setState] = useState<VenueBuilderState>(() => {
     if (initialVenue) {
       return {
-        currentTab: 0,
+        currentTab: 1, // Start on stadium configuration when editing
         details: {
           name: initialVenue.name,
           city: initialVenue.city,
@@ -171,13 +171,13 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
 
       return {
         ...prev,
-        stands: prev.stands.map(s => 
-          s.id === standId 
-            ? { 
-                ...s, 
-                floors: [...(s.floors || []), newFloor],
-                totalFloors: (s.totalFloors || 0) + 1
-              }
+        stands: prev.stands.map(s =>
+          s.id === standId
+            ? {
+              ...s,
+              floors: [...(s.floors || []), newFloor],
+              totalFloors: (s.totalFloors || 0) + 1
+            }
             : s
         )
       };
@@ -187,13 +187,13 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
   const removeFloor = useCallback((standId: string, floorId: string) => {
     setState(prev => ({
       ...prev,
-      stands: prev.stands.map(s => 
-        s.id === standId 
-          ? { 
-              ...s, 
-              floors: (s.floors || []).filter(f => f.id !== floorId),
-              totalFloors: Math.max(0, (s.totalFloors || 1) - 1)
-            }
+      stands: prev.stands.map(s =>
+        s.id === standId
+          ? {
+            ...s,
+            floors: (s.floors || []).filter(f => f.id !== floorId),
+            totalFloors: Math.max(0, (s.totalFloors || 1) - 1)
+          }
           : s
       )
     }));
@@ -202,14 +202,14 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
   const updateFloor = useCallback((standId: string, floorId: string, updates: Partial<Floor>) => {
     setState(prev => ({
       ...prev,
-      stands: prev.stands.map(s => 
-        s.id === standId 
+      stands: prev.stands.map(s =>
+        s.id === standId
           ? {
-              ...s,
-              floors: (s.floors || []).map(f => 
-                f.id === floorId ? { ...f, ...updates } : f
-              )
-            }
+            ...s,
+            floors: (s.floors || []).map(f =>
+              f.id === floorId ? { ...f, ...updates } : f
+            )
+          }
           : s
       )
     }));
@@ -236,20 +236,20 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
 
       return {
         ...prev,
-        stands: prev.stands.map(s => 
-          s.id === standId 
+        stands: prev.stands.map(s =>
+          s.id === standId
             ? {
-                ...s,
-                floors: (s.floors || []).map(f => 
-                  f.id === floorId 
-                    ? {
-                        ...f,
-                        sectors: [...(f.sectors || []), newSector],
-                        totalSectors: (f.totalSectors || 0) + 1
-                      }
-                    : f
-                )
-              }
+              ...s,
+              floors: (s.floors || []).map(f =>
+                f.id === floorId
+                  ? {
+                    ...f,
+                    sectors: [...(f.sectors || []), newSector],
+                    totalSectors: (f.totalSectors || 0) + 1
+                  }
+                  : f
+              )
+            }
             : s
         )
       };
@@ -259,20 +259,20 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
   const removeSector = useCallback((standId: string, floorId: string, sectorId: string) => {
     setState(prev => ({
       ...prev,
-      stands: prev.stands.map(s => 
-        s.id === standId 
+      stands: prev.stands.map(s =>
+        s.id === standId
           ? {
-              ...s,
-              floors: (s.floors || []).map(f => 
-                f.id === floorId 
-                  ? {
-                      ...f,
-                      sectors: (f.sectors || []).filter(sec => sec.id !== sectorId),
-                      totalSectors: Math.max(0, (f.totalSectors || 1) - 1)
-                    }
-                  : f
-              )
-            }
+            ...s,
+            floors: (s.floors || []).map(f =>
+              f.id === floorId
+                ? {
+                  ...f,
+                  sectors: (f.sectors || []).filter(sec => sec.id !== sectorId),
+                  totalSectors: Math.max(0, (f.totalSectors || 1) - 1)
+                }
+                : f
+            )
+          }
           : s
       )
     }));
@@ -281,21 +281,21 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
   const updateSector = useCallback((standId: string, floorId: string, sectorId: string, updates: Partial<Sector>) => {
     setState(prev => ({
       ...prev,
-      stands: prev.stands.map(s => 
-        s.id === standId 
+      stands: prev.stands.map(s =>
+        s.id === standId
           ? {
-              ...s,
-              floors: (s.floors || []).map(f => 
-                f.id === floorId 
-                  ? {
-                      ...f,
-                      sectors: (f.sectors || []).map(sec => 
-                        sec.id === sectorId ? { ...sec, ...updates } : sec
-                      )
-                    }
-                  : f
-              )
-            }
+            ...s,
+            floors: (s.floors || []).map(f =>
+              f.id === floorId
+                ? {
+                  ...f,
+                  sectors: (f.sectors || []).map(sec =>
+                    sec.id === sectorId ? { ...sec, ...updates } : sec
+                  )
+                }
+                : f
+            )
+          }
           : s
       )
     }));
@@ -335,27 +335,27 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
 
       return {
         ...prev,
-        stands: prev.stands.map(s => 
-          s.id === standId 
+        stands: prev.stands.map(s =>
+          s.id === standId
             ? {
-                ...s,
-                floors: (s.floors || []).map(f => 
-                  f.id === floorId 
-                    ? {
-                        ...f,
-                        sectors: (f.sectors || []).map(sec => 
-                          sec.id === sectorId 
-                            ? {
-                                ...sec,
-                                rows: [...(sec.rows || []), newRow],
-                                configuredSeats: currentConfigured + seatsCount
-                              }
-                            : sec
-                        )
-                      }
-                    : f
-                )
-              }
+              ...s,
+              floors: (s.floors || []).map(f =>
+                f.id === floorId
+                  ? {
+                    ...f,
+                    sectors: (f.sectors || []).map(sec =>
+                      sec.id === sectorId
+                        ? {
+                          ...sec,
+                          rows: [...(sec.rows || []), newRow],
+                          configuredSeats: currentConfigured + seatsCount
+                        }
+                        : sec
+                    )
+                  }
+                  : f
+              )
+            }
             : s
         ),
         errors: { ...prev.errors, [`sector-${sectorId}`]: '' }
@@ -366,30 +366,30 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
   const removeRow = useCallback((standId: string, floorId: string, sectorId: string, rowId: string) => {
     setState(prev => ({
       ...prev,
-      stands: prev.stands.map(s => 
-        s.id === standId 
+      stands: prev.stands.map(s =>
+        s.id === standId
           ? {
-              ...s,
-              floors: (s.floors || []).map(f => 
-                f.id === floorId 
-                  ? {
-                      ...f,
-                      sectors: (f.sectors || []).map(sec => {
-                        if (sec.id !== sectorId) return sec;
-                        
-                        const rowToRemove = (sec.rows || []).find(r => r.id === rowId);
-                        const seatsToRemove = rowToRemove?.seatsCount || 0;
-                        
-                        return {
-                          ...sec,
-                          rows: (sec.rows || []).filter(r => r.id !== rowId),
-                          configuredSeats: Math.max(0, (sec.configuredSeats || 0) - seatsToRemove)
-                        };
-                      })
-                    }
-                  : f
-              )
-            }
+            ...s,
+            floors: (s.floors || []).map(f =>
+              f.id === floorId
+                ? {
+                  ...f,
+                  sectors: (f.sectors || []).map(sec => {
+                    if (sec.id !== sectorId) return sec;
+
+                    const rowToRemove = (sec.rows || []).find(r => r.id === rowId);
+                    const seatsToRemove = rowToRemove?.seatsCount || 0;
+
+                    return {
+                      ...sec,
+                      rows: (sec.rows || []).filter(r => r.id !== rowId),
+                      configuredSeats: Math.max(0, (sec.configuredSeats || 0) - seatsToRemove)
+                    };
+                  })
+                }
+                : f
+            )
+          }
           : s
       )
     }));
@@ -398,34 +398,34 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
   const updateRow = useCallback((standId: string, floorId: string, sectorId: string, rowId: string, seatsCount: number) => {
     setState(prev => ({
       ...prev,
-      stands: prev.stands.map(s => 
-        s.id === standId 
+      stands: prev.stands.map(s =>
+        s.id === standId
           ? {
-              ...s,
-              floors: (s.floors || []).map(f => 
-                f.id === floorId 
-                  ? {
-                      ...f,
-                      sectors: (f.sectors || []).map(sec => {
-                        if (sec.id !== sectorId) return sec;
-                        
-                        const oldRow = (sec.rows || []).find(r => r.id === rowId);
-                        const oldSeats = oldRow?.seatsCount || 0;
-                        const newSeats = seatsCount;
-                        const seatsDiff = newSeats - oldSeats;
-                        
-                        return {
-                          ...sec,
-                          rows: (sec.rows || []).map(r => 
-                            r.id === rowId ? { ...r, seatsCount } : r
-                          ),
-                          configuredSeats: (sec.configuredSeats || 0) + seatsDiff
-                        };
-                      })
-                    }
-                  : f
-              )
-            }
+            ...s,
+            floors: (s.floors || []).map(f =>
+              f.id === floorId
+                ? {
+                  ...f,
+                  sectors: (f.sectors || []).map(sec => {
+                    if (sec.id !== sectorId) return sec;
+
+                    const oldRow = (sec.rows || []).find(r => r.id === rowId);
+                    const oldSeats = oldRow?.seatsCount || 0;
+                    const newSeats = seatsCount;
+                    const seatsDiff = newSeats - oldSeats;
+
+                    return {
+                      ...sec,
+                      rows: (sec.rows || []).map(r =>
+                        r.id === rowId ? { ...r, seatsCount } : r
+                      ),
+                      configuredSeats: (sec.configuredSeats || 0) + seatsDiff
+                    };
+                  })
+                }
+                : f
+            )
+          }
           : s
       )
     }));
@@ -495,40 +495,40 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
   return {
     // State
     state,
-    
+
     // Tab navigation
     goToTab,
     nextTab,
     previousTab,
-    
+
     // Details
     updateDetails,
-    
+
     // Stands
     addStand,
     removeStand,
     selectStand,
     updateStand,
-    
+
     // Floors
     addFloor,
     removeFloor,
     updateFloor,
-    
+
     // Sectors
     addSector,
     removeSector,
     updateSector,
-    
+
     // Rows
     addRow,
     removeRow,
     updateRow,
-    
+
     // Validation
     validateTab1,
     validateTab2,
-    
+
     // Utilities
     calculateTotalCapacity,
     reset
