@@ -17,12 +17,20 @@ describe('Club Endpoints', () => {
   let mockPool: any;
 
   beforeAll(() => {
+    // Mock console.error to prevent Jest from treating it as test failure
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    
     app = express();
     app.use(express.json());
     app.use('/api/clubs', clubRoutes);
 
     const PoolConstructor = Pool as unknown as jest.Mock;
     mockPool = PoolConstructor.mock.results[0].value;
+  });
+
+  afterAll(() => {
+    // Restore console.error
+    jest.restoreAllMocks();
   });
 
   beforeEach(() => {

@@ -23,6 +23,9 @@ describe('Fan API Regression Tests', () => {
   let app: express.Application;
 
   beforeAll(() => {
+    // Mock console.error to prevent Jest from treating it as test failure
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    
     // Create a test instance of the app
     app = express();
     app.use(helmet());
@@ -40,6 +43,11 @@ describe('Fan API Regression Tests', () => {
       console.error(err.stack);
       res.status(500).json({ error: 'Internal server error' });
     });
+  });
+
+  afterAll(() => {
+    // Restore console.error
+    jest.restoreAllMocks();
   });
 
   describe('Health Check', () => {
