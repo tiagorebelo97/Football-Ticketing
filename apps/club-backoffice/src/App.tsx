@@ -5,6 +5,8 @@ import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import MatchList from './pages/MatchList';
 import MatchCreate from './pages/MatchCreate';
+import MatchEdit from './pages/MatchEdit';
+import Calendar from './pages/Calendar';
 import NFCInventory from './pages/NFCInventory';
 import Reports from './pages/Reports';
 import Login from './pages/Login';
@@ -50,12 +52,13 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/matches" element={<MatchList />} />
             <Route path="/create-match" element={<MatchCreate />} />
+            <Route path="/matches/:matchId/edit" element={<MatchEdit />} />
             <Route path="/members" element={<MemberList />} />
             <Route path="/members/create" element={<MemberCreate />} />
             <Route path="/members/:id" element={<MemberDetails />} />
             <Route path="/members/:id/edit" element={<MemberDetails />} />
             <Route path="/club-members" element={<MemberList />} />
-            <Route path="/calendar" element={<div className="card">Calendar Placeholder</div>} />
+            <Route path="/calendar" element={<Calendar />} />
             <Route path="/venues" element={<VenueList />} />
             <Route path="/venues/create" element={<VenueCreate />} />
             <Route path="/venues/:id/edit" element={<VenueEdit />} />

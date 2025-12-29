@@ -1,10 +1,22 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 
-const MatchCreate: React.FC = () => {
+interface Match {
+  id: string;
+  home_team: string;
+  away_team: string;
+  match_date: string;
+  venue: string;
+  total_capacity: number;
+  ticket_price: number;
+  status: string;
+}
+
+const MatchEdit: React.FC = () => {
   const navigate = useNavigate();
+  const { matchId } = useParams<{ matchId: string }>();
   const { user } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -15,35 +27,70 @@ const MatchCreate: React.FC = () => {
     totalCapacity: 1000,
     ticketPrice: 25.00,
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const loadMatch = async () => {
+      try {
+        if (!user?.clubId || !matchId) return;
+        
+        const response = await axios.get(`/api/matches?clubId=${user.clubId}`);
+        const match = response.data.find((m: Match) => m.id === matchId);
+        
+        if (match) {
+          // Convert date to datetime-local format
+          const date = new Date(match.match_date);
+          const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+            .toISOString()
+            .slice(0, 16);
+          
+          setFormData({
+            homeTeam: match.home_team,
+            awayTeam: match.away_team,
+            matchDate: localDate,
+            venue: match.venue || '',
+            totalCapacity: match.total_capacity,
+            ticketPrice: Number(match.ticket_price),
+          });
+        } else {
+          setError('Match not found');
+        }
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        setError('Failed to load match');
+        setLoading(false);
+      }
+    };
+
+    loadMatch();
+  }, [user?.clubId, matchId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setSaving(true);
     setError('');
 
     try {
-      if (!user?.clubId) {
-        throw new Error('User not authenticated correctly');
-      }
-
-      await axios.post('/api/matches', {
-        ...formData,
-        clubId: user.clubId
-      });
-      navigate('/matches'); // Redirect to match list after creation
+      await axios.put(`/api/matches/${matchId}`, formData);
+      navigate('/matches');
     } catch (err: any) {
       console.error(err);
-      setError(err.response?.data?.error || 'Failed to create match');
-      setLoading(false);
+      setError(err.response?.data?.error || 'Failed to update match');
+      setSaving(false);
     }
   };
+
+  if (loading) {
+    return <div className="loading" style={{ textAlign: 'center', marginTop: '50px' }}>Loading match...</div>;
+  }
 
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto' }}>
       <div className="card">
-        <h2 style={{ marginBottom: '20px', color: 'var(--color-secondary)' }}>Create New Match</h2>
+        <h2 style={{ marginBottom: '20px', color: 'var(--color-secondary)' }}>Edit Match</h2>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -114,15 +161,15 @@ const MatchCreate: React.FC = () => {
           {error && <div className="error" style={{ color: 'var(--color-danger)', marginBottom: '15px', padding: '10px', backgroundColor: '#fee', borderRadius: '4px' }}>{error}</div>}
 
           <div style={{ display: 'flex', gap: '10px', marginTop: '30px' }}>
-            <button type="submit" className="btn btn-success" disabled={loading} style={{ flex: 1 }}>
-              {loading ? 'Creating...' : 'Create Match'}
+            <button type="submit" className="btn btn-success" disabled={saving} style={{ flex: 1 }}>
+              {saving ? 'Saving...' : 'Save Changes'}
             </button>
             <button
               type="button"
               className="btn"
               style={{ background: '#ecf0f1', color: '#2c3e50' }}
               onClick={() => navigate('/matches')}
-              disabled={loading}
+              disabled={saving}
             >
               Cancel
             </button>
@@ -133,4 +180,4 @@ const MatchCreate: React.FC = () => {
   );
 };
 
-export default MatchCreate;
+export default MatchEdit;
