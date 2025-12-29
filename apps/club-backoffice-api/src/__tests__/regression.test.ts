@@ -27,6 +27,7 @@ import venueRoutes from '../routes/venues';
 import sportRoutes from '../routes/sports';
 import reportRoutes from '../routes/reports';
 import authRoutes from '../routes/auth';
+import clubRoutes from '../routes/clubs';
 
 describe('Club Backoffice API Regression Tests', () => {
   let app: express.Application;
@@ -48,6 +49,7 @@ describe('Club Backoffice API Regression Tests', () => {
     app.use('/api/sports', sportRoutes);
     app.use('/api/reports', reportRoutes);
     app.use('/api/auth', authRoutes);
+    app.use('/api/clubs', clubRoutes);
 
     app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
       console.error(err.stack);
@@ -173,6 +175,37 @@ describe('Club Backoffice API Regression Tests', () => {
 
       // Auth endpoint may return 404 if club not found, which is acceptable
       expect([200, 400, 404, 500]).toContain(response.status);
+    });
+  });
+
+  describe('Club Endpoints', () => {
+    it('should handle GET /api/clubs/:clubId endpoint', async () => {
+      const testClubId = 'test-club-id';
+      const response = await request(app)
+        .get(`/api/clubs/${testClubId}`);
+
+      expect(response.status).not.toBe(404);
+      expect([200, 400, 500]).toContain(response.status);
+    });
+
+    it('should handle PUT /api/clubs/:clubId endpoint', async () => {
+      const testClubId = 'test-club-id';
+      const response = await request(app)
+        .put(`/api/clubs/${testClubId}`)
+        .send({
+          name: 'Updated Club Name'
+        });
+
+      expect(response.status).not.toBe(404);
+      expect([200, 400, 500]).toContain(response.status);
+    });
+
+    it('should handle GET /api/clubs/countries endpoint', async () => {
+      const response = await request(app)
+        .get('/api/clubs/countries');
+
+      expect(response.status).not.toBe(404);
+      expect([200, 400, 500]).toContain(response.status);
     });
   });
 
