@@ -20,7 +20,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 marginLeft: sidebarCollapsed ? '80px' : 'var(--sidebar-width)',
                 transition: 'margin 0.3s ease'
             }}>
-                <Header />
+                <Header sidebarCollapsed={sidebarCollapsed} />
                 <main style={{
                     flex: 1,
                     padding: '40px 40px 80px 40px',

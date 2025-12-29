@@ -51,7 +51,7 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
   const [state, setState] = useState<VenueBuilderState>(() => {
     if (initialVenue) {
       return {
-        currentTab: 1, // Start on stadium configuration when editing
+        currentTab: 0,
         details: {
           name: initialVenue.name,
           city: initialVenue.city,
@@ -445,7 +445,8 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
       errors.sportId = 'Desporto é obrigatório';
     }
 
-    setState(prev => ({ ...prev, errors }));
+    // Don't update state here - this function is called during render!
+    // Errors will be set when user tries to navigate tabs
     return Object.keys(errors).length === 0;
   }, [state.details]);
 

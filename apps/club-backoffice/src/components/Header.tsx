@@ -2,7 +2,11 @@ import React from 'react';
 import { FaSignOutAlt, FaBuilding } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+    sidebarCollapsed?: boolean;
+}
+
+const Header: React.FC<HeaderProps> = ({ sidebarCollapsed = false }) => {
     const { logout } = useAuth();
 
     return (
@@ -13,11 +17,12 @@ const Header: React.FC = () => {
             justifyContent: 'space-between',
             padding: '0 40px',
             position: 'fixed',
-            left: 'var(--sidebar-width)',
+            left: sidebarCollapsed ? '80px' : 'var(--sidebar-width)',
             right: 0,
             top: 0,
             zIndex: 900,
-            borderBottom: '1px solid var(--border-glass)'
+            borderBottom: '1px solid var(--border-glass)',
+            transition: 'left 0.3s ease'
         }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{

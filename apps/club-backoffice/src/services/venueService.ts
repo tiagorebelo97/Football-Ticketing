@@ -89,7 +89,22 @@ export const venueService = {
    */
   async getVenueById(id: string): Promise<Venue> {
     const response = await axios.get(`/api/venues/${id}`);
-    return response.data;
+    const data = response.data;
+
+    // Transform snake_case from API to camelCase for frontend
+    return {
+      ...data,
+      sportId: data.sport_id || data.sportId,
+      sportName: data.sport_name || data.sportName,
+      sportCode: data.sport_code || data.sportCode,
+      clubId: data.club_id || data.clubId,
+      photoUrl: data.photo_url || data.photoUrl,
+      totalStands: data.total_stands || data.totalStands,
+      totalSectors: data.total_sectors || data.totalSectors,
+      totalRows: data.total_rows || data.totalRows,
+      createdAt: data.created_at || data.createdAt,
+      updatedAt: data.updated_at || data.updatedAt
+    };
   },
 
   /**
