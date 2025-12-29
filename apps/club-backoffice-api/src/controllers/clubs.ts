@@ -31,11 +31,6 @@ export async function getClubById(req: Request, res: Response) {
             LEFT JOIN countries co ON c.country_id = co.id
             WHERE c.id = $1 AND c.deleted_at IS NULL`,
             [clubId]
-        const { id } = req.params;
-
-        const result = await pool.query(
-            'SELECT id, name, slug, primary_color, secondary_color, logo_url FROM clubs WHERE id = $1',
-            [id]
         );
 
         if (result.rows.length === 0) {

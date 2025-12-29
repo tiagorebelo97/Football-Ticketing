@@ -28,6 +28,8 @@ import sportRoutes from '../routes/sports';
 import reportRoutes from '../routes/reports';
 import authRoutes from '../routes/auth';
 import clubRoutes from '../routes/clubs';
+import userRoutes from '../routes/users';
+import membersRoutes from '../routes/members';
 
 describe('Club Backoffice API Regression Tests', () => {
   let app: express.Application;
@@ -50,6 +52,8 @@ describe('Club Backoffice API Regression Tests', () => {
     app.use('/api/reports', reportRoutes);
     app.use('/api/auth', authRoutes);
     app.use('/api/clubs', clubRoutes);
+    app.use('/api/clubs', userRoutes);
+    app.use('/api/clubs', membersRoutes);
 
     app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
       console.error(err.stack);
@@ -206,6 +210,184 @@ describe('Club Backoffice API Regression Tests', () => {
 
       expect(response.status).not.toBe(404);
       expect([200, 400, 500]).toContain(response.status);
+    });
+  });
+
+  describe('User Management (RBAC) Endpoints', () => {
+    it('should handle GET /api/clubs/:clubId/users endpoint', async () => {
+      const testClubId = 'test-club-id';
+      const response = await request(app)
+        .get(`/api/clubs/${testClubId}/users`);
+
+      expect(response.status).not.toBe(404);
+      expect([200, 400, 401, 500]).toContain(response.status);
+    });
+
+    it('should handle GET /api/clubs/:clubId/roles endpoint', async () => {
+      const testClubId = 'test-club-id';
+      const response = await request(app)
+        .get(`/api/clubs/${testClubId}/roles`);
+
+      expect(response.status).not.toBe(404);
+      expect([200, 400, 401, 500]).toContain(response.status);
+    });
+
+    it('should handle POST /api/clubs/:clubId/users endpoint', async () => {
+      const testClubId = 'test-club-id';
+      const response = await request(app)
+        .post(`/api/clubs/${testClubId}/users`)
+        .send({
+          email: 'test@example.com',
+          firstName: 'Test',
+          lastName: 'User',
+          roleId: 'test-role-id'
+        });
+
+      expect(response.status).not.toBe(404);
+      expect([200, 201, 400, 401, 409, 500]).toContain(response.status);
+    });
+
+    it('should handle PUT /api/clubs/:clubId/users/:userId endpoint', async () => {
+      const testClubId = 'test-club-id';
+      const testUserId = 'test-user-id';
+      const response = await request(app)
+        .put(`/api/clubs/${testClubId}/users/${testUserId}`)
+        .send({
+          firstName: 'Updated',
+          lastName: 'Name'
+        });
+
+      expect(response.status).not.toBe(404);
+      expect([200, 400, 401, 500]).toContain(response.status);
+    });
+
+    it('should handle DELETE /api/clubs/:clubId/users/:userId endpoint', async () => {
+      const testClubId = 'test-club-id';
+      const testUserId = 'test-user-id';
+      const response = await request(app)
+        .delete(`/api/clubs/${testClubId}/users/${testUserId}`);
+
+      expect(response.status).not.toBe(404);
+      expect([200, 400, 401, 500]).toContain(response.status);
+    });
+  });
+
+  describe('Members Management Endpoints', () => {
+    it('should handle GET /api/clubs/:clubId/members/stats endpoint', async () => {
+      const testClubId = 'test-club-id';
+      const response = await request(app)
+        .get(`/api/clubs/${testClubId}/members/stats`);
+
+      expect(response.status).not.toBe(404);
+      expect([200, 400, 401, 500]).toContain(response.status);
+    });
+
+    it('should handle GET /api/clubs/:clubId/members endpoint', async () => {
+      const testClubId = 'test-club-id';
+      const response = await request(app)
+        .get(`/api/clubs/${testClubId}/members`);
+
+      expect(response.status).not.toBe(404);
+      expect([200, 400, 401, 500]).toContain(response.status);
+    });
+
+    it('should handle GET /api/clubs/:clubId/members with filters', async () => {
+      const testClubId = 'test-club-id';
+      const response = await request(app)
+        .get(`/api/clubs/${testClubId}/members`)
+        .query({ status: 'active', memberType: 'regular', search: 'John' });
+
+      expect(response.status).not.toBe(404);
+      expect([200, 400, 401, 500]).toContain(response.status);
+    });
+
+    it('should handle POST /api/clubs/:clubId/members endpoint', async () => {
+      const testClubId = 'test-club-id';
+      const response = await request(app)
+        .post(`/api/clubs/${testClubId}/members`)
+        .send({
+          member_number: 'M12345',
+          first_name: 'John',
+          last_name: 'Doe',
+          email: 'john.doe@example.com',
+          member_since: '2024-01-01',
+          status: 'active',
+          member_type: 'regular'
+        });
+
+      expect(response.status).not.toBe(404);
+      expect([200, 201, 400, 401, 409, 500]).toContain(response.status);
+    });
+
+    it('should handle GET /api/clubs/members/:id endpoint', async () => {
+      const testMemberId = 'test-member-id';
+      const response = await request(app)
+        .get(`/api/clubs/members/${testMemberId}`);
+
+      expect(response.status).not.toBe(404);
+      expect([200, 400, 401, 500]).toContain(response.status);
+    });
+
+    it('should handle PUT /api/clubs/members/:id endpoint', async () => {
+      const testMemberId = 'test-member-id';
+      const response = await request(app)
+        .put(`/api/clubs/members/${testMemberId}`)
+        .send({
+          first_name: 'Updated',
+          last_name: 'Name'
+        });
+
+      expect(response.status).not.toBe(404);
+      expect([200, 400, 401, 500]).toContain(response.status);
+    });
+
+    it('should handle DELETE /api/clubs/members/:id endpoint', async () => {
+      const testMemberId = 'test-member-id';
+      const response = await request(app)
+        .delete(`/api/clubs/members/${testMemberId}`);
+
+      expect(response.status).not.toBe(404);
+      expect([200, 400, 401, 500]).toContain(response.status);
+    });
+  });
+
+  describe('Member Quota Endpoints', () => {
+    it('should handle GET /api/clubs/members/:id/quotas endpoint', async () => {
+      const testMemberId = 'test-member-id';
+      const response = await request(app)
+        .get(`/api/clubs/members/${testMemberId}/quotas`);
+
+      expect(response.status).not.toBe(404);
+      expect([200, 400, 401, 500]).toContain(response.status);
+    });
+
+    it('should handle POST /api/clubs/members/:id/quotas endpoint', async () => {
+      const testMemberId = 'test-member-id';
+      const response = await request(app)
+        .post(`/api/clubs/members/${testMemberId}/quotas`)
+        .send({
+          amount: 25.00,
+          payment_date: '2024-01-15',
+          period_start: '2024-01-01',
+          period_end: '2024-01-31',
+          payment_method: 'card',
+          status: 'paid'
+        });
+
+      expect(response.status).not.toBe(404);
+      expect([200, 201, 400, 401, 500]).toContain(response.status);
+    });
+  });
+
+  describe('Members Import Endpoint', () => {
+    it('should handle POST /api/clubs/:clubId/members/import endpoint', async () => {
+      const testClubId = 'test-club-id';
+      const response = await request(app)
+        .post(`/api/clubs/${testClubId}/members/import`)
+        .attach('file', Buffer.from('test'), 'test.xlsx');
+
+      expect(response.status).not.toBe(404);
+      expect([200, 201, 400, 401, 500]).toContain(response.status);
     });
   });
 
