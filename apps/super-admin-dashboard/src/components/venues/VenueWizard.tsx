@@ -116,7 +116,7 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
               key={tab.id}
               className={`wizard-tab ${state.currentTab === tab.id ? 'active' : ''} ${tab.id > 0 && !isTab1Valid ? 'disabled' : ''
                 }`}
-              onClick={() => tab.id <= state.currentTab && goToTab(tab.id)}
+              onClick={() => goToTab(tab.id)}
               disabled={tab.id > 0 && state.currentTab < tab.id && !isTab1Valid}
             >
               <span className="tab-icon">{tab.icon}</span>

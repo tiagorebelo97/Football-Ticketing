@@ -122,25 +122,24 @@ const Login: React.FC = () => {
                         />
                     </div>
 
-                    <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <input
-                            type="checkbox"
-                            id="rememberMe"
-                            checked={rememberMe}
-                            onChange={(e) => setRememberMe(e.target.checked)}
-                            style={{
-                                width: '18px',
-                                height: '18px',
-                                cursor: 'pointer',
-                                accentColor: 'var(--accent-primary)'
-                            }}
-                        />
-                        <label htmlFor="rememberMe" style={{ color: 'var(--text-muted)', fontSize: '14px', cursor: 'pointer', userSelect: 'none' }}>
-                            Keep me signed in
-                        </label>
-                    </div>
-
-                    <div style={{ marginBottom: '24px', textAlign: 'right' }}>
+                    <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <input
+                                type="checkbox"
+                                id="rememberMe"
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
+                                style={{
+                                    width: '18px',
+                                    height: '18px',
+                                    cursor: 'pointer',
+                                    accentColor: 'var(--accent-primary)'
+                                }}
+                            />
+                            <label htmlFor="rememberMe" style={{ color: 'var(--text-muted)', fontSize: '14px', cursor: 'pointer', userSelect: 'none' }}>
+                                Keep me signed in
+                            </label>
+                        </div>
                         <Link to="/forgot-password" style={{ color: 'var(--text-dim)', fontSize: '13px', textDecoration: 'none' }}>
                             Forgot Password?
                         </Link>
