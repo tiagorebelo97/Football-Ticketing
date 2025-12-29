@@ -25,6 +25,7 @@ const UserManagement: React.FC = () => {
         if (club?.id) {
             loadData();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [club?.id]);
 
     const loadData = async () => {
