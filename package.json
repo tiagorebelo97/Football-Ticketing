@@ -13,7 +13,7 @@
     "test": "npm run test --workspaces --if-present",
     "test:regression": "npm run test --workspace=apps/fan-api --workspace=apps/club-backoffice-api --workspace=apps/pos-api --workspace=apps/entry-api --workspace=apps/super-admin-api",
     "clean": "docker-compose down -v",
-    "prepare": "husky"
+    "prepare": "[ -d .git ] && husky || echo 'Skipping husky (not in git repo)'"
   },
   "keywords": [
     "football",
