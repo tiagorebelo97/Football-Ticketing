@@ -9,7 +9,7 @@ This project includes comprehensive regression test suites for all API applicati
 Each API application has its own test suite located in `src/__tests__/regression.test.ts`:
 
 - **fan-api**: Tests for match listing and ticket purchasing endpoints
-- **club-backoffice-api**: Tests for match management, NFC, venues, sports, reports, and auth endpoints
+- **club-backoffice-api**: Tests for match management, NFC, venues, sports, reports, auth, user management (RBAC), members management, and quota management endpoints
 - **pos-api**: Tests for NFC authentication, payment processing, and refund endpoints
 - **entry-api**: Tests for ticket validation and capacity tracking endpoints
 - **super-admin-api**: Tests for club provisioning, authentication, NFC stock, fee configuration, and platform management endpoints
