@@ -140,19 +140,19 @@ const MatchEdit: React.FC = () => {
             <input
               type="number"
               value={formData.totalCapacity}
-              onChange={(e) => setFormData({ ...formData, totalCapacity: parseInt(e.target.value) })}
+              onChange={(e) => setFormData({ ...formData, totalCapacity: parseInt(e.target.value) || 0 })}
               required
               min="1"
             />
           </div>
 
           <div className="form-group">
-            <label>Ticket Price ($) *</label>
+            <label>Ticket Price (€) *</label>
             <input
               type="number"
               step="0.01"
               value={formData.ticketPrice}
-              onChange={(e) => setFormData({ ...formData, ticketPrice: parseFloat(e.target.value) })}
+              onChange={(e) => setFormData({ ...formData, ticketPrice: parseFloat(e.target.value) || 0 })}
               required
               min="0"
             />
