@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
 import Layout from './components/Layout';
@@ -12,6 +11,9 @@ import Login from './pages/Login';
 import VenueList from './pages/venues/VenueList';
 import VenueCreate from './pages/venues/VenueCreate';
 import VenueEdit from './pages/venues/VenueEdit';
+import MemberList from './pages/MemberList';
+import MemberCreate from './pages/MemberCreate';
+import MemberDetails from './pages/MemberDetails';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './App.css';
 
@@ -46,7 +48,11 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/matches" element={<MatchList />} />
             <Route path="/create-match" element={<MatchCreate />} />
-            <Route path="/club-members" element={<div className="card">Club Members Placeholder</div>} />
+            <Route path="/members" element={<MemberList />} />
+            <Route path="/members/create" element={<MemberCreate />} />
+            <Route path="/members/:id" element={<MemberDetails />} />
+            <Route path="/members/:id/edit" element={<MemberDetails />} />
+            <Route path="/club-members" element={<MemberList />} />
             <Route path="/calendar" element={<div className="card">Calendar Placeholder</div>} />
             <Route path="/venues" element={<VenueList />} />
             <Route path="/venues/create" element={<VenueCreate />} />
