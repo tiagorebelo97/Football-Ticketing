@@ -116,7 +116,13 @@ const MatchList: React.FC = () => {
               </div>
 
               <div style={{ display: 'flex', gap: '10px' }}>
-                <button className="btn btn-primary" style={{ flex: 1, fontSize: '14px' }}>Edit</button>
+                <button 
+                  className="btn btn-primary" 
+                  style={{ flex: 1, fontSize: '14px' }}
+                  onClick={() => navigate(`/matches/${match.id}/edit`)}
+                >
+                  Edit
+                </button>
                 <button
                   className="btn btn-outline-danger"
                   style={{ flex: 1, fontSize: '14px' }}

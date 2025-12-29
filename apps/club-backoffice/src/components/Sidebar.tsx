@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaThLarge, FaUsers, FaCalendarAlt, FaMapMarkerAlt, FaChartBar, FaUsersCog } from 'react-icons/fa';
-import { FaThLarge, FaUsers, FaCalendarAlt, FaMapMarkerAlt, FaChartBar, FaCog } from 'react-icons/fa';
+import { FaThLarge, FaUsers, FaCalendarAlt, FaMapMarkerAlt, FaChartBar, FaUsersCog, FaCog } from 'react-icons/fa';
 import '../index.css';
 import { useAuth } from '../context/AuthContext';
 
