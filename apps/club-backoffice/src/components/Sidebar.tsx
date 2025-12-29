@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { FaThLarge, FaUsers, FaCalendarAlt, FaMapMarkerAlt, FaChartBar, FaUsersCog } from 'react-icons/fa';
 import { FaThLarge, FaUsers, FaCalendarAlt, FaMapMarkerAlt, FaChartBar, FaCog } from 'react-icons/fa';
 import '../index.css';
 import { useAuth } from '../context/AuthContext';
@@ -14,6 +15,7 @@ const Sidebar: React.FC = () => {
         { path: '/calendar', label: 'Calendar', icon: <FaCalendarAlt /> },
         { path: '/venues', label: 'Venues', icon: <FaMapMarkerAlt /> },
         { path: '/reports', label: 'Reports', icon: <FaChartBar /> },
+        { path: '/user-management', label: 'User Management', icon: <FaUsersCog /> },
         { path: '/settings', label: 'Settings', icon: <FaCog /> },
     ];
 
