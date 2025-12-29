@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { pool } from '../db';
+import pool from '../db';
 import * as XLSX from 'xlsx';
 
 // List all members for a club with optional filters

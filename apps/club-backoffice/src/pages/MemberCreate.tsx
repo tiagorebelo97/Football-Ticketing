@@ -7,7 +7,7 @@ import '../App.css';
 const MemberCreate: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const clubId = user?.club_id || 'test-club-id';
+  const clubId = user?.clubId || 'test-club-id';
 
   const [formData, setFormData] = useState({
     member_number: '',

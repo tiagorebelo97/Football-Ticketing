@@ -46,11 +46,12 @@ const MemberList: React.FC = () => {
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importStatus, setImportStatus] = useState<string | null>(null);
 
-  const clubId = user?.club_id || 'test-club-id';
+  const clubId = user?.clubId || 'test-club-id';
 
   useEffect(() => {
     fetchMembers();
     fetchStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clubId, searchTerm, statusFilter, typeFilter]);
 
   const fetchMembers = async () => {

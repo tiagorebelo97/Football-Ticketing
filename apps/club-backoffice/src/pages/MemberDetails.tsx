@@ -60,6 +60,7 @@ const MemberDetails: React.FC = () => {
       fetchMember();
       fetchQuotas();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchMember = async () => {

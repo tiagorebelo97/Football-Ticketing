@@ -21,18 +21,16 @@ const upload = multer({
 });
 
 // Member routes
-router.get('/:clubId/members', listMembers);
 router.get('/:clubId/members/stats', getMemberStats);
-router.get('/members/:id', getMember);
+router.get('/:clubId/members', listMembers);
+router.post('/:clubId/members/import', upload.single('file'), importMembersFromExcel);
 router.post('/:clubId/members', createMember);
+router.get('/members/:id', getMember);
 router.put('/members/:id', updateMember);
 router.delete('/members/:id', deleteMember);
 
 // Quota routes
 router.get('/members/:id/quotas', getMemberQuotas);
 router.post('/members/:id/quotas', createQuotaPayment);
-
-// Import route
-router.post('/:clubId/members/import', upload.single('file'), importMembersFromExcel);
 
 export default router;
