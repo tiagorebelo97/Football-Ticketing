@@ -23,7 +23,7 @@ interface AuthContextType {
     user: User | null;
     club: Club | null;
     token: string | null;
-    login: (slug: string, email: string, password: string, rememberMe?: boolean) => Promise<void>;
+    login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
     logout: () => void;
     isAuthenticated: boolean;
 }
@@ -102,28 +102,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // No longer needed here as it's handled in state initialization
     }, []);
 
-    const login = async (slug: string, email: string, password: string, rememberMe: boolean = false) => {
-        // In a real app, we would verify credentials against the API
-        // For now, we fetch the club by slug to get the ID, then mock the user
+    const login = async (email: string, password: string, rememberMe: boolean = false) => {
+        // Mock authentication - in real app would verify credentials
         try {
+            // TODO: Replace with real authentication
+            // For now, we'll mock a user lookup by email
+            // In production, this would verify password and return user data
 
-            // We now query our own API which has the /auth/:slug endpoint
-            // The Nginx proxy at port 3102 forwards /api to port 3002 (club-backoffice-api)
-            const response = await fetch(`/api/auth/${slug}`);
+            // Mock user data - hardcoded for development
+            // In reality, this would come from the auth API
+            const mockClubId = 'b9bb9b55-fe9e-4bf3-9aa8-34b76b26f185'; // fofo club
 
-            if (!response.ok) {
-                if (response.status === 404) {
-                    throw new Error('Club not found');
-                }
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || 'Authentication failed');
+            // Fetch club data by club_id
+            const clubResponse = await fetch(`/api/clubs/${mockClubId}`);
+
+            if (!clubResponse.ok) {
+                throw new Error('Failed to load club data');
             }
 
-            const foundClub = await response.json();
-
-            if (!foundClub) {
-                throw new Error('Club not found');
-            }
+            const foundClub = await clubResponse.json();
 
             // Mock token (in real app this would come from API)
             const mockToken = `mock_token_${Date.now()}`;
