@@ -128,13 +128,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleSidebar }) => {
             <nav style={{ flex: 1, padding: '0 16px', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ flex: 1 }}>
                     {menuItems.map((item) => {
-                        const isActive = location.pathname === item.path || 
-                            (item.path !== '/' && location.pathname.startsWith(item.path + '/'));
+                        const isActive = item.path === '/' 
+                            ? location.pathname === '/' 
+                            : location.pathname === item.path || location.pathname.startsWith(item.path + '/');
                         return (
                             <Link
                                 key={item.path}
                                 to={item.path}
                                 title={isCollapsed ? item.label : ''}
+                                className={`sidebar-nav-link ${isActive ? 'active' : ''}`}
                                 style={{
                                     display: 'flex',
                                     alignItems: 'center',
@@ -145,21 +147,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleSidebar }) => {
                                     color: isActive ? 'var(--text-main)' : 'var(--text-muted)',
                                     background: isActive ? 'rgba(0, 0, 0, 0.3)' : 'transparent',
                                     marginBottom: '8px',
-                                    transition: 'var(--transition-smooth)',
                                     fontWeight: isActive ? 600 : 500,
                                     fontSize: '15px',
                                     position: 'relative'
-                                }}
-                                className="nav-link"
-                                onMouseEnter={(e) => {
-                                    if (!isActive) {
-                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
-                                    }
-                                }}
-                                onMouseLeave={(e) => {
-                                    if (!isActive) {
-                                        e.currentTarget.style.background = 'transparent';
-                                    }
                                 }}
                             >
                                 <span style={{ 
@@ -179,6 +169,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleSidebar }) => {
                 {/* Logout Button */}
                 <button
                     onClick={logout}
+                    className="sidebar-logout-btn"
                     style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -189,20 +180,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleSidebar }) => {
                         borderRadius: 'var(--radius-md)',
                         color: 'var(--text-main)',
                         cursor: 'pointer',
-                        transition: 'var(--transition-smooth)',
                         fontWeight: 600,
                         fontSize: '15px',
                         fontFamily: 'inherit',
                         marginBottom: '20px',
                         width: '100%'
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                        e.currentTarget.style.borderColor = 'var(--border-glass)';
                     }}
                 >
                     <span style={{ 
