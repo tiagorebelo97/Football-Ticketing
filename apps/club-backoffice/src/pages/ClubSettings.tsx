@@ -4,7 +4,7 @@ import { clubService, Country, UpdateClubData } from '../services/clubService';
 import '../index.css';
 
 const ClubSettings: React.FC = () => {
-    const { club: authClub, user } = useAuth();
+    const { user } = useAuth();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -24,6 +24,7 @@ const ClubSettings: React.FC = () => {
 
     useEffect(() => {
         loadData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user?.clubId]);
 
     const loadData = async () => {
