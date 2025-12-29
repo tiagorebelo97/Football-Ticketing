@@ -11,7 +11,7 @@ const Sidebar: React.FC = () => {
 
     const menuItems = [
         { path: '/', label: 'Dashboard', icon: <FaThLarge /> },
-        { path: '/club-members', label: 'Club Members', icon: <FaUsers /> },
+        { path: '/members', label: 'Club Members', icon: <FaUsers /> },
         { path: '/calendar', label: 'Calendar', icon: <FaCalendarAlt /> },
         { path: '/venues', label: 'Venues', icon: <FaMapMarkerAlt /> },
         { path: '/reports', label: 'Reports', icon: <FaChartBar /> },
