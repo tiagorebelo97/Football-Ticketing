@@ -39,8 +39,9 @@ const UserManagement: React.FC = () => {
             ]);
             setUsers(usersData);
             setRoles(rolesData);
-        } catch (err: any) {
-            setError(err.message || 'Failed to load data');
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Failed to load data';
+            setError(message);
         } finally {
             setLoading(false);
         }
@@ -55,8 +56,11 @@ const UserManagement: React.FC = () => {
             setShowCreateModal(false);
             resetForm();
             loadData();
-        } catch (err: any) {
-            setError(err.response?.data?.error || 'Failed to create user');
+        } catch (err) {
+            const message = err instanceof Error && 'response' in err ? 
+                (err as any).response?.data?.error || err.message : 
+                'Failed to create user';
+            setError(message);
         }
     };
 
@@ -69,8 +73,11 @@ const UserManagement: React.FC = () => {
             setEditingUser(null);
             resetForm();
             loadData();
-        } catch (err: any) {
-            setError(err.response?.data?.error || 'Failed to update user');
+        } catch (err) {
+            const message = err instanceof Error && 'response' in err ? 
+                (err as any).response?.data?.error || err.message : 
+                'Failed to update user';
+            setError(message);
         }
     };
 
@@ -81,8 +88,11 @@ const UserManagement: React.FC = () => {
         try {
             await userService.deleteUser(club.id, userId);
             loadData();
-        } catch (err: any) {
-            setError(err.response?.data?.error || 'Failed to delete user');
+        } catch (err) {
+            const message = err instanceof Error && 'response' in err ? 
+                (err as any).response?.data?.error || err.message : 
+                'Failed to delete user';
+            setError(message);
         }
     };
 

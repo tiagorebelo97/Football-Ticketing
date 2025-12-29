@@ -1,10 +1,6 @@
 
 import { Request, Response } from 'express';
-import { Pool } from 'pg';
-
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL
-});
+import pool from '../db';
 
 // Get all users for a club
 export async function getClubUsers(req: Request, res: Response) {
@@ -41,9 +37,10 @@ export async function getClubUsers(req: Request, res: Response) {
         }));
 
         res.json(users);
-    } catch (error: any) {
+    } catch (error) {
         console.error('Error fetching club users:', error);
-        res.status(500).json({ error: 'Failed to fetch users' });
+        const message = error instanceof Error ? error.message : 'Failed to fetch users';
+        res.status(500).json({ error: message });
     }
 }
 
@@ -69,9 +66,10 @@ export async function getClubRoles(req: Request, res: Response) {
         }));
 
         res.json(roles);
-    } catch (error: any) {
+    } catch (error) {
         console.error('Error fetching club roles:', error);
-        res.status(500).json({ error: 'Failed to fetch roles' });
+        const message = error instanceof Error ? error.message : 'Failed to fetch roles';
+        res.status(500).json({ error: message });
     }
 }
 
@@ -139,9 +137,10 @@ export async function createClubUser(req: Request, res: Response) {
                 permissions: role.permissions
             }
         });
-    } catch (error: any) {
+    } catch (error) {
         console.error('Error creating club user:', error);
-        res.status(500).json({ error: 'Failed to create user' });
+        const message = error instanceof Error ? error.message : 'Failed to create user';
+        res.status(500).json({ error: message });
     }
 }
 
@@ -243,9 +242,10 @@ export async function updateClubUser(req: Request, res: Response) {
                 permissions: role.permissions
             }
         });
-    } catch (error: any) {
+    } catch (error) {
         console.error('Error updating club user:', error);
-        res.status(500).json({ error: 'Failed to update user' });
+        const message = error instanceof Error ? error.message : 'Failed to update user';
+        res.status(500).json({ error: message });
     }
 }
 
@@ -264,8 +264,9 @@ export async function deleteClubUser(req: Request, res: Response) {
         }
 
         res.json({ message: 'User deleted successfully' });
-    } catch (error: any) {
+    } catch (error) {
         console.error('Error deleting club user:', error);
-        res.status(500).json({ error: 'Failed to delete user' });
+        const message = error instanceof Error ? error.message : 'Failed to delete user';
+        res.status(500).json({ error: message });
     }
 }
