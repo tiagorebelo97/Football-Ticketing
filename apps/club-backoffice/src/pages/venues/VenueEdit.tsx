@@ -75,7 +75,7 @@ const VenueEdit: React.FC = () => {
 
   return (
     <div className="venue-edit-page">
-      <VenueWizard initialVenue={venue} onSave={handleSave} onCancel={handleCancel} />
+      <VenueWizard isSuperAdmin={false} initialVenue={venue} onSave={handleSave} onCancel={handleCancel} />
     </div>
   );
 };

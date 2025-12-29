@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useVenueBuilder } from '../../hooks/useVenueBuilder';
 import { Venue } from '../../services/venueService';
 import VenueDetailsTab from './VenueDetailsTab';
@@ -9,9 +9,11 @@ interface VenueWizardProps {
   initialVenue?: Venue;
   onSave: (venue: Venue) => Promise<void>;
   onCancel: () => void;
+  isSuperAdmin?: boolean;
+  initialData?: Venue;
 }
 
-const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCancel }) => {
+const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCancel, isSuperAdmin = false, initialData }) => {
   const {
     state,
     goToTab,
@@ -22,6 +24,7 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
     removeStand,
     selectStand,
     updateStand,
+    updateStandName,
     addFloor,
     removeFloor,
     updateFloor,
@@ -33,8 +36,9 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
     updateRow,
     validateTab1,
     validateTab2,
+    isTab1Valid,
     calculateTotalCapacity
-  } = useVenueBuilder(initialVenue);
+  } = useVenueBuilder(initialVenue || initialData);
 
   const [saving, setSaving] = React.useState(false);
   const [saveError, setSaveError] = React.useState<string>('');
@@ -44,11 +48,23 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
     { id: 1, label: 'Configuração do Estádio', icon: '🏟️' }
   ];
 
+  // Memoize total capacity calculation to ensure it updates when stands change
+  const totalCapacity = useMemo(() => calculateTotalCapacity(), [state.stands]);
+
   const handleNext = () => {
     if (state.currentTab === 0) {
-      if (validateTab1()) {
-        nextTab();
+      // Validate basic fields using the hook's validation
+      if (!validateTab1()) {
+        return;
       }
+
+      // Additional validation for super admin: clubId is required
+      if (isSuperAdmin && !state.details.clubId) {
+        setSaveError('Por favor, selecione um clube');
+        return;
+      }
+
+      nextTab();
     }
   };
 
@@ -66,9 +82,10 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
 
     try {
       const totalCapacity = calculateTotalCapacity();
-      
+
       const venue: Venue = {
-        id: initialVenue?.id,
+        id: initialVenue?.id || initialData?.id,
+        clubId: state.details.clubId,
         name: state.details.name,
         city: state.details.city,
         address: state.details.address,
@@ -90,17 +107,16 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
     <div className="venue-wizard">
       <div className="wizard-header">
         <h1>{initialVenue ? 'Editar Venue' : 'Criar Nova Venue'}</h1>
-        
+
         {/* Tab Navigation */}
         <div className="wizard-tabs">
           {tabs.map(tab => (
             <button
               key={tab.id}
-              className={`wizard-tab ${state.currentTab === tab.id ? 'active' : ''} ${
-                tab.id > 0 && !validateTab1() ? 'disabled' : ''
-              }`}
-              onClick={() => tab.id <= state.currentTab && goToTab(tab.id)}
-              disabled={tab.id > 0 && state.currentTab < tab.id && !validateTab1()}
+              className={`wizard-tab ${state.currentTab === tab.id ? 'active' : ''} ${tab.id > 0 && !isTab1Valid ? 'disabled' : ''
+                }`}
+              onClick={() => goToTab(tab.id)}
+              disabled={tab.id > 0 && state.currentTab < tab.id && !isTab1Valid}
             >
               <span className="tab-icon">{tab.icon}</span>
               <span className="tab-label">{tab.label}</span>
@@ -116,19 +132,21 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
             details={state.details}
             errors={state.errors}
             onUpdate={updateDetails}
+            isSuperAdmin={isSuperAdmin}
           />
         )}
 
         {/* Tab 2: Stadium Configuration */}
         {state.currentTab === 1 && (
           <VenueStadiumTab
-            sportCode={state.details.sportName?.toLowerCase() || 'football'}
+            sportCode={state.details.sportCode || 'football'}
             stands={state.stands}
             selectedStandId={state.selectedStandId}
             errors={state.errors}
             onAddStand={addStand}
             onRemoveStand={removeStand}
             onSelectStand={selectStand}
+            onUpdateStandName={updateStandName}
             onAddFloor={addFloor}
             onRemoveFloor={removeFloor}
             onAddSector={addSector}
@@ -158,7 +176,7 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
           {state.currentTab === 1 && (
             <div className="capacity-display">
               <span className="capacity-label">Capacidade Total:</span>
-              <span className="capacity-value">{calculateTotalCapacity()}</span>
+              <span className="capacity-value">{totalCapacity}</span>
               <span className="capacity-unit">lugares</span>
             </div>
           )}

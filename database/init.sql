@@ -506,3 +506,167 @@ ON CONFLICT (code) DO UPDATE SET
     name = EXCLUDED.name,
     flag_url = EXCLUDED.flag_url,
     updated_at = CURRENT_TIMESTAMP;
+-- Migration: Add club members and quota tracking tables
+
+-- Club Members Table
+CREATE TABLE IF NOT EXISTS club_members (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    club_id UUID NOT NULL REFERENCES clubs(id) ON DELETE CASCADE,
+    member_number VARCHAR(50) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(20),
+    date_of_birth DATE,
+    address TEXT,
+    city VARCHAR(100),
+    postal_code VARCHAR(20),
+    country VARCHAR(100),
+    member_since DATE NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'active', -- active, suspended, cancelled
+    member_type VARCHAR(50) NOT NULL DEFAULT 'regular', -- regular, premium, vip, junior, senior
+    quota_amount DECIMAL(10, 2) NOT NULL DEFAULT 0.00, -- Monthly/Annual quota amount
+    quota_frequency VARCHAR(20) NOT NULL DEFAULT 'monthly', -- monthly, quarterly, annual
+    notes TEXT,
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL, -- Link to user account if registered
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(club_id, member_number),
+    UNIQUE(club_id, email)
+);
+
+-- Member Quota Payments Table
+CREATE TABLE IF NOT EXISTS member_quotas (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    member_id UUID NOT NULL REFERENCES club_members(id) ON DELETE CASCADE,
+    club_id UUID NOT NULL REFERENCES clubs(id) ON DELETE CASCADE,
+    amount DECIMAL(10, 2) NOT NULL,
+    payment_date DATE NOT NULL,
+    period_start DATE NOT NULL, -- Start of the period covered
+    period_end DATE NOT NULL, -- End of the period covered
+    payment_method VARCHAR(50), -- cash, card, transfer, stripe
+    status VARCHAR(20) NOT NULL DEFAULT 'pending', -- pending, paid, overdue, cancelled
+    reference VARCHAR(100), -- Payment reference or transaction ID
+    notes TEXT,
+    recorded_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for better performance
+CREATE INDEX idx_club_members_club_id ON club_members(club_id);
+CREATE INDEX idx_club_members_status ON club_members(status);
+CREATE INDEX idx_club_members_member_number ON club_members(club_id, member_number);
+CREATE INDEX idx_club_members_email ON club_members(email);
+CREATE INDEX idx_club_members_user_id ON club_members(user_id);
+CREATE INDEX idx_member_quotas_member_id ON member_quotas(member_id);
+CREATE INDEX idx_member_quotas_club_id ON member_quotas(club_id);
+CREATE INDEX idx_member_quotas_payment_date ON member_quotas(payment_date);
+CREATE INDEX idx_member_quotas_status ON member_quotas(status);
+-- Add Role-Based Access Control for Club Backoffice
+-- This migration adds support for different user roles with specific permissions
+
+-- Create role_definitions table
+CREATE TABLE IF NOT EXISTS club_user_roles (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    club_id UUID NOT NULL REFERENCES clubs(id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    permissions JSONB NOT NULL DEFAULT '[]',
+    is_system_role BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(club_id, name)
+);
+
+-- Create club_users table (for club staff members)
+CREATE TABLE IF NOT EXISTS club_users (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    club_id UUID NOT NULL REFERENCES clubs(id) ON DELETE CASCADE,
+    role_id UUID NOT NULL REFERENCES club_user_roles(id) ON DELETE RESTRICT,
+    email VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    phone VARCHAR(20),
+    is_active BOOLEAN DEFAULT true,
+    created_by UUID REFERENCES club_users(id) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(club_id, email)
+);
+
+-- Function to create default roles for a club
+CREATE OR REPLACE FUNCTION create_default_club_roles(target_club_id UUID)
+RETURNS void AS $$
+BEGIN
+    -- Club Admin (full access)
+    INSERT INTO club_user_roles (club_id, name, description, permissions, is_system_role)
+    VALUES (
+        target_club_id,
+        'Club Admin',
+        'Full access to all club backoffice features',
+        '["manage_users", "manage_matches", "manage_venues", "manage_nfc", "view_reports", "manage_settings"]'::jsonb,
+        true
+    ) ON CONFLICT (club_id, name) DO NOTHING;
+
+    -- Match Manager
+    INSERT INTO club_user_roles (club_id, name, description, permissions, is_system_role)
+    VALUES (
+        target_club_id,
+        'Match Manager',
+        'Manage matches and ticket sales',
+        '["manage_matches", "view_reports"]'::jsonb,
+        true
+    ) ON CONFLICT (club_id, name) DO NOTHING;
+
+    -- Venue Manager
+    INSERT INTO club_user_roles (club_id, name, description, permissions, is_system_role)
+    VALUES (
+        target_club_id,
+        'Venue Manager',
+        'Manage venue configurations and seating',
+        '["manage_venues"]'::jsonb,
+        true
+    ) ON CONFLICT (club_id, name) DO NOTHING;
+
+    -- NFC Manager
+    INSERT INTO club_user_roles (club_id, name, description, permissions, is_system_role)
+    VALUES (
+        target_club_id,
+        'NFC Manager',
+        'Manage NFC card inventory and assignments',
+        '["manage_nfc"]'::jsonb,
+        true
+    ) ON CONFLICT (club_id, name) DO NOTHING;
+
+    -- Report Viewer
+    INSERT INTO club_user_roles (club_id, name, description, permissions, is_system_role)
+    VALUES (
+        target_club_id,
+        'Report Viewer',
+        'View reports and analytics only',
+        '["view_reports"]'::jsonb,
+        true
+    ) ON CONFLICT (club_id, name) DO NOTHING;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create default roles for all existing clubs
+DO $$
+DECLARE
+    club_record RECORD;
+BEGIN
+    FOR club_record IN SELECT id FROM clubs WHERE deleted_at IS NULL
+    LOOP
+        PERFORM create_default_club_roles(club_record.id);
+    END LOOP;
+END $$;
+
+-- Create indexes for performance
+CREATE INDEX IF NOT EXISTS idx_club_users_club_id ON club_users(club_id);
+CREATE INDEX IF NOT EXISTS idx_club_users_email ON club_users(email);
+CREATE INDEX IF NOT EXISTS idx_club_users_role_id ON club_users(role_id);
+CREATE INDEX IF NOT EXISTS idx_club_user_roles_club_id ON club_user_roles(club_id);
+
+-- Add comment explaining the permissions system
+COMMENT ON COLUMN club_user_roles.permissions IS 'JSON array of permission strings: manage_users, manage_matches, manage_venues, manage_nfc, view_reports, manage_settings';

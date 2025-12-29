@@ -1,36 +1,69 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Sport, sportService } from '../../services/sportService';
 import SportSelector from './SportSelector';
 import { VenueDetails } from '../../hooks/useVenueBuilder';
+
+interface Club {
+  id: string;
+  name: string;
+  logo_url?: string;
+}
 
 interface VenueDetailsTabProps {
   details: VenueDetails;
   errors: { [key: string]: string };
   onUpdate: (details: Partial<VenueDetails>) => void;
+  isSuperAdmin?: boolean;
 }
 
-const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUpdate }) => {
+const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUpdate, isSuperAdmin = false }) => {
   const [sports, setSports] = useState<Sport[]>([]);
+  const [clubs, setClubs] = useState<Club[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadSports();
-  }, []);
+    let mounted = true;
 
-  const loadSports = async () => {
-    try {
-      const data = await sportService.getSports();
-      setSports(data);
-    } catch (error) {
-      console.error('Error loading sports:', error);
-    } finally {
+    const loadData = async () => {
+      try {
+        const promises: Promise<any>[] = [sportService.getSports()];
+
+        if (isSuperAdmin) {
+          promises.push(axios.get('/api/clubs', { params: { perPage: 300 } }));
+        }
+
+        const results = await Promise.all(promises);
+
+        if (!mounted) return;
+
+        setSports(results[0] || []);
+
+        if (isSuperAdmin && results[1]) {
+          setClubs(results[1].data.data || results[1].data || []);
+        }
+      } catch (error) {
+        console.error('Error loading venue data:', error);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    if (loading && (sports.length === 0 || (isSuperAdmin && clubs.length === 0))) {
+      loadData();
+    } else {
       setLoading(false);
     }
-  };
+
+    return () => { mounted = false; };
+  }, [isSuperAdmin]); // Removed sports.length check to avoid potential loops if data fetch fails
 
   const handleSportSelect = (sportId: string) => {
-    const sport = sports.find(s => s.id === sportId);
-    onUpdate({ sportId, sportName: sport?.name });
+    // Only update if value actually changed
+    if (details.sportId !== sportId) {
+      const sport = sports.find(s => s.id === sportId);
+      onUpdate({ sportId, sportCode: sport?.code, sportName: sport?.name });
+    }
   };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,6 +88,26 @@ const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUp
       <p className="tab-description">
         Preencha as informações básicas da venue desportiva.
       </p>
+
+      {isSuperAdmin && (
+        <div className="form-group">
+          <label htmlFor="clubSelect">Clube *</label>
+          <select
+            id="clubSelect"
+            className={`form-control ${errors.clubId ? 'error' : ''}`}
+            value={details.clubId || ''}
+            onChange={(e) => onUpdate({ clubId: e.target.value })}
+          >
+            <option value="">Selecione um clube</option>
+            {clubs.map(club => (
+              <option key={club.id} value={club.id}>
+                {club.name}
+              </option>
+            ))}
+          </select>
+          {errors.clubId && <div className="error-message">{errors.clubId}</div>}
+        </div>
+      )}
 
       <div className="form-section">
         <SportSelector

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 interface SalesReport {
   date: string;
@@ -25,13 +26,18 @@ const Reports: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const { user } = useAuth();
+
   useEffect(() => {
-    loadReports();
-  }, []);
+    if (user?.clubId) {
+      loadReports();
+    }
+  }, [user?.clubId]);
 
   const loadReports = async () => {
     try {
-      const clubId = 'demo-club-id'; // Would come from auth
+      if (!user?.clubId) return;
+      const clubId = user.clubId;
       const [salesRes, attendanceRes] = await Promise.all([
         axios.get(`/api/reports/sales/${clubId}`),
         axios.get(`/api/reports/attendance/${clubId}`),

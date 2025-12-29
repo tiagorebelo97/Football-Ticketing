@@ -3,10 +3,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { Stand, Floor, Sector, Row, Venue } from '../services/venueService';
 
 export interface VenueDetails {
+  clubId?: string;
   name: string;
   city: string;
   address: string;
   sportId: string;
+  sportCode?: string;
   sportName?: string;
   photoUrl: string;
   capacity: number;
@@ -38,6 +40,7 @@ const initialState: VenueBuilderState = {
     city: '',
     address: '',
     sportId: '',
+    sportCode: '',
     sportName: '',
     photoUrl: '',
     capacity: 0
@@ -53,15 +56,20 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
       return {
         currentTab: 0,
         details: {
+          clubId: initialVenue.clubId,
           name: initialVenue.name,
           city: initialVenue.city,
           address: initialVenue.address || '',
           sportId: initialVenue.sportId,
+          sportCode: initialVenue.sportCode || '',
           sportName: initialVenue.sportName || '',
           photoUrl: initialVenue.photoUrl || '',
           capacity: initialVenue.capacity || 0
         },
-        stands: initialVenue.stands || [],
+        stands: (initialVenue.stands || []).map(s => ({
+          ...s,
+          id: s.id || uuidv4()
+        })),
         selectedStandId: null,
         errors: {}
       };
@@ -91,6 +99,34 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
     }));
   }, []);
 
+  // Helper function to recalculate capacities throughout the hierarchy
+  const recalculateCapacities = useCallback((stands: Stand[]): Stand[] => {
+    return stands.map(stand => {
+      const floors = (stand.floors || []).map(floor => {
+        // Sum up all sector seats to get floor capacity
+        const floorCapacity = (floor.sectors || []).reduce((sum, sector) => {
+          return sum + (sector.totalSeats || 0);
+        }, 0);
+
+        return {
+          ...floor,
+          totalCapacity: floorCapacity
+        };
+      });
+
+      // Sum up all floor capacities to get stand capacity
+      const standCapacity = floors.reduce((sum, floor) => {
+        return sum + (floor.totalCapacity || 0);
+      }, 0);
+
+      return {
+        ...stand,
+        floors,
+        totalCapacity: standCapacity
+      };
+    });
+  }, []);
+
   // Stand management
   const addStand = useCallback((position: 'north' | 'south' | 'east' | 'west') => {
     const existingStand = state.stands.find(s => s.position === position);
@@ -116,14 +152,24 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
       west: '#E91E63'
     };
 
+    // Create default first floor
+    const defaultFloor: Floor = {
+      id: uuidv4(),
+      name: 'Piso 1',
+      floorNumber: 1,
+      totalSectors: 0,
+      totalCapacity: 0,
+      sectors: []
+    };
+
     const newStand: Stand = {
       id: uuidv4(),
       name: `Bancada ${positionNames[position]}`,
       position,
       color: colors[position],
-      totalFloors: 0,
+      totalFloors: 1,
       totalCapacity: 0,
-      floors: []
+      floors: [defaultFloor]
     };
 
     setState(prev => ({
@@ -150,6 +196,13 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
     setState(prev => ({
       ...prev,
       stands: prev.stands.map(s => s.id === standId ? { ...s, ...updates } : s)
+    }));
+  }, []);
+
+  const updateStandName = useCallback((standId: string, newName: string) => {
+    setState(prev => ({
+      ...prev,
+      stands: prev.stands.map(s => s.id === standId ? { ...s, name: newName } : s)
     }));
   }, []);
 
@@ -257,9 +310,8 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
   }, []);
 
   const removeSector = useCallback((standId: string, floorId: string, sectorId: string) => {
-    setState(prev => ({
-      ...prev,
-      stands: prev.stands.map(s =>
+    setState(prev => {
+      const updatedStands = prev.stands.map(s =>
         s.id === standId
           ? {
             ...s,
@@ -274,14 +326,18 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
             )
           }
           : s
-      )
-    }));
-  }, []);
+      );
+
+      return {
+        ...prev,
+        stands: recalculateCapacities(updatedStands)
+      };
+    });
+  }, [recalculateCapacities]);
 
   const updateSector = useCallback((standId: string, floorId: string, sectorId: string, updates: Partial<Sector>) => {
-    setState(prev => ({
-      ...prev,
-      stands: prev.stands.map(s =>
+    setState(prev => {
+      const updatedStands = prev.stands.map(s =>
         s.id === standId
           ? {
             ...s,
@@ -297,9 +353,14 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
             )
           }
           : s
-      )
-    }));
-  }, []);
+      );
+
+      return {
+        ...prev,
+        stands: recalculateCapacities(updatedStands)
+      };
+    });
+  }, [recalculateCapacities]);
 
   // Row management
   const addRow = useCallback((standId: string, floorId: string, sectorId: string, seatsCount: number) => {
@@ -395,10 +456,9 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
     }));
   }, []);
 
-  const updateRow = useCallback((standId: string, floorId: string, sectorId: string, rowId: string, seatsCount: number) => {
-    setState(prev => ({
-      ...prev,
-      stands: prev.stands.map(s =>
+  const updateRow = useCallback((standId: string, floorId: string, sectorId: string, rowId: string, updates: Partial<Row>) => {
+    setState(prev => {
+      const updatedStands = prev.stands.map(s =>
         s.id === standId
           ? {
             ...s,
@@ -411,13 +471,15 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
 
                     const oldRow = (sec.rows || []).find(r => r.id === rowId);
                     const oldSeats = oldRow?.seatsCount || 0;
-                    const newSeats = seatsCount;
+
+                    // Determine new seats count (if updated)
+                    const newSeats = updates.seatsCount !== undefined ? updates.seatsCount : oldSeats;
                     const seatsDiff = newSeats - oldSeats;
 
                     return {
                       ...sec,
                       rows: (sec.rows || []).map(r =>
-                        r.id === rowId ? { ...r, seatsCount } : r
+                        r.id === rowId ? { ...r, ...updates } : r
                       ),
                       configuredSeats: (sec.configuredSeats || 0) + seatsDiff
                     };
@@ -427,38 +489,40 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
             )
           }
           : s
-      )
-    }));
-  }, []);
+      );
 
-  // Validation
-  const validateTab1 = useCallback((): boolean => {
+      return {
+        ...prev,
+        stands: recalculateCapacities(updatedStands)
+      };
+    });
+  }, [recalculateCapacities]);
+
+  // Internal Validation (Pure functions)
+  const getTab1Errors = useCallback((details: VenueDetails) => {
     const errors: { [key: string]: string } = {};
 
-    if (!state.details.name.trim()) {
+    if (!details.name.trim()) {
       errors.name = 'Nome é obrigatório';
     }
-    if (!state.details.city.trim()) {
+    if (!details.city.trim()) {
       errors.city = 'Cidade é obrigatória';
     }
-    if (!state.details.sportId) {
+    if (!details.sportId) {
       errors.sportId = 'Desporto é obrigatório';
     }
+    return errors;
+  }, []);
 
-    // Don't update state here - this function is called during render!
-    // Errors will be set when user tries to navigate tabs
-    return Object.keys(errors).length === 0;
-  }, [state.details]);
-
-  const validateTab2 = useCallback((): boolean => {
+  const getTab2Errors = useCallback((stands: Stand[]) => {
     const errors: { [key: string]: string } = {};
 
-    if (state.stands.length === 0) {
+    if (stands.length === 0) {
       errors.stands = 'Adicione pelo menos uma bancada';
     }
 
     // Check if all sectors have rows configured
-    state.stands.forEach(stand => {
+    stands.forEach(stand => {
       stand.floors?.forEach(floor => {
         floor.sectors?.forEach(sector => {
           if (!sector.rows || sector.rows.length === 0) {
@@ -470,10 +534,25 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
         });
       });
     });
+    return errors;
+  }, []);
 
+  // Public Validation Actions (Trigger state updates)
+  const validateTab1 = useCallback((): boolean => {
+    const errors = getTab1Errors(state.details);
     setState(prev => ({ ...prev, errors }));
     return Object.keys(errors).length === 0;
-  }, [state.stands]);
+  }, [state.details, getTab1Errors]);
+
+  const validateTab2 = useCallback((): boolean => {
+    const errors = getTab2Errors(state.stands);
+    setState(prev => ({ ...prev, errors }));
+    return Object.keys(errors).length === 0;
+  }, [state.stands, getTab2Errors]);
+
+  // Computed validity for rendering (No side effects)
+  const isTab1Valid = Object.keys(getTab1Errors(state.details)).length === 0;
+  const isTab2Valid = Object.keys(getTab2Errors(state.stands)).length === 0;
 
   // Calculate total capacity
   const calculateTotalCapacity = useCallback(() => {
@@ -510,6 +589,7 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
     removeStand,
     selectStand,
     updateStand,
+    updateStandName,
 
     // Floors
     addFloor,
@@ -526,9 +606,13 @@ export const useVenueBuilder = (initialVenue?: Venue) => {
     removeRow,
     updateRow,
 
-    // Validation
+    // Validation Actions
     validateTab1,
     validateTab2,
+
+    // Computed Status
+    isTab1Valid,
+    isTab2Valid,
 
     // Utilities
     calculateTotalCapacity,

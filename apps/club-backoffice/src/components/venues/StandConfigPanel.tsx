@@ -8,6 +8,8 @@ interface StandConfigPanelProps {
   onAddSector: (floorId: string) => void;
   onRemoveSector: (floorId: string, sectorId: string) => void;
   onConfigureSector: (floorId: string, sectorId: string) => void;
+  onUpdateSector: (floorId: string, sectorId: string, updates: Partial<Sector>) => void;
+  onUpdateStandName: (newName: string) => void;
   errors: { [key: string]: string };
 }
 
@@ -18,9 +20,14 @@ const StandConfigPanel: React.FC<StandConfigPanelProps> = ({
   onAddSector,
   onRemoveSector,
   onConfigureSector,
+  onUpdateSector,
+  onUpdateStandName,
   errors
 }) => {
+  /* ... existing state code ... */
   const [expandedFloors, setExpandedFloors] = useState<Set<string>>(new Set());
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState('');
 
   const toggleFloor = (floorId: string) => {
     setExpandedFloors(prev => {
@@ -34,128 +41,188 @@ const StandConfigPanel: React.FC<StandConfigPanelProps> = ({
     });
   };
 
+  const handleStartEdit = () => {
+    setEditedName(stand?.name || '');
+    setIsEditingName(true);
+  };
+
+  const handleSaveName = () => {
+    if (editedName.trim()) {
+      onUpdateStandName(editedName.trim());
+    }
+    setIsEditingName(false);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditingName(false);
+    setEditedName('');
+  };
+
+  const hasChanges = stand?.name !== editedName;
+  const floors = stand?.floors || [];
+
   if (!stand) {
-    return (
-      <div className="stand-config-panel">
-        <div className="no-stand-selected">
-          <p>Selecione uma bancada no mockup ou adicione uma nova bancada para começar a configuração.</p>
-        </div>
-      </div>
-    );
+    return <div className="panel-placeholder">Selecione uma bancada para configurar</div>;
   }
 
   return (
     <div className="stand-config-panel">
       <div className="panel-header">
-        <h3>{stand.name}</h3>
-        <div className="stand-color-badge" style={{ backgroundColor: stand.color }}></div>
+        <div className="stand-title-section">
+          {isEditingName ? (
+            <div className="edit-name-form">
+              <input
+                type="text"
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                className="form-control"
+                autoFocus
+              />
+              <div className="edit-actions">
+                <button
+                  className="btn btn-sm btn-success"
+                  onClick={handleSaveName}
+                  disabled={!editedName.trim()}
+                >
+                  Ok
+                </button>
+                <button
+                  className="btn btn-sm btn-secondary"
+                  onClick={handleCancelEdit}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="stand-title-display">
+              <h3>{stand.name}</h3>
+              <button
+                className="btn-icon-small"
+                onClick={handleStartEdit}
+                title="Renomear bancada"
+              >
+                ✏️
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="stand-stats">
+          <span className="badge badge-info">{stand.totalCapacity} Lugares</span>
+          <span className="badge badge-secondary">{floors.length} Pisos</span>
+        </div>
       </div>
 
-      <div className="panel-stats">
-        <div className="stat">
-          <span className="stat-label">Pisos:</span>
-          <span className="stat-value">{stand.floors?.length || 0}</span>
-        </div>
-        <div className="stat">
-          <span className="stat-label">Capacidade:</span>
-          <span className="stat-value">{stand.totalCapacity || 0}</span>
-        </div>
-      </div>
-
-      <div className="panel-section">
+      <div className="floors-section">
         <div className="section-header">
           <h4>Pisos</h4>
-          <button className="btn btn-sm btn-primary" onClick={onAddFloor}>
+          <button
+            className="btn btn-sm btn-primary"
+            onClick={onAddFloor}
+          >
             + Adicionar Piso
           </button>
         </div>
 
         <div className="floors-list">
-          {stand.floors && stand.floors.length > 0 ? (
-            stand.floors.map((floor) => (
+          {floors.length > 0 ? (
+            floors.map((floor) => (
               <div key={floor.id} className="floor-item">
-                <div className="floor-header" onClick={() => toggleFloor(floor.id!)}>
-                  <div className="floor-info">
-                    <span className="floor-name">{floor.name}</span>
-                    <span className="floor-stats">
-                      {floor.sectors?.length || 0} setores · {floor.totalCapacity || 0} lugares
-                    </span>
+                <div className="floor-header">
+                  <div
+                    className="floor-title"
+                    onClick={() => toggleFloor(floor.id!)}
+                  >
+                    <span className={`toggle-icon ${expandedFloors.has(floor.id!) ? 'expanded' : ''}`}>▶</span>
+                    <span>{floor.name}</span>
+                    <span className="floor-capacity-badge">{floor.totalCapacity} lug.</span>
                   </div>
                   <div className="floor-actions">
                     <button
+                      className="btn btn-sm btn-outline-secondary"
+                      onClick={() => onAddSector(floor.id!)}
+                      title="Adicionar Setor"
+                    >
+                      + Setor
+                    </button>
+                    <button
                       className="btn-icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRemoveFloor(floor.id!);
-                      }}
+                      onClick={() => onRemoveFloor(floor.id!)}
                       title="Remover piso"
                     >
                       ✕
                     </button>
-                    <span className="expand-icon">
-                      {expandedFloors.has(floor.id!) ? '▼' : '▶'}
-                    </span>
                   </div>
                 </div>
 
                 {expandedFloors.has(floor.id!) && (
                   <div className="floor-content">
-                    <div className="sectors-section">
-                      <button
-                        className="btn btn-sm btn-secondary"
-                        onClick={() => onAddSector(floor.id!)}
-                      >
-                        + Adicionar Setor
-                      </button>
-
-                      <div className="sectors-list">
-                        {floor.sectors && floor.sectors.length > 0 ? (
-                          floor.sectors.map((sector) => (
-                            <div key={sector.id} className="sector-item">
-                              <div className="sector-info">
-                                <span className="sector-name">{sector.name}</span>
-                                <span className="sector-stats">
-                                  {sector.configuredSeats || 0}/{sector.totalSeats} lugares
-                                  {sector.rows && ` · ${sector.rows.length} filas`}
-                                </span>
-                              </div>
-                              {errors[`sector-${sector.id}`] && (
-                                <div className="error-message-inline">
-                                  {errors[`sector-${sector.id}`]}
-                                </div>
-                              )}
-                              <div className="sector-actions">
-                                <button
-                                  className="btn btn-xs btn-primary"
-                                  onClick={() => onConfigureSector(floor.id!, sector.id!)}
-                                >
-                                  Configurar
-                                </button>
-                                <button
-                                  className="btn-icon"
-                                  onClick={() => onRemoveSector(floor.id!, sector.id!)}
-                                  title="Remover setor"
-                                >
-                                  ✕
-                                </button>
-                              </div>
+                    {/* Sectors List starts here */}
+                    {floor.sectors && floor.sectors.length > 0 ? (
+                      floor.sectors.map((sector) => (
+                        <div key={sector.id} className="sector-item">
+                          <div className="sector-info-inline">
+                            <div className="sector-input-group">
+                              <label>Nome</label>
+                              <input
+                                type="text"
+                                value={sector.name}
+                                className="small-input"
+                                onChange={(e) => onUpdateSector(floor.id!, sector.id!, { name: e.target.value })}
+                              />
                             </div>
-                          ))
-                        ) : (
-                          <div className="empty-message">Nenhum setor configurado</div>
-                        )}
-                      </div>
-                    </div>
+                            <div className="sector-input-group">
+                              <label>Lugares</label>
+                              <input
+                                type="number"
+                                value={sector.totalSeats}
+                                className="small-input"
+                                min="1"
+                                onChange={(e) => onUpdateSector(floor.id!, sector.id!, { totalSeats: parseInt(e.target.value) || 0 })}
+                              />
+                            </div>
+                            <div className="sector-stats-summary">
+                              {sector.rows?.length || 0} filas
+                            </div>
+                          </div>
+
+                          {errors[`sector-${sector.id}`] && (
+                            <div className="error-message-inline">
+                              {errors[`sector-${sector.id}`]}
+                            </div>
+                          )}
+
+                          <div className="sector-actions">
+                            <button
+                              className="btn btn-xs btn-outline-primary"
+                              onClick={() => onConfigureSector(floor.id!, sector.id!)}
+                              title="Configurar Filas"
+                            >
+                              Filas
+                            </button>
+                            <button
+                              className="btn-icon"
+                              onClick={() => onRemoveSector(floor.id!, sector.id!)}
+                              title="Remover setor"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="empty-message">Nenhum setor configurado</div>
+                    )}
                   </div>
                 )}
-              </div>
+              </div >
             ))
           ) : (
             <div className="empty-message">Nenhum piso configurado</div>
           )}
-        </div>
-      </div>
-    </div>
+        </div >
+      </div >
+    </div >
   );
 };
 

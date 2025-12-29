@@ -46,7 +46,7 @@ const MemberList: React.FC = () => {
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importStatus, setImportStatus] = useState<string | null>(null);
 
-  const clubId = user?.clubId || 'test-club-id';
+  const clubId = user?.clubId;
 
   useEffect(() => {
     fetchMembers();
@@ -55,6 +55,7 @@ const MemberList: React.FC = () => {
   }, [clubId, searchTerm, statusFilter, typeFilter]);
 
   const fetchMembers = async () => {
+    if (!clubId) return;
     try {
       setLoading(true);
       const data = await memberService.listMembers(clubId, {
@@ -73,6 +74,7 @@ const MemberList: React.FC = () => {
   };
 
   const fetchStats = async () => {
+    if (!clubId) return;
     try {
       const data = await memberService.getMemberStats(clubId);
       setStats(data);
@@ -82,9 +84,7 @@ const MemberList: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to deactivate this member?')) {
-      return;
-    }
+    if (!window.confirm('Are you sure you want to delete this member?') || !clubId) return;
 
     try {
       await memberService.deleteMember(id);
@@ -101,6 +101,8 @@ const MemberList: React.FC = () => {
       alert('Please select a file to import');
       return;
     }
+
+    if (!importFile || !clubId) return;
 
     try {
       setImportStatus('Importing...');
@@ -294,8 +296,8 @@ const MemberList: React.FC = () => {
                         <Link to={`/members/${member.id}/edit`} className="btn-secondary" style={{ fontSize: '12px', padding: '4px 8px' }}>
                           Edit
                         </Link>
-                        <button 
-                          onClick={() => handleDelete(member.id)} 
+                        <button
+                          onClick={() => handleDelete(member.id)}
                           className="btn-danger"
                           style={{ fontSize: '12px', padding: '4px 8px' }}
                         >
@@ -328,7 +330,7 @@ const MemberList: React.FC = () => {
           <div className="card" style={{ width: '500px', maxWidth: '90%' }}>
             <h3>Import Members from Excel</h3>
             <p>Upload an Excel (.xlsx) or CSV file with member information.</p>
-            
+
             <button onClick={downloadTemplate} className="btn-secondary" style={{ marginBottom: '15px', width: '100%' }}>
               Download Template
             </button>

@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from 'react';
 import { Stage, Layer, Rect, Circle, Line, Text, Group } from 'react-konva';
 import { Stand } from '../../services/venueService';
@@ -9,6 +10,9 @@ interface StadiumCanvas2DProps {
   onStandClick: (standId: string) => void;
 }
 
+const LOGICAL_WIDTH = 1000;
+const LOGICAL_HEIGHT = 800;
+
 const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
   sportCode,
   stands,
@@ -16,14 +20,21 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
   onStandClick
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [dimensions, setDimensions] = React.useState({ width: 800, height: 600 });
+  const [stageDimensions, setStageDimensions] = React.useState({ width: 800, height: 600 });
+  const [scale, setScale] = React.useState(1);
 
   useEffect(() => {
     const updateDimensions = () => {
       if (containerRef.current) {
         const width = containerRef.current.offsetWidth;
         const height = Math.min(600, width * 0.75);
-        setDimensions({ width, height });
+
+        const scaleX = width / LOGICAL_WIDTH;
+        const scaleY = height / LOGICAL_HEIGHT;
+        const newScale = Math.min(scaleX, scaleY); // Fit to screen ensuring aspect ratio
+
+        setStageDimensions({ width, height });
+        setScale(newScale);
       }
     };
 
@@ -46,8 +57,9 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
   };
 
   const fieldDims = getFieldDimensions();
-  const centerX = dimensions.width / 2;
-  const centerY = dimensions.height / 2;
+  // Center in LOGICAL coordinates
+  const centerX = LOGICAL_WIDTH / 2;
+  const centerY = LOGICAL_HEIGHT / 2;
   const fieldX = centerX - fieldDims.width / 2;
   const fieldY = centerY - fieldDims.height / 2;
 
@@ -90,6 +102,7 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
     }
   };
 
+  // ... (renderField usually doesn't change if it uses fieldX/fieldY from above)
   const renderField = () => {
     if (sportCode === 'football') {
       return (
@@ -141,21 +154,6 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
             stroke="#FFFFFF"
             strokeWidth={2}
           />
-          {/* Goals */}
-          <Rect
-            x={fieldX - 8}
-            y={centerY - 30}
-            width={8}
-            height={60}
-            fill="#FFFFFF"
-          />
-          <Rect
-            x={fieldX + fieldDims.width}
-            y={centerY - 30}
-            width={8}
-            height={60}
-            fill="#FFFFFF"
-          />
         </Group>
       );
     }
@@ -189,82 +187,260 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
   };
 
   const renderStands = () => {
-    return stands.map(stand => {
+    const elements: JSX.Element[] = [];
+
+    stands.forEach((stand, index) => {
+      if (!stand.id) return;
+
       const geometry = getStandGeometry(stand.position);
       const isSelected = stand.id === selectedStandId;
+      const numFloors = stand.floors?.length || 1;
+      const isHorizontal = stand.position === 'north' || stand.position === 'south';
 
-      return (
-        <Group key={stand.id}>
-          <Rect
-            x={geometry.x}
-            y={geometry.y}
-            width={geometry.width}
-            height={geometry.height}
-            fill={stand.color}
-            opacity={isSelected ? 0.9 : 0.7}
-            stroke={isSelected ? '#FFD700' : '#333'}
-            strokeWidth={isSelected ? 4 : 2}
-            shadowBlur={isSelected ? 10 : 5}
-            shadowColor="black"
-            onClick={() => onStandClick(stand.id!)}
-            onTap={() => onStandClick(stand.id!)}
-            onMouseEnter={(e) => {
-              const container = e.target.getStage()?.container();
-              if (container) container.style.cursor = 'pointer';
-            }}
-            onMouseLeave={(e) => {
-              const container = e.target.getStage()?.container();
-              if (container) container.style.cursor = 'default';
-            }}
-          />
+      const labelWidth = isHorizontal ? geometry.width : 150;
+      const nameFontSize = 18;
+      const capacityFontSize = 14;
+
+      // Rect for the stand background
+      elements.push(
+        <Rect
+          key={`stand-rect-${stand.id}`}
+          x={geometry.x}
+          y={geometry.y}
+          width={geometry.width}
+          height={geometry.height}
+          fill={stand.color}
+          opacity={0.3}
+          stroke={isSelected ? '#FFD700' : '#333'}
+          strokeWidth={isSelected ? 4 : 2}
+          shadowBlur={isSelected ? 10 : 5}
+          shadowColor="black"
+          onClick={() => stand.id && onStandClick(stand.id)}
+          onTap={() => stand.id && onStandClick(stand.id)}
+          onMouseEnter={(e) => {
+            const stage = e.target.getStage();
+            const container = stage?.container();
+            if (container) container.style.cursor = 'pointer';
+          }}
+          onMouseLeave={(e) => {
+            const stage = e.target.getStage();
+            const container = stage?.container();
+            if (container) container.style.cursor = 'default';
+          }}
+        />
+      );
+
+      // Render floors (omitted detailed inner logic changes for brevity as they depend on geometry which is correct)
+      // The previous logic for floors/sectors inside the stand rect works fine with updated geometry.
+      // Copying the floor loop logic for completeness but ensuring variables are fresh.
+
+      if (stand.floors && stand.floors.length > 0) {
+        stand.floors.forEach((floor, floorIdx) => {
+          const floorHeight = isHorizontal ? geometry.height / numFloors : geometry.height;
+          const floorWidth = isHorizontal ? geometry.width : geometry.width / numFloors;
+
+          let floorX, floorY, floorW, floorH;
+
+          if (isHorizontal) {
+            floorX = geometry.x;
+            floorY = geometry.y + (floorIdx * floorHeight);
+            floorW = geometry.width;
+            floorH = floorHeight;
+          } else {
+            floorX = geometry.x + (floorIdx * floorWidth);
+            floorY = geometry.y;
+            floorW = floorWidth;
+            floorH = geometry.height;
+          }
+
+          elements.push(
+            <Rect
+              key={`floor-${stand.id}-${floor.id}`}
+              x={floorX}
+              y={floorY}
+              width={floorW}
+              height={floorH}
+              fill={stand.color}
+              opacity={0.4 + (floorIdx * 0.1)}
+              stroke="#FFFFFF"
+              strokeWidth={1}
+              listening={false}
+            />
+          );
+
+          // Sectors logic...
+          const numSectors = floor.sectors?.length || 0;
+          if (numSectors > 0) {
+            floor.sectors?.forEach((sector: any, sectorIdx: number) => {
+              const sectorWidth = isHorizontal ? floorW / numSectors : floorW;
+              const sectorHeight = isHorizontal ? floorH : floorH / numSectors;
+
+              let sectorX, sectorY, sectorW, sectorH;
+
+              if (isHorizontal) {
+                sectorX = floorX + (sectorIdx * sectorWidth);
+                sectorY = floorY;
+                sectorW = sectorWidth;
+                sectorH = floorH;
+              } else {
+                sectorX = floorX;
+                sectorY = floorY + (sectorIdx * sectorHeight);
+                sectorW = floorW;
+                sectorH = sectorHeight;
+              }
+
+              elements.push(
+                <Rect
+                  key={`sector-${stand.id}-${floor.id}-${sector.id}`}
+                  x={sectorX}
+                  y={sectorY}
+                  width={sectorW}
+                  height={sectorH}
+                  fill={stand.color}
+                  opacity={0.5 + (sectorIdx * 0.05)}
+                  stroke="#FFFFFF"
+                  strokeWidth={0.5}
+                  listening={false}
+                />
+              );
+
+              if (sectorW > 30 && sectorH > 15) {
+                // Label code...
+                elements.push(
+                  <Text
+                    key={`sector-label-${stand.id}-${floor.id}-${sector.id}`} // Fixed duplicate key risk
+                    x={sectorX}
+                    y={sectorY + sectorH / 2 - 6} // Adjusted Y for centering without capacity text
+                    width={sectorW}
+                    text={String(sector.name || '')}
+                    fontSize={13} // Increased from 9
+                    fontStyle="bold"
+                    fill="#FFFFFF"
+                    align="center"
+                    listening={false}
+                  />
+                );
+              }
+            });
+          }
+        });
+      }
+
+      // Stand Labels Logic
+      let nameX, nameY, nameRotation;
+      let nameAlign = 'center';
+
+      const textPadding = 15;
+
+      if (stand.position === 'north') {
+        nameRotation = 0;
+        nameX = geometry.x;
+        nameY = geometry.y - 25;
+
+      } else if (stand.position === 'south') {
+        nameRotation = 0;
+        nameX = geometry.x;
+        nameY = geometry.y + geometry.height + 10;
+
+      } else if (stand.position === 'east') {
+        nameRotation = 90;
+        // x = right edge + same padding as North (approx 25px)
+        nameX = geometry.x + geometry.width + 25;
+        nameY = geometry.y;
+
+      } else {
+        nameRotation = -90;
+        // x = left edge - same padding (25px)
+        nameX = geometry.x - 25;
+        nameY = geometry.y + geometry.height;
+      }
+
+      if (isHorizontal) {
+        // Just Text, no background
+        elements.push(
           <Text
-            x={geometry.x}
-            y={geometry.y + geometry.height / 2 - 10}
+            key={`stand-text-${stand.id}`}
+            x={nameX}
+            y={nameY}
             width={geometry.width}
-            height={20}
-            text={stand.name}
-            fontSize={14}
+            text={String(stand.name || '')}
+            fontSize={nameFontSize}
             fontStyle="bold"
             fill="#FFFFFF"
             align="center"
-            verticalAlign="middle"
+            listening={false}
           />
-          {stand.totalCapacity && stand.totalCapacity > 0 && (
+        );
+      } else {
+        // Vertical Stands (East/West)
+        const vLabelWidth = geometry.height;
+
+        let labelX, labelY, labelRot;
+
+        if (stand.position === 'east') {
+          labelRot = 90;
+          labelX = geometry.x + geometry.width + 25;
+          labelY = geometry.y;
+        } else {
+          labelRot = -90;
+          labelX = geometry.x - 25;
+          labelY = geometry.y + geometry.height;
+        }
+
+        // Group for Label - No Rect
+        elements.push(
+          <Group
+            key={`label-group-${stand.id}`}
+            x={labelX}
+            y={labelY}
+            rotation={labelRot}
+          >
             <Text
-              x={geometry.x}
-              y={geometry.y + geometry.height / 2 + 10}
-              width={geometry.width}
-              height={20}
-              text={`${stand.totalCapacity} lugares`}
-              fontSize={11}
+              x={0}
+              y={0}
+              width={vLabelWidth}
+              text={String(stand.name || '')}
+              fontSize={nameFontSize}
+              fontStyle="bold"
               fill="#FFFFFF"
               align="center"
-              verticalAlign="middle"
             />
-          )}
-        </Group>
-      );
+          </Group>
+        );
+      }
+
     });
+
+    return elements;
   };
 
   return (
-    <div ref={containerRef} className="stadium-canvas-container">
-      <Stage width={dimensions.width} height={dimensions.height}>
+    <div ref={containerRef} className="stadium-canvas-container" style={{ width: '100%', minHeight: '400px' }}>
+      <Stage width={stageDimensions.width} height={stageDimensions.height}>
         <Layer>
-          {/* Background */}
-          <Rect
-            x={0}
-            y={0}
-            width={dimensions.width}
-            height={dimensions.height}
-            fill="#1a1a1a"
-          />
-          
-          {/* Field */}
-          {renderField()}
-          
-          {/* Stands */}
-          {renderStands()}
+          {/* Main Scaling Group */}
+          <Group
+            scaleX={scale}
+            scaleY={scale}
+            x={(stageDimensions.width - LOGICAL_WIDTH * scale) / 2}
+            y={(stageDimensions.height - LOGICAL_HEIGHT * scale) / 2}
+          >
+            {/* Background - covers logical area */}
+            <Rect
+              x={0}
+              y={0}
+              width={LOGICAL_WIDTH}
+              height={LOGICAL_HEIGHT}
+              fill="#1a1a1a" // Match background
+              listening={false}
+            />
+
+            {/* Field */}
+            {renderField()}
+
+            {/* Stands */}
+            {renderStands()}
+          </Group>
         </Layer>
       </Stage>
     </div>

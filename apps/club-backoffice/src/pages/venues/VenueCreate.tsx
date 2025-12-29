@@ -33,7 +33,7 @@ const VenueCreate: React.FC = () => {
 
   return (
     <div className="venue-create-page">
-      <VenueWizard onSave={handleSave} onCancel={handleCancel} />
+      <VenueWizard isSuperAdmin={false} onSave={handleSave} onCancel={handleCancel} />
     </div>
   );
 };

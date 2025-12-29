@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 interface Inventory {
   status: string;
@@ -18,13 +19,18 @@ const NFCInventory: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const { user } = useAuth();
+
   useEffect(() => {
-    loadInventory();
-  }, []);
+    if (user?.clubId) {
+      loadInventory();
+    }
+  }, [user?.clubId]);
 
   const loadInventory = async () => {
     try {
-      const clubId = 'demo-club-id'; // Would come from auth
+      if (!user?.clubId) return;
+      const clubId = user.clubId;
       const response = await axios.get(`/api/nfc/inventory/${clubId}`);
       setInventory(response.data.inventory);
       setConfig(response.data.config);

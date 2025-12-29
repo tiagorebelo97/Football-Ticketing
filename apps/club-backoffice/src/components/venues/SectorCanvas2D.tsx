@@ -12,7 +12,7 @@ const SectorCanvas2D: React.FC<SectorCanvas2DProps> = ({ rows, totalSeats }) => 
   const height = 400;
   const padding = 40;
   const fieldHeight = 80;
-  
+
   // Calculate layout
   const maxSeatsPerRow = rows.length > 0 ? Math.max(...rows.map(r => r.seatsCount)) : 10;
   const seatSize = Math.min(20, (width - 2 * padding) / (maxSeatsPerRow + 2));
@@ -27,16 +27,16 @@ const SectorCanvas2D: React.FC<SectorCanvas2DProps> = ({ rows, totalSeats }) => 
           y={fieldY}
           width={width - 2 * padding}
           height={fieldHeight}
-          fill="#4CAF50"
+          fill="#388E3C" // Darker green like image
           stroke="#FFFFFF"
-          strokeWidth={2}
+          strokeWidth={0}
         />
         <Text
           x={padding}
-          y={fieldY + fieldHeight / 2 - 10}
+          y={fieldY}
           width={width - 2 * padding}
-          height={20}
-          text="CAMPO"
+          height={fieldHeight}
+          text="RELVADO"
           fontSize={16}
           fontStyle="bold"
           fill="#FFFFFF"
@@ -49,59 +49,54 @@ const SectorCanvas2D: React.FC<SectorCanvas2DProps> = ({ rows, totalSeats }) => 
 
   const renderSeats = () => {
     const startY = padding + fieldHeight + 40;
-    
+
     return rows.map((row, rowIndex) => {
       const y = startY + rowIndex * rowSpacing;
-      const rowWidth = row.seatsCount * seatSize;
-      const startX = (width - rowWidth) / 2;
+      // Align LEFT (started from padding)
+      const startX = padding + 60; // 60px offset for row label
+
+      // Seat Path Logic (Rounded top, flat bottom)
+      // Original size ~20px
+      // Path for a simple seat shape: "M 0,seatSize H seatSize V seatSize/2 ... ?"
+      // Let's use a path. 
+      // M 2 (bottom-left) L 2 (top-left-rounded) ...
+      // Simplified: Rect with different corner radius [top-left, top-right, bottom-right, bottom-left]
+      // Konva Rect supports cornerRadius as array [tl, tr, br, bl]
 
       return (
         <Group key={row.id || rowIndex}>
           {/* Row label */}
           <Text
-            x={startX - 40}
+            x={padding} // Fixed left position for label
             y={y - seatSize / 2}
-            width={35}
+            width={50}
             height={seatSize}
             text={row.name}
             fontSize={12}
             fontStyle="bold"
             fill="#333"
-            align="right"
+            align="left"
             verticalAlign="middle"
           />
-          
+
           {/* Seats */}
           {Array.from({ length: row.seatsCount }).map((_, seatIndex) => {
             const seatX = startX + seatIndex * seatSize;
-            
+
             return (
               <Rect
                 key={`${row.id}-${seatIndex}`}
                 x={seatX}
                 y={y - seatSize / 2}
-                width={seatSize - 2}
+                width={seatSize - 4} // Gap between seats
                 height={seatSize - 2}
-                fill="#2196F3"
-                stroke="#1976D2"
-                strokeWidth={1}
-                cornerRadius={2}
+                fill="#009688" // Teal color like image
+                cornerRadius={[5, 5, 0, 0]} // Rounded top, flat bottom
+                shadowBlur={0}
               />
             );
           })}
-          
-          {/* Seat count label */}
-          <Text
-            x={startX + rowWidth + 5}
-            y={y - seatSize / 2}
-            width={40}
-            height={seatSize}
-            text={`${row.seatsCount}`}
-            fontSize={11}
-            fill="#666"
-            align="left"
-            verticalAlign="middle"
-          />
+
         </Group>
       );
     });
@@ -119,10 +114,10 @@ const SectorCanvas2D: React.FC<SectorCanvas2DProps> = ({ rows, totalSeats }) => 
             height={height}
             fill="#f5f5f5"
           />
-          
+
           {/* Field */}
           {renderField()}
-          
+
           {/* Seats */}
           {rows.length > 0 ? (
             renderSeats()

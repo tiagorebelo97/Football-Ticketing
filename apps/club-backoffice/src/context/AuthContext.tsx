@@ -53,7 +53,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         try {
-            return JSON.parse(storedUser);
+            const parsedUser = JSON.parse(storedUser);
+            // Check for legacy/invalid club IDs
+            if (parsedUser.clubId === 'demo-club-id' || parsedUser.clubId === 'test-club-id') {
+                console.warn('Found legacy invalid clubId, clearing session');
+                localStorage.removeItem('club_user');
+                localStorage.removeItem('club_token');
+                localStorage.removeItem('club_expires_at');
+                localStorage.removeItem('club_data');
+                return null;
+            }
+            return parsedUser;
         } catch (error) {
             console.error('Failed to parse stored user:', error);
             localStorage.removeItem('club_user');
