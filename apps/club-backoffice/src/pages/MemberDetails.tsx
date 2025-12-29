@@ -73,8 +73,9 @@ const MemberDetails: React.FC = () => {
         amount: data.quota_amount.toString()
       }));
       setError(null);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load member');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load member';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -84,7 +85,7 @@ const MemberDetails: React.FC = () => {
     try {
       const data = await memberService.getMemberQuotas(id!);
       setQuotas(data);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to load quotas:', err);
     }
   };
@@ -105,8 +106,9 @@ const MemberDetails: React.FC = () => {
         notes: ''
       });
       fetchQuotas();
-    } catch (err: any) {
-      alert('Failed to add quota payment: ' + err.message);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to add quota payment';
+      alert('Failed to add quota payment: ' + errorMessage);
     }
   };
 

@@ -47,8 +47,9 @@ const MemberCreate: React.FC = () => {
     try {
       await memberService.createMember(clubId, formData);
       navigate('/members');
-    } catch (err: any) {
-      setError(err.message || 'Failed to create member');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create member';
+      setError(errorMessage);
       setLoading(false);
     }
   };

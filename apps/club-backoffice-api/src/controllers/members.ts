@@ -358,7 +358,7 @@ export const importMembersFromExcel = async (req: Request, res: Response) => {
       try {
         // Map Excel columns to database fields (flexible column names)
         const memberData = {
-          member_number: row['Member Number'] || row['member_number'] || row['Número de Sócio'] || `AUTO-${Date.now()}-${i}`,
+          member_number: row['Member Number'] || row['member_number'] || row['Número de Sócio'] || `IMPORT-${i + 1}`,
           first_name: row['First Name'] || row['first_name'] || row['Nome'] || '',
           last_name: row['Last Name'] || row['last_name'] || row['Apelido'] || '',
           email: row['Email'] || row['email'] || row['E-mail'] || '',

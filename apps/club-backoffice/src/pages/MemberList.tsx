@@ -64,8 +64,9 @@ const MemberList: React.FC = () => {
       });
       setMembers(data.members);
       setError(null);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load members');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load members';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -75,7 +76,7 @@ const MemberList: React.FC = () => {
     try {
       const data = await memberService.getMemberStats(clubId);
       setStats(data);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to load stats:', err);
     }
   };
@@ -89,8 +90,9 @@ const MemberList: React.FC = () => {
       await memberService.deleteMember(id);
       fetchMembers();
       fetchStats();
-    } catch (err: any) {
-      alert('Failed to deactivate member: ' + err.message);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to deactivate member';
+      alert('Failed to deactivate member: ' + errorMessage);
     }
   };
 
@@ -111,8 +113,9 @@ const MemberList: React.FC = () => {
         fetchMembers();
         fetchStats();
       }, 3000);
-    } catch (err: any) {
-      setImportStatus('Import failed: ' + err.message);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Import failed';
+      setImportStatus('Import failed: ' + errorMessage);
     }
   };
 
@@ -133,7 +136,7 @@ const MemberList: React.FC = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    const colors: any = {
+    const colors: Record<string, string> = {
       active: '#4caf50',
       suspended: '#ff9800',
       cancelled: '#f44336'
@@ -152,7 +155,7 @@ const MemberList: React.FC = () => {
   };
 
   const getTypeBadge = (type: string) => {
-    const colors: any = {
+    const colors: Record<string, string> = {
       regular: '#2196f3',
       premium: '#9c27b0',
       vip: '#ff9800',
