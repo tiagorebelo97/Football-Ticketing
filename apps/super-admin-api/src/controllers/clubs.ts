@@ -143,7 +143,10 @@ export async function getClub(req: Request, res: Response) {
 export async function updateClub(req: Request, res: Response) {
   try {
     const { clubId } = req.params;
-    const { name, shortName, logoUrl, countryId, foundedYear, stadiumCapacity, website, primaryColor, secondaryColor, isActive } = req.body;
+    let { name, shortName, logoUrl, countryId, foundedYear, stadiumCapacity, website, primaryColor, secondaryColor, isActive } = req.body;
+
+    // Fix empty string for UUID causing 'invalid input syntax'
+    if (countryId === '') countryId = null;
 
     if (countryId) {
       const countryCheck = await pool.query('SELECT id FROM countries WHERE id = $1', [countryId]);

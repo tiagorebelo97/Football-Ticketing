@@ -19,6 +19,7 @@ const ClubsList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [countryFilter, setCountryFilter] = useState('');
+  const [includeDeleted, setIncludeDeleted] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,7 +29,7 @@ const ClubsList: React.FC = () => {
   const loadData = async () => {
     try {
       const [clubsRes, countriesRes] = await Promise.all([
-        axios.get('/api/clubs', { params: { perPage: 100 } }),
+        axios.get('/api/clubs', { params: { perPage: 100, includeDeleted } }),
         axios.get('/api/countries', { params: { perPage: 100 } })
       ]);
       setClubs(clubsRes.data.data || clubsRes.data);
@@ -36,6 +37,32 @@ const ClubsList: React.FC = () => {
       setLoading(false);
     } catch (err) {
       setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [includeDeleted]);
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this club?')) {
+      try {
+        await axios.delete(`/api/clubs/${id}`);
+        loadData();
+      } catch (err) {
+        alert('Failed to delete club');
+      }
+    }
+  };
+
+  const handleRestore = async (id: string) => {
+    if (window.confirm('Are you sure you want to restore this club?')) {
+      try {
+        await axios.post(`/api/clubs/${id}/restore`);
+        loadData();
+      } catch (err) {
+        alert('Failed to restore club');
+      }
     }
   };
 
@@ -89,6 +116,16 @@ const ClubsList: React.FC = () => {
             <option value="">All Countries</option>
             {countries.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
           </select>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '14px' }}>
+            <input
+              type="checkbox"
+              id="includeDeleted"
+              checked={includeDeleted}
+              onChange={(e) => setIncludeDeleted(e.target.checked)}
+              style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+            />
+            <label htmlFor="includeDeleted" style={{ cursor: 'pointer' }}>Show Deleted</label>
+          </div>
         </div>
       </div>
 
@@ -131,6 +168,11 @@ const ClubsList: React.FC = () => {
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                       <button className="premium-btn premium-btn-secondary" style={{ padding: '8px 16px', fontSize: '13px' }} onClick={() => navigate(`/clubs/${club.id}/edit`)}>View</button>
                       <button className="premium-btn premium-btn-secondary" style={{ padding: '8px 16px', fontSize: '13px' }} onClick={() => navigate(`/clubs/${club.id}/edit`)}>Edit</button>
+                      {club.deleted_at ? (
+                        <button className="premium-btn" style={{ padding: '8px 16px', fontSize: '13px', border: '1px solid var(--success)', color: 'var(--success)', background: 'transparent' }} onClick={() => handleRestore(club.id)}>Restore</button>
+                      ) : (
+                        <button className="premium-btn" style={{ padding: '8px 16px', fontSize: '13px', border: '1px solid var(--danger)', color: 'var(--danger)', background: 'transparent' }} onClick={() => handleDelete(club.id)}>Delete</button>
+                      )}
                     </div>
                   </td>
                 </tr>

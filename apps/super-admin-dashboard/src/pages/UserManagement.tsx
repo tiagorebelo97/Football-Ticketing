@@ -221,7 +221,8 @@ const UserManagement: React.FC = () => {
                                         textTransform: 'uppercase',
                                         backgroundColor: u.role === 'super_admin' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(79, 172, 254, 0.1)',
                                         color: u.role === 'super_admin' ? '#ef4444' : 'var(--accent-secondary)',
-                                        border: u.role === 'super_admin' ? '1px solid rgba(239, 68, 68, 0.2)' : '1px solid rgba(79, 172, 254, 0.2)'
+                                        border: u.role === 'super_admin' ? '1px solid rgba(239, 68, 68, 0.2)' : '1px solid rgba(79, 172, 254, 0.2)',
+                                        whiteSpace: 'nowrap'
                                     }}>
                                         {u.role.replace('_', ' ')}
                                     </span>

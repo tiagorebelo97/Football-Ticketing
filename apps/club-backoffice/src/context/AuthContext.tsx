@@ -121,7 +121,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             // Mock user data - hardcoded for development
             // In reality, this would come from the auth API
-            const mockClubId = 'b9bb9b55-fe9e-4bf3-9aa8-34b76b26f185'; // fofo club
+            let mockClubId = 'b9bb9b55-fe9e-4bf3-9aa8-34b76b26f185'; // fofo club (default)
+
+            if (email === 'tiago@clube.com') {
+                mockClubId = '6a9d6831-8411-4648-a885-d8d7a1ef47c3'; // Sporting Clube de Portugal
+            }
 
             // Fetch club data by club_id
             const clubResponse = await fetch(`/api/clubs/${mockClubId}`);

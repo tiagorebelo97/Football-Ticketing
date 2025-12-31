@@ -40,12 +40,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleSidebar }) => {
             transition: 'width 0.3s ease'
         }}>
             {/* Logo and Branding Section */}
-            <div style={{ 
-                padding: isCollapsed ? '32px 0' : '32px 24px', 
-                marginBottom: '16px', 
-                position: 'relative', 
-                display: 'flex', 
-                flexDirection: 'column', 
+            <div style={{
+                padding: isCollapsed ? '32px 0' : '32px 24px',
+                marginBottom: '16px',
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
                 alignItems: isCollapsed ? 'center' : 'flex-start',
                 gap: '12px'
             }}>
@@ -86,18 +86,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleSidebar }) => {
                             <FaTh />
                         </div>
                         <div>
-                            <h1 className="text-gradient" style={{ 
-                                fontSize: '20px', 
-                                fontWeight: 700, 
+                            <h1 className="text-gradient" style={{
+                                fontSize: '20px',
+                                fontWeight: 700,
                                 letterSpacing: '0.02em',
                                 marginBottom: '2px'
                             }}>
                                 Antigravity
                             </h1>
-                            <p style={{ 
-                                fontSize: '11px', 
-                                color: 'var(--text-dim)', 
-                                textTransform: 'uppercase', 
+                            <p style={{
+                                fontSize: '11px',
+                                color: 'var(--text-dim)',
+                                textTransform: 'uppercase',
                                 letterSpacing: '1px',
                                 fontWeight: 500
                             }}>
@@ -125,11 +125,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleSidebar }) => {
             </div>
 
             {/* Navigation Menu */}
-            <nav style={{ flex: 1, padding: '0 16px', display: 'flex', flexDirection: 'column' }}>
+            <nav style={{
+                flex: 1,
+                padding: '0 16px',
+                display: 'flex',
+                flexDirection: 'column',
+                overflowY: 'auto',
+                overflowX: 'hidden'
+            }}>
                 <div style={{ flex: 1 }}>
                     {menuItems.map((item) => {
-                        const isActive = item.path === '/' 
-                            ? location.pathname === '/' 
+                        const isActive = item.path === '/'
+                            ? location.pathname === '/'
                             : location.pathname === item.path || location.pathname.startsWith(item.path + '/');
                         return (
                             <Link
@@ -152,9 +159,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleSidebar }) => {
                                     position: 'relative'
                                 }}
                             >
-                                <span style={{ 
-                                    marginRight: isCollapsed ? 0 : '14px', 
-                                    fontSize: '20px', 
+                                <span style={{
+                                    marginRight: isCollapsed ? 0 : '14px',
+                                    fontSize: '20px',
                                     display: 'flex',
                                     opacity: isActive ? 1 : 0.7
                                 }}>
@@ -187,9 +194,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleSidebar }) => {
                         width: '100%'
                     }}
                 >
-                    <span style={{ 
-                        marginRight: isCollapsed ? 0 : '14px', 
-                        fontSize: '18px', 
+                    <span style={{
+                        marginRight: isCollapsed ? 0 : '14px',
+                        fontSize: '18px',
                         display: 'flex'
                     }}>
                         <FaSignOutAlt />
