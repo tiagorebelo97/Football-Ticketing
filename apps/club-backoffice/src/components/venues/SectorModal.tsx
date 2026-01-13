@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Sector, Row } from '../../services/venueService';
 import SectorCanvas2D from './SectorCanvas2D';
 import RowConfigTable from './RowConfigTable';
@@ -32,83 +33,74 @@ const SectorModal: React.FC<SectorModalProps> = ({
 
   const handleDone = () => {
     if (isComplete) {
-      // We still call onSave to trigger any parent logic, though primarily it's just closing
       onSave(totalSeats, sector.name);
       onClose();
     }
   };
 
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content sector-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>Configurar {sector.name}</h2>
-          <button className="modal-close" onClick={onClose}>✕</button>
+  return createPortal(
+    <div className="architect-overlay" onClick={onClose}>
+      <div className="inspector-panel-container" onClick={(e) => e.stopPropagation()}>
+        {/* Header with Blueprint Metadata */}
+        <div className="inspector-header">
+          <div className="header-identity">
+            <span className="inspector-badge">MODO INSPEÇÃO: SETOR</span>
+            <h2>{sector.name} <small>Architecture ID: {sector.id?.slice(0, 8)}</small></h2>
+          </div>
+          <button className="inspector-close" onClick={onClose} title="Fechar Inspetor">✕</button>
         </div>
 
-        <div className="modal-body">
-          <div className="sector-config-layout">
-            {/* Left side: Canvas */}
-            <div className="sector-canvas-section">
-              <h3>Vista do Setor</h3>
+        <div className="inspector-body">
+          <div className="sector-architect-grid">
+            {/* Left side: Immersive Canvas */}
+            <div className="inspector-canvas-area">
+              <div className="canvas-label-architect">PROJEÇÃO DE MALHA 2D</div>
               <SectorCanvas2D
                 rows={sector.rows || []}
                 totalSeats={totalSeats}
               />
+              <div className="canvas-footer-blueprint">
+                <span>COORDENADAS LOCAIS VALIDATED</span>
+                <span className="blink">● REC</span>
+              </div>
             </div>
 
-            {/* Right side: Configuration */}
-            <div className="sector-config-section">
-              <div className="sector-summary">
-                <p><strong>Setor:</strong> {sector.name}</p>
-                <p><strong>Capacidade:</strong> {totalSeats}</p>
-                <p className="text-muted small">Para alterar o nome ou a capacidade total, utilize o painel principal na lista de setores.</p>
-              </div>
-
-              {totalSeats > 0 && (
-                <>
-                  <div className="divider"></div>
-
-                  <RowConfigTable
-                    rows={sector.rows || []}
-                    totalSeats={totalSeats}
-                    configuredSeats={configuredSeats}
-                    onAddRow={onAddRow}
-                    onRemoveRow={onRemoveRow}
-                    onUpdateRow={onUpdateRow}
-                  />
-                </>
-              )}
-
-              {!isComplete && totalSeats > 0 && (
-                <div className="warning-box">
-                  <strong>⚠️ Atenção:</strong> Configure todas as filas para atingir a capacidade total de {totalSeats} assentos.
-                </div>
-              )}
-
-              {isComplete && (
-                <div className="success-box">
-                  <strong>✓ Completo:</strong> Todas as {sector.rows?.length || 0} filas estão configuradas corretamente!
-                </div>
-              )}
+            {/* Right side: Specialized Configuration Panel */}
+            <div className="inspector-config-area">
+              <RowConfigTable
+                rows={sector.rows || []}
+                totalSeats={totalSeats}
+                configuredSeats={configuredSeats}
+                onAddRow={onAddRow}
+                onRemoveRow={onRemoveRow}
+                onUpdateRow={onUpdateRow}
+              />
             </div>
           </div>
         </div>
 
-        <div className="modal-footer">
-          <button className="btn btn-secondary" onClick={onClose}>
-            Cancelar
-          </button>
-          <button
-            className="btn btn-primary"
-            onClick={handleDone}
-            disabled={!isComplete}
-          >
-            Concluir
-          </button>
+        {/* Action Bar */}
+        <div className="inspector-actions">
+          <div className="actions-info">
+            <span className="info-icon">🛈</span>
+            Exatidão de assentos é crítica para o sistema de bilhética.
+          </div>
+          <div className="actions-btns">
+            <button className="btn-architect-secondary" onClick={onClose}>
+              DESCARTAR
+            </button>
+            <button
+              className="btn-architect-primary"
+              onClick={handleDone}
+              disabled={!isComplete}
+            >
+              FINALIZAR E VALIDAR
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

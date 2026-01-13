@@ -45,7 +45,13 @@ export interface Venue {
   sportName?: string;
   sportCode?: string;
   photoUrl?: string;
+  interiorPhotos?: string[];
+  vipPhotos?: string[];
+  facilities?: string[];
+  accessibility?: string[];
   capacity?: number;
+  latitude?: number;
+  longitude?: number;
   totalStands?: number;
   totalSectors?: number;
   totalRows?: number;
@@ -61,7 +67,13 @@ export interface CreateVenuePayload {
   address?: string;
   sportId: string;
   photoUrl?: string;
+  interiorPhotos?: string[];
+  vipPhotos?: string[];
+  facilities?: string[];
+  accessibility?: string[];
   capacity?: number;
+  latitude?: number;
+  longitude?: number;
   stands?: Stand[];
 }
 
@@ -71,7 +83,13 @@ export interface UpdateVenuePayload {
   address?: string;
   sportId?: string;
   photoUrl?: string;
+  interiorPhotos?: string[];
+  vipPhotos?: string[];
+  facilities?: string[];
+  accessibility?: string[];
   capacity?: number;
+  latitude?: number;
+  longitude?: number;
   stands?: Stand[];
 }
 
@@ -99,9 +117,15 @@ export const venueService = {
       sportCode: data.sport_code || data.sportCode,
       clubId: data.club_id || data.clubId,
       photoUrl: data.photo_url || data.photoUrl,
+      interiorPhotos: data.interior_photos || data.interiorPhotos,
+      vipPhotos: data.vip_photos || data.vipPhotos,
+      facilities: data.facilities || data.facilities,
+      accessibility: data.accessibility || data.accessibility,
       totalStands: data.total_stands || data.totalStands,
       totalSectors: data.total_sectors || data.totalSectors,
       totalRows: data.total_rows || data.totalRows,
+      latitude: data.latitude,
+      longitude: data.longitude,
       createdAt: data.created_at || data.createdAt,
       updatedAt: data.updated_at || data.updatedAt
     };
@@ -111,8 +135,14 @@ export const venueService = {
    * Create new venue
    */
   async createVenue(payload: CreateVenuePayload): Promise<Venue> {
-    const response = await axios.post('/api/venues', payload);
-    return response.data;
+    console.log('Sending POST to /api/venues with payload:', payload);
+    try {
+      const response = await axios.post('/api/venues', payload);
+      return response.data;
+    } catch (error: any) {
+      console.error('axios.post(/api/venues) failed:', error.response?.status, error.response?.data);
+      throw error;
+    }
   },
 
   /**

@@ -7,7 +7,7 @@ interface StadiumCanvas2DProps {
   sportCode: string;
   stands: Stand[];
   selectedStandId: string | null;
-  onStandClick: (standId: string) => void;
+  onStandClick: (standId: string | null) => void;
 }
 
 const LOGICAL_WIDTH = 1000;
@@ -31,7 +31,7 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
 
         const scaleX = width / LOGICAL_WIDTH;
         const scaleY = height / LOGICAL_HEIGHT;
-        const newScale = Math.min(scaleX, scaleY); // Fit to screen ensuring aspect ratio
+        const newScale = Math.min(scaleX, scaleY);
 
         setStageDimensions({ width, height });
         setScale(newScale);
@@ -43,124 +43,56 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
-  // Field dimensions based on sport
   const getFieldDimensions = () => {
-    const fieldConfigs: { [key: string]: { width: number; height: number; color: string } } = {
-      football: { width: 420, height: 272, color: '#4CAF50' },
-      hockey: { width: 320, height: 160, color: '#FFA726' },
-      futsal: { width: 320, height: 160, color: '#66BB6A' },
-      basketball: { width: 280, height: 150, color: '#FF7043' },
-      handball: { width: 320, height: 160, color: '#42A5F5' },
-      volleyball: { width: 270, height: 135, color: '#FFCA28' }
+    const fieldConfigs: { [key: string]: { width: number; height: number; color: string; accent: string } } = {
+      football: { width: 420, height: 272, color: '#1a4a1c', accent: '#2e7d32' },
+      hockey: { width: 320, height: 160, color: '#1a237e', accent: '#283593' },
+      futsal: { width: 320, height: 160, color: '#2e7d32', accent: '#388e3c' },
+      basketball: { width: 280, height: 150, color: '#bf360c', accent: '#d84315' },
+      handball: { width: 320, height: 160, color: '#01579b', accent: '#0277bd' },
+      volleyball: { width: 270, height: 135, color: '#f57f17', accent: '#f9a825' }
     };
     return fieldConfigs[sportCode] || fieldConfigs.football;
   };
 
   const fieldDims = getFieldDimensions();
-  // Center in LOGICAL coordinates
   const centerX = LOGICAL_WIDTH / 2;
   const centerY = LOGICAL_HEIGHT / 2;
   const fieldX = centerX - fieldDims.width / 2;
   const fieldY = centerY - fieldDims.height / 2;
 
-  // Stand dimensions
-  const standThickness = 60;
-  const standPadding = 10;
+  const standThickness = 70; // Increased for better labels
+  const standPadding = 15;
 
   const getStandGeometry = (position: string) => {
     switch (position) {
       case 'north':
-        return {
-          x: fieldX,
-          y: fieldY - standThickness - standPadding,
-          width: fieldDims.width,
-          height: standThickness
-        };
+        return { x: fieldX, y: fieldY - standThickness - standPadding, width: fieldDims.width, height: standThickness };
       case 'south':
-        return {
-          x: fieldX,
-          y: fieldY + fieldDims.height + standPadding,
-          width: fieldDims.width,
-          height: standThickness
-        };
+        return { x: fieldX, y: fieldY + fieldDims.height + standPadding, width: fieldDims.width, height: standThickness };
       case 'east':
-        return {
-          x: fieldX + fieldDims.width + standPadding,
-          y: fieldY,
-          width: standThickness,
-          height: fieldDims.height
-        };
+        return { x: fieldX + fieldDims.width + standPadding, y: fieldY, width: standThickness, height: fieldDims.height };
       case 'west':
-        return {
-          x: fieldX - standThickness - standPadding,
-          y: fieldY,
-          width: standThickness,
-          height: fieldDims.height
-        };
+        return { x: fieldX - standThickness - standPadding, y: fieldY, width: standThickness, height: fieldDims.height };
       default:
         return { x: 0, y: 0, width: 0, height: 0 };
     }
   };
 
-  // ... (renderField usually doesn't change if it uses fieldX/fieldY from above)
   const renderField = () => {
-    if (sportCode === 'football') {
-      return (
-        <Group>
-          {/* Field */}
-          <Rect
-            x={fieldX}
-            y={fieldY}
-            width={fieldDims.width}
-            height={fieldDims.height}
-            fill={fieldDims.color}
-            stroke="#FFFFFF"
-            strokeWidth={2}
-          />
-          {/* Center circle */}
-          <Circle
-            x={centerX}
-            y={centerY}
-            radius={45}
-            stroke="#FFFFFF"
-            strokeWidth={2}
-          />
-          <Circle
-            x={centerX}
-            y={centerY}
-            radius={3}
-            fill="#FFFFFF"
-          />
-          {/* Center line */}
-          <Line
-            points={[centerX, fieldY, centerX, fieldY + fieldDims.height]}
-            stroke="#FFFFFF"
-            strokeWidth={2}
-          />
-          {/* Penalty areas */}
-          <Rect
-            x={fieldX}
-            y={centerY - 80}
-            width={60}
-            height={160}
-            stroke="#FFFFFF"
-            strokeWidth={2}
-          />
-          <Rect
-            x={fieldX + fieldDims.width - 60}
-            y={centerY - 80}
-            width={60}
-            height={160}
-            stroke="#FFFFFF"
-            strokeWidth={2}
-          />
-        </Group>
-      );
-    }
-
-    // Simple field for other sports
     return (
       <Group>
+        {/* Grass Pattern Shadow */}
+        <Rect
+          x={fieldX + 5}
+          y={fieldY + 5}
+          width={fieldDims.width}
+          height={fieldDims.height}
+          fill="black"
+          opacity={0.3}
+          cornerRadius={4}
+        />
+        {/* Main Field with Gradient Simulation (using pattern or just solid for now, but better color) */}
         <Rect
           x={fieldX}
           y={fieldY}
@@ -168,277 +100,222 @@ const StadiumCanvas2D: React.FC<StadiumCanvas2DProps> = ({
           height={fieldDims.height}
           fill={fieldDims.color}
           stroke="#FFFFFF"
-          strokeWidth={2}
+          strokeWidth={3}
+          cornerRadius={4}
         />
-        <Circle
-          x={centerX}
-          y={centerY}
-          radius={30}
-          stroke="#FFFFFF"
-          strokeWidth={2}
-        />
-        <Line
-          points={[centerX, fieldY, centerX, fieldY + fieldDims.height]}
-          stroke="#FFFFFF"
-          strokeWidth={2}
-        />
+
+        {/* Blueprint Grid lines on field */}
+        {Array.from({ length: 10 }).map((_, i) => (
+          <Line
+            key={`grid-h-${i}`}
+            points={[fieldX, fieldY + (i * fieldDims.height / 10), fieldX + fieldDims.width, fieldY + (i * fieldDims.height / 10)]}
+            stroke="white"
+            strokeWidth={0.5}
+            opacity={0.1}
+          />
+        ))}
+
+        {sportCode === 'football' && (
+          <>
+            <Circle x={centerX} y={centerY} radius={45} stroke="#FFFFFF" strokeWidth={2} />
+            <Circle x={centerX} y={centerY} radius={3} fill="#FFFFFF" />
+            <Line points={[centerX, fieldY, centerX, fieldY + fieldDims.height]} stroke="#FFFFFF" strokeWidth={2} />
+            <Rect x={fieldX} y={centerY - 80} width={60} height={160} stroke="#FFFFFF" strokeWidth={2} />
+            <Rect x={fieldX + fieldDims.width - 60} y={centerY - 80} width={60} height={160} stroke="#FFFFFF" strokeWidth={2} />
+          </>
+        )}
       </Group>
     );
   };
 
   const renderStands = () => {
-    const elements: JSX.Element[] = [];
-
-    stands.forEach((stand, index) => {
-      if (!stand.id) return;
+    return stands.map((stand) => {
+      if (!stand.id) return null;
 
       const geometry = getStandGeometry(stand.position);
       const isSelected = stand.id === selectedStandId;
-      const numFloors = stand.floors?.length || 1;
       const isHorizontal = stand.position === 'north' || stand.position === 'south';
 
-      const labelWidth = isHorizontal ? geometry.width : 150;
-      const nameFontSize = 18;
-      const capacityFontSize = 14;
-
-      // Rect for the stand background
-      elements.push(
-        <Rect
-          key={`stand-rect-${stand.id}`}
-          x={geometry.x}
-          y={geometry.y}
-          width={geometry.width}
-          height={geometry.height}
-          fill={stand.color}
-          opacity={0.3}
-          stroke={isSelected ? '#FFD700' : '#333'}
-          strokeWidth={isSelected ? 4 : 2}
-          shadowBlur={isSelected ? 10 : 5}
-          shadowColor="black"
-          onClick={() => stand.id && onStandClick(stand.id)}
-          onTap={() => stand.id && onStandClick(stand.id)}
-          onMouseEnter={(e) => {
-            const stage = e.target.getStage();
-            const container = stage?.container();
-            if (container) container.style.cursor = 'pointer';
-          }}
-          onMouseLeave={(e) => {
-            const stage = e.target.getStage();
-            const container = stage?.container();
-            if (container) container.style.cursor = 'default';
-          }}
-        />
-      );
-
-      // Render floors (omitted detailed inner logic changes for brevity as they depend on geometry which is correct)
-      // The previous logic for floors/sectors inside the stand rect works fine with updated geometry.
-      // Copying the floor loop logic for completeness but ensuring variables are fresh.
-
-      if (stand.floors && stand.floors.length > 0) {
-        stand.floors.forEach((floor, floorIdx) => {
-          const floorHeight = isHorizontal ? geometry.height / numFloors : geometry.height;
-          const floorWidth = isHorizontal ? geometry.width : geometry.width / numFloors;
-
-          let floorX, floorY, floorW, floorH;
-
-          if (isHorizontal) {
-            floorX = geometry.x;
-            floorY = geometry.y + (floorIdx * floorHeight);
-            floorW = geometry.width;
-            floorH = floorHeight;
-          } else {
-            floorX = geometry.x + (floorIdx * floorWidth);
-            floorY = geometry.y;
-            floorW = floorWidth;
-            floorH = geometry.height;
-          }
-
-          elements.push(
-            <Rect
-              key={`floor-${stand.id}-${floor.id}`}
-              x={floorX}
-              y={floorY}
-              width={floorW}
-              height={floorH}
-              fill={stand.color}
-              opacity={0.4 + (floorIdx * 0.1)}
-              stroke="#FFFFFF"
-              strokeWidth={1}
-              listening={false}
-            />
-          );
-
-          // Sectors logic...
-          const numSectors = floor.sectors?.length || 0;
-          if (numSectors > 0) {
-            floor.sectors?.forEach((sector: any, sectorIdx: number) => {
-              const sectorWidth = isHorizontal ? floorW / numSectors : floorW;
-              const sectorHeight = isHorizontal ? floorH : floorH / numSectors;
-
-              let sectorX, sectorY, sectorW, sectorH;
-
-              if (isHorizontal) {
-                sectorX = floorX + (sectorIdx * sectorWidth);
-                sectorY = floorY;
-                sectorW = sectorWidth;
-                sectorH = floorH;
-              } else {
-                sectorX = floorX;
-                sectorY = floorY + (sectorIdx * sectorHeight);
-                sectorW = floorW;
-                sectorH = sectorHeight;
-              }
-
-              elements.push(
-                <Rect
-                  key={`sector-${stand.id}-${floor.id}-${sector.id}`}
-                  x={sectorX}
-                  y={sectorY}
-                  width={sectorW}
-                  height={sectorH}
-                  fill={stand.color}
-                  opacity={0.5 + (sectorIdx * 0.05)}
-                  stroke="#FFFFFF"
-                  strokeWidth={0.5}
-                  listening={false}
-                />
-              );
-
-              if (sectorW > 30 && sectorH > 15) {
-                // Label code...
-                elements.push(
-                  <Text
-                    key={`sector-label-${stand.id}-${floor.id}-${sector.id}`} // Fixed duplicate key risk
-                    x={sectorX}
-                    y={sectorY + sectorH / 2 - 6} // Adjusted Y for centering without capacity text
-                    width={sectorW}
-                    text={String(sector.name || '')}
-                    fontSize={13} // Increased from 9
-                    fontStyle="bold"
-                    fill="#FFFFFF"
-                    align="center"
-                    listening={false}
-                  />
-                );
-              }
-            });
-          }
-        });
-      }
-
-      // Stand Labels Logic
-      let nameX, nameY, nameRotation;
-      let nameAlign = 'center';
-
-      const textPadding = 15;
-
-      if (stand.position === 'north') {
-        nameRotation = 0;
-        nameX = geometry.x;
-        nameY = geometry.y - 25;
-
-      } else if (stand.position === 'south') {
-        nameRotation = 0;
-        nameX = geometry.x;
-        nameY = geometry.y + geometry.height + 10;
-
-      } else if (stand.position === 'east') {
-        nameRotation = 90;
-        // x = right edge + same padding as North (approx 25px)
-        nameX = geometry.x + geometry.width + 25;
-        nameY = geometry.y;
-
-      } else {
-        nameRotation = -90;
-        // x = left edge - same padding (25px)
-        nameX = geometry.x - 25;
-        nameY = geometry.y + geometry.height;
-      }
-
-      if (isHorizontal) {
-        // Just Text, no background
-        elements.push(
-          <Text
-            key={`stand-text-${stand.id}`}
-            x={nameX}
-            y={nameY}
+      return (
+        <Group key={stand.id} onClick={() => onStandClick(stand.id!)} onTap={() => onStandClick(stand.id!)}>
+          {/* Depth Shadow */}
+          <Rect
+            x={geometry.x + 4}
+            y={geometry.y + 4}
             width={geometry.width}
-            text={String(stand.name || '')}
-            fontSize={nameFontSize}
-            fontStyle="bold"
-            fill="#FFFFFF"
-            align="center"
+            height={geometry.height}
+            fill="black"
+            opacity={0.4}
+            cornerRadius={4}
+          />
+
+          {/* Stand Main Body */}
+          <Rect
+            x={geometry.x}
+            y={geometry.y}
+            width={geometry.width}
+            height={geometry.height}
+            fill={isSelected ? '#2c3e50' : '#34495e'}
+            stroke={isSelected ? '#3498db' : '#7f8c8d'}
+            strokeWidth={isSelected ? 4 : 1}
+            cornerRadius={4}
+            shadowBlur={isSelected ? 15 : 0}
+            shadowColor="#3498db"
+            onMouseEnter={(e) => {
+              const stage = e.target.getStage();
+              if (stage) stage.container().style.cursor = 'pointer';
+            }}
+            onMouseLeave={(e) => {
+              const stage = e.target.getStage();
+              if (stage) stage.container().style.cursor = 'default';
+            }}
+          />
+
+          {/* Blueprint Inner Borders */}
+          <Rect
+            x={geometry.x + 5}
+            y={geometry.y + 5}
+            width={geometry.width - 10}
+            height={geometry.height - 10}
+            stroke="white"
+            strokeWidth={0.5}
+            opacity={0.2}
+            dash={[5, 5]}
             listening={false}
           />
-        );
-      } else {
-        // Vertical Stands (East/West)
-        const vLabelWidth = geometry.height;
 
-        let labelX, labelY, labelRot;
+          {/* Floors & Sectors */}
+          {stand.floors?.map((floor, floorIdx) => {
+            const numFloors = stand.floors?.length || 1;
+            const floorWidth = isHorizontal ? geometry.width : geometry.width / numFloors;
+            const floorHeight = isHorizontal ? geometry.height / numFloors : geometry.height;
 
-        if (stand.position === 'east') {
-          labelRot = 90;
-          labelX = geometry.x + geometry.width + 25;
-          labelY = geometry.y;
-        } else {
-          labelRot = -90;
-          labelX = geometry.x - 25;
-          labelY = geometry.y + geometry.height;
-        }
+            const floorX = isHorizontal ? geometry.x : geometry.x + (floorIdx * floorWidth);
+            const floorY = isHorizontal ? geometry.y + (floorIdx * floorHeight) : geometry.y;
 
-        // Group for Label - No Rect
-        elements.push(
-          <Group
-            key={`label-group-${stand.id}`}
-            x={labelX}
-            y={labelY}
-            rotation={labelRot}
-          >
+            return (
+              <Group key={floor.id}>
+                {/* Sector Rects (Simplified representation on main canvas) */}
+                {floor.sectors?.map((sector, sectorIdx) => {
+                  const numSectors = floor.sectors?.length || 1;
+                  const secW = isHorizontal ? floorWidth / numSectors : floorWidth;
+                  const secH = isHorizontal ? floorHeight : floorHeight / numSectors;
+
+                  const secX = isHorizontal ? floorX + (sectorIdx * secW) : floorX;
+                  const secY = isHorizontal ? floorY : floorY + (sectorIdx * secH);
+
+                  return (
+                    <Group key={sector.id}>
+                      <Rect
+                        x={secX + 2}
+                        y={secY + 2}
+                        width={secW - 4}
+                        height={secH - 4}
+                        fill={stand.color}
+                        opacity={0.3}
+                        cornerRadius={2}
+                        stroke="white"
+                        strokeWidth={0.5}
+                      />
+                      {secW > 40 && secH > 20 && (
+                        <Text
+                          x={secX}
+                          y={secY + secH / 2 - 5}
+                          width={secW}
+                          text={sector.name}
+                          fill="white"
+                          fontSize={10}
+                          align="center"
+                          opacity={0.8}
+                          listening={false}
+                        />
+                      )}
+                    </Group>
+                  );
+                })}
+              </Group>
+            );
+          })}
+
+          {/* External Label (Stand Name) */}
+          {isHorizontal ? (
             <Text
-              x={0}
-              y={0}
-              width={vLabelWidth}
-              text={String(stand.name || '')}
-              fontSize={nameFontSize}
+              x={geometry.x}
+              y={stand.position === 'north' ? geometry.y - 30 : geometry.y + geometry.height + 10}
+              width={geometry.width}
+              text={stand.name?.toUpperCase()}
+              fontSize={16}
               fontStyle="bold"
-              fill="#FFFFFF"
+              fill="white"
               align="center"
+              shadowBlur={2}
+              shadowColor="black"
             />
-          </Group>
-        );
-      }
+          ) : (
+            <Group
+              x={stand.position === 'east' ? geometry.x + geometry.width + 10 : geometry.x - 30}
+              y={geometry.y}
+              rotation={stand.position === 'east' ? 90 : -90}
+            >
+              <Text
+                x={0}
+                y={stand.position === 'east' ? 0 : -geometry.height}
+                width={geometry.height}
+                text={stand.name?.toUpperCase()}
+                fontSize={16}
+                fontStyle="bold"
+                fill="white"
+                align="center"
+                shadowBlur={2}
+                shadowColor="black"
+              />
+            </Group>
+          )}
 
+          {/* Capacity Badge */}
+          {isHorizontal && (
+            <Group x={geometry.x + geometry.width - 60} y={stand.position === 'north' ? geometry.y - 25 : geometry.y + geometry.height + 10}>
+              <Rect width={60} height={20} fill="#2c3e50" cornerRadius={10} stroke="#3498db" strokeWidth={1} />
+              <Text width={60} height={20} text={stand.totalCapacity?.toString()} fill="#3498db" fontSize={10} fontStyle="bold" align="center" verticalAlign="middle" />
+            </Group>
+          )}
+        </Group>
+      );
     });
-
-    return elements;
   };
 
   return (
-    <div ref={containerRef} className="stadium-canvas-container" style={{ width: '100%', minHeight: '400px' }}>
-      <Stage width={stageDimensions.width} height={stageDimensions.height}>
+    <div ref={containerRef} className="stadium-canvas-container" style={{ width: '100%', minHeight: '400px', backgroundColor: '#0f172a', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+      <Stage
+        width={stageDimensions.width}
+        height={stageDimensions.height}
+        onClick={(e) => e.target === e.target.getStage() && onStandClick(null)}
+      >
         <Layer>
-          {/* Main Scaling Group */}
           <Group
             scaleX={scale}
             scaleY={scale}
             x={(stageDimensions.width - LOGICAL_WIDTH * scale) / 2}
             y={(stageDimensions.height - LOGICAL_HEIGHT * scale) / 2}
           >
-            {/* Background - covers logical area */}
+            {/* Blueprint Background */}
             <Rect
               x={0}
               y={0}
               width={LOGICAL_WIDTH}
               height={LOGICAL_HEIGHT}
-              fill="#1a1a1a" // Match background
+              fill="#0f172a"
               listening={false}
             />
+            {/* Fine Grid */}
+            {Array.from({ length: 20 }).map((_, i) => (
+              <React.Fragment key={`grid-${i}`}>
+                <Line points={[i * 50, 0, i * 50, LOGICAL_HEIGHT]} stroke="rgba(255,255,255,0.05)" strokeWidth={1} />
+                <Line points={[0, i * 50, LOGICAL_WIDTH, i * 50]} stroke="rgba(255,255,255,0.05)" strokeWidth={1} />
+              </React.Fragment>
+            ))}
 
-            {/* Field */}
             {renderField()}
-
-            {/* Stands */}
             {renderStands()}
           </Group>
         </Layer>

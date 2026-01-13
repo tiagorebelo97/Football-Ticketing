@@ -3,6 +3,7 @@ import { useVenueBuilder } from '../../hooks/useVenueBuilder';
 import { Venue } from '../../services/venueService';
 import VenueDetailsTab from './VenueDetailsTab';
 import VenueStadiumTab from './VenueStadiumTab';
+import VenueReviewTab from './VenueReviewTab';
 import './VenueWizard.css';
 
 interface VenueWizardProps {
@@ -27,7 +28,7 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
     updateStandName,
     addFloor,
     removeFloor,
-    updateFloor,
+    duplicateFloor,
     addSector,
     removeSector,
     updateSector,
@@ -37,15 +38,19 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
     validateTab1,
     validateTab2,
     isTab1Valid,
-    calculateTotalCapacity
+    calculateTotalCapacity,
+    undo,
+    clearDraft,
+    updateStandColor
   } = useVenueBuilder(initialVenue || initialData);
 
   const [saving, setSaving] = React.useState(false);
   const [saveError, setSaveError] = React.useState<string>('');
 
   const tabs = [
-    { id: 0, label: 'Detalhes da Venue', icon: '📋' },
-    { id: 1, label: 'Configuração do Estádio', icon: '🏟️' }
+    { id: 0, label: 'Identidade', icon: '🆔', description: 'Dados básicos' },
+    { id: 1, label: 'Arquitetura', icon: '🏟️', description: 'Desenho do estádio' },
+    { id: 2, label: 'Publicação', icon: '🚀', description: 'Revisão final' }
   ];
 
   // Memoize total capacity calculation to ensure it updates when stands change
@@ -53,17 +58,14 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
 
   const handleNext = () => {
     if (state.currentTab === 0) {
-      // Validate basic fields using the hook's validation
-      if (!validateTab1()) {
-        return;
-      }
-
-      // Additional validation for super admin: clubId is required
+      if (!validateTab1()) return;
       if (isSuperAdmin && !state.details.clubId) {
         setSaveError('Por favor, selecione um clube');
         return;
       }
-
+      nextTab();
+    } else if (state.currentTab === 1) {
+      if (!validateTab2()) return;
       nextTab();
     }
   };
@@ -73,16 +75,10 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
   };
 
   const handleSave = async () => {
-    if (!validateTab2()) {
-      return;
-    }
-
     setSaving(true);
     setSaveError('');
 
     try {
-      const totalCapacity = calculateTotalCapacity();
-
       const venue: Venue = {
         id: initialVenue?.id || initialData?.id,
         clubId: state.details.clubId,
@@ -91,14 +87,22 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
         address: state.details.address,
         sportId: state.details.sportId,
         photoUrl: state.details.photoUrl,
+        interiorPhotos: state.details.interiorPhotos,
+        vipPhotos: state.details.vipPhotos,
+        facilities: state.details.facilities,
+        accessibility: state.details.accessibility,
         capacity: totalCapacity,
-        stands: state.stands
+        stands: state.stands,
+        latitude: state.details.latitude,
+        longitude: state.details.longitude
       };
 
       await onSave(venue);
+      clearDraft();
     } catch (error: any) {
       console.error('Error saving venue:', error);
-      setSaveError(error.message || 'Erro ao guardar venue');
+      const errorMessage = error.response?.data?.error || error.message || 'Erro ao guardar venue';
+      setSaveError(errorMessage);
       setSaving(false);
     }
   };
@@ -106,27 +110,37 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
   return (
     <div className="venue-wizard">
       <div className="wizard-header">
-        <h1>{initialVenue ? 'Editar Venue' : 'Criar Nova Venue'}</h1>
+        <div className="header-main">
+          <h1>{initialVenue ? 'Editar Arquitetura' : 'Nova Infraestrutura'}</h1>
+          <div className="header-badge">Executive Architect v2.0</div>
+        </div>
 
-        {/* Tab Navigation */}
-        <div className="wizard-tabs">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              className={`wizard-tab ${state.currentTab === tab.id ? 'active' : ''} ${tab.id > 0 && !isTab1Valid ? 'disabled' : ''
-                }`}
-              onClick={() => goToTab(tab.id)}
-              disabled={tab.id > 0 && state.currentTab < tab.id && !isTab1Valid}
-            >
-              <span className="tab-icon">{tab.icon}</span>
-              <span className="tab-label">{tab.label}</span>
-            </button>
+        {/* Premium Stepper */}
+        <div className="wizard-stepper">
+          {tabs.map((tab, index) => (
+            <React.Fragment key={tab.id}>
+              <div
+                className={`stepper-item ${state.currentTab === tab.id ? 'active' : ''} ${state.currentTab > tab.id ? 'completed' : ''} ${tab.id > 0 && !isTab1Valid ? 'disabled' : ''}`}
+                onClick={() => (state.currentTab > tab.id || (tab.id === 1 && isTab1Valid)) && goToTab(tab.id)}
+              >
+                <div className="stepper-icon-container">
+                  <div className="stepper-icon">{state.currentTab > tab.id ? '✓' : tab.icon}</div>
+                </div>
+                <div className="stepper-content">
+                  <div className="stepper-label">{tab.label}</div>
+                  <div className="stepper-desc">{tab.description}</div>
+                </div>
+              </div>
+              {index < tabs.length - 1 && (
+                <div className={`stepper-connector ${state.currentTab > tab.id ? 'active' : ''}`} />
+              )}
+            </React.Fragment>
           ))}
         </div>
       </div>
 
       <div className="wizard-body">
-        {/* Tab 1: Details */}
+        {/* Tab 0: Details (Identity) */}
         {state.currentTab === 0 && (
           <VenueDetailsTab
             details={state.details}
@@ -136,7 +150,7 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
           />
         )}
 
-        {/* Tab 2: Stadium Configuration */}
+        {/* Tab 1: Stadium Configuration (Architecture) */}
         {state.currentTab === 1 && (
           <VenueStadiumTab
             sportCode={state.details.sportCode || 'football'}
@@ -155,6 +169,19 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
             onAddRow={addRow}
             onRemoveRow={removeRow}
             onUpdateRow={updateRow}
+            onDuplicateFloor={duplicateFloor}
+            onUpdateStandColor={updateStandColor}
+            onUndo={undo}
+            onNext={nextTab}
+          />
+        )}
+
+        {/* Tab 2: Publication (Review) */}
+        {state.currentTab === 2 && (
+          <VenueReviewTab
+            details={state.details}
+            stands={state.stands}
+            totalCapacity={totalCapacity}
           />
         )}
       </div>

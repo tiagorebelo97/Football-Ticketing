@@ -26,7 +26,7 @@ const RowConfigTable: React.FC<RowConfigTableProps> = ({
   const handleAddRow = () => {
     if (newRowSeats > 0 && configuredSeats + newRowSeats <= totalSeats) {
       onAddRow(newRowSeats);
-      setNewRowSeats(10);
+      setNewRowSeats(1 || 10); // Reset to 10 or minimum
     }
   };
 
@@ -51,135 +51,126 @@ const RowConfigTable: React.FC<RowConfigTableProps> = ({
   const canAddRow = remainingSeats > 0;
 
   return (
-    <div className="row-config-table">
-      <div className="table-header">
-        <h4>Configuração de Filas</h4>
-        <div className="seats-summary">
-          <span className={remainingSeats === 0 ? 'success' : ''}>
-            {configuredSeats} / {totalSeats} lugares configurados
-          </span>
-          {remainingSeats > 0 && (
-            <span className="remaining"> ({remainingSeats} restantes)</span>
-          )}
+    <div className="row-config-premium">
+      <div className="premium-config-header">
+        <div className="header-labels">
+          <label>Configuração de Malha</label>
+          <h3>Gestão de Filas</h3>
+        </div>
+        <div className={`seats-counter ${remainingSeats === 0 ? 'fully-configured' : ''}`}>
+          <div className="counter-main">
+            <span className="current">{configuredSeats}</span>
+            <span className="separator">/</span>
+            <span className="total">{totalSeats}</span>
+          </div>
+          <div className="counter-label">Lugares Alocados</div>
         </div>
       </div>
 
+      <div className="blueprint-divider"></div>
+
       {rows.length > 0 && (
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Fila</th>
-              <th>Nº de Assentos</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.id}>
-                <td className="row-name">
-                  {editingRowId === row.id ? (
-                    <input
-                      type="text"
-                      className="form-control-sm"
-                      value={editingName}
-                      onChange={(e) => setEditingName(e.target.value)}
-                      autoFocus
-                      style={{ width: '80px', marginRight: '5px' }}
-                    />
-                  ) : (
-                    row.name
-                  )}
-                </td>
-                <td>
-                  {editingRowId === row.id ? (
-                    <input
-                      type="number"
-                      min="1"
-                      max={totalSeats}
-                      className="form-control-sm"
-                      value={editingSeats}
-                      onChange={(e) => setEditingSeats(parseInt(e.target.value) || 0)}
-                    />
-                  ) : (
-                    row.seatsCount
-                  )}
-                </td>
-                <td className="actions">
-                  {editingRowId === row.id ? (
-                    <div className="edit-actions">
-                      <button
-                        className="btn btn-xs btn-success"
-                        onClick={handleSaveEdit}
-                      >
-                        ✓
-                      </button>
-                      <button
-                        className="btn btn-xs btn-secondary"
-                        onClick={handleCancelEdit}
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="row-actions">
-                      <button
-                        className="btn btn-xs btn-secondary"
-                        onClick={() => handleStartEdit(row)}
-                      >
-                        Editar
-                      </button>
-                      <button
-                        className="btn btn-xs btn-danger"
-                        onClick={() => onRemoveRow(row.id!)}
-                      >
-                        Remover
-                      </button>
-                    </div>
-                  )}
-                </td>
+        <div className="table-container-premium">
+          <table className="architect-table">
+            <thead>
+              <tr>
+                <th>CÓDIGO FILA</th>
+                <th>CAPACIDADE</th>
+                <th className="text-right">AÇÕES</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.id} className={editingRowId === row.id ? 'row-editing' : ''}>
+                  <td className="col-id">
+                    {editingRowId === row.id ? (
+                      <input
+                        type="text"
+                        className="premium-input-sm"
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                        autoFocus
+                      />
+                    ) : (
+                      <span className="row-id-badge">{row.name}</span>
+                    )}
+                  </td>
+                  <td className="col-seats">
+                    {editingRowId === row.id ? (
+                      <input
+                        type="number"
+                        min="1"
+                        max={totalSeats}
+                        className="premium-input-sm"
+                        value={editingSeats}
+                        onChange={(e) => setEditingSeats(parseInt(e.target.value) || 0)}
+                      />
+                    ) : (
+                      <span className="seats-val">{row.seatsCount} <small>lugares</small></span>
+                    )}
+                  </td>
+                  <td className="col-actions text-right">
+                    {editingRowId === row.id ? (
+                      <div className="action-btns-premium">
+                        <button className="btn-icon btn-save" onClick={handleSaveEdit} title="Guardar">✓</button>
+                        <button className="btn-icon btn-cancel" onClick={handleCancelEdit} title="Cancelar">✕</button>
+                      </div>
+                    ) : (
+                      <div className="action-btns-premium">
+                        <button className="btn-underline" onClick={() => handleStartEdit(row)}>EDITAR</button>
+                        <button className="btn-underline btn-danger" onClick={() => onRemoveRow(row.id!)}>REMOVER</button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
-      {canAddRow && (
-        <div className="add-row-section">
-          <div className="add-row-form">
-            <label>Assentos na nova fila:</label>
-            <input
-              type="number"
-              min="1"
-              max={remainingSeats}
-              className="form-control-sm"
-              value={newRowSeats}
-              onChange={(e) => setNewRowSeats(parseInt(e.target.value) || 0)}
-            />
+      {canAddRow ? (
+        <div className="add-row-architect">
+          <div className="add-controls">
+            <div className="input-group-premium">
+              <label>Novos Assentos</label>
+              <input
+                type="number"
+                min="1"
+                max={remainingSeats}
+                className="premium-input-main"
+                value={remainingSeats < newRowSeats ? remainingSeats : newRowSeats}
+                onChange={(e) => setNewRowSeats(parseInt(e.target.value) || 0)}
+              />
+            </div>
             <button
-              className="btn btn-sm btn-primary"
+              className="btn-architect-primary"
               onClick={handleAddRow}
               disabled={newRowSeats <= 0 || newRowSeats > remainingSeats}
             >
-              + Adicionar Fila
+              <span className="plus-icon">+</span> ADICIONAR FILA À MALHA
             </button>
           </div>
           {newRowSeats > remainingSeats && (
-            <div className="warning-message">
-              Número de assentos excede os lugares restantes ({remainingSeats})
+            <div className="architect-alert warning">
+              <span className="alert-icon">⚠️</span>
+              Capacidade excedida. Disponível: {remainingSeats} lugares.
             </div>
           )}
         </div>
-      )}
-
-      {!canAddRow && rows.length > 0 && (
-        <div className="success-message">
-          ✓ Todos os assentos do setor foram configurados!
-        </div>
+      ) : (
+        rows.length > 0 && (
+          <div className="architect-alert success">
+            <span className="alert-icon">✓</span>
+            Arquitetura de ocupação validada com sucesso!
+          </div>
+        )
       )}
 
       {rows.length === 0 && (
-        <div className="empty-state">
-          <p>Nenhuma fila configurada. Adicione a primeira fila para começar.</p>
+        <div className="architect-empty-state">
+          <div className="empty-icon">📐</div>
+          <p>Inicie o desenho do setor adicionando a primeira fila de assentos.</p>
         </div>
       )}
     </div>

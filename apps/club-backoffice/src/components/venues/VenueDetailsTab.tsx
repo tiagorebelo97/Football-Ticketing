@@ -17,8 +17,17 @@ interface VenueDetailsTabProps {
   isSuperAdmin?: boolean;
 }
 
+const MOCK_SPORTS: Sport[] = [
+  { id: 'football-id', name: 'Futebol', code: 'football' },
+  { id: 'hockey-id', name: 'Hóquei', code: 'hockey' },
+  { id: 'futsal-id', name: 'Futsal', code: 'futsal' },
+  { id: 'basketball-id', name: 'Basquetebol', code: 'basketball' },
+  { id: 'handball-id', name: 'Andebol', code: 'handball' },
+  { id: 'volleyball-id', name: 'Voleibol', code: 'volleyball' }
+];
+
 const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUpdate, isSuperAdmin = false }) => {
-  const [sports, setSports] = useState<Sport[]>([]);
+  const [sports, setSports] = useState<Sport[]>(MOCK_SPORTS); // Default to mock
   const [clubs, setClubs] = useState<Club[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,26 +46,25 @@ const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUp
 
         if (!mounted) return;
 
-        setSports(results[0] || []);
+        if (results[0] && results[0].length > 0) {
+          setSports(results[0]);
+        }
 
         if (isSuperAdmin && results[1]) {
           setClubs(results[1].data.data || results[1].data || []);
         }
       } catch (error) {
         console.error('Error loading venue data:', error);
+        // On error, we keep the MOCK_SPORTS initialized above
       } finally {
         if (mounted) setLoading(false);
       }
     };
 
-    if (loading && (sports.length === 0 || (isSuperAdmin && clubs.length === 0))) {
-      loadData();
-    } else {
-      setLoading(false);
-    }
+    loadData();
 
     return () => { mounted = false; };
-  }, [isSuperAdmin]); // Removed sports.length check to avoid potential loops if data fetch fails
+  }, [isSuperAdmin]);
 
   const handleSportSelect = (sportId: string) => {
     // Only update if value actually changed
@@ -158,24 +166,166 @@ const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUp
         />
       </div>
 
-      <div className="form-group">
-        <label htmlFor="venuePhoto">Foto da Venue</label>
-        <input
-          id="venuePhoto"
-          type="file"
-          className="form-control"
-          accept="image/*"
-          onChange={handlePhotoUpload}
-        />
-        {details.photoUrl && (
-          <div className="photo-preview">
-            <img src={details.photoUrl} alt="Preview" />
+      {/* Geographic Location Section */}
+      <div className="form-section location-premium-section">
+        <label>Geolocalização & Precisão</label>
+        <div className="location-grid">
+          <div className="location-inputs">
+            <div className="form-group small">
+              <label>Latitude</label>
+              <input
+                type="number"
+                step="any"
+                className="form-control"
+                value={details.latitude || ''}
+                onChange={(e) => onUpdate({ latitude: parseFloat(e.target.value) })}
+                placeholder="0.0000"
+              />
+            </div>
+            <div className="form-group small">
+              <label>Longitude</label>
+              <input
+                type="number"
+                step="any"
+                className="form-control"
+                value={details.longitude || ''}
+                onChange={(e) => onUpdate({ longitude: parseFloat(e.target.value) })}
+                placeholder="0.0000"
+              />
+            </div>
+            <button
+              className="btn btn-secondary btn-detect"
+              onClick={() => {
+                if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition((pos) => {
+                    onUpdate({
+                      latitude: pos.coords.latitude,
+                      longitude: pos.coords.longitude
+                    });
+                  });
+                }
+              }}
+            >
+              📍 Detectar Localização
+            </button>
           </div>
-        )}
+
+          <div className="map-simulation">
+            <div className="map-grid-pattern"></div>
+            <div className="map-pin"></div>
+            <div className="map-pulsar"></div>
+            <div className="map-overlay-text">BLUEPRINT MAP ENGINE</div>
+          </div>
+        </div>
       </div>
 
-      <div className="form-info">
-        <p><strong>Nota:</strong> A capacidade total será calculada automaticamente com base nas bancadas configuradas no próximo passo.</p>
+      {/* Facilities & Accessibility Section */}
+      <div className="form-row metadata-sections">
+        <div className="metadata-group">
+          <label>Cacilidades & Infraestrutura</label>
+          <div className="checkbox-grid">
+            {[
+              { id: 'press', label: 'Centro de Imprensa' },
+              { id: 'parking', label: 'Estacionamento Privado' },
+              { id: 'vip', label: 'Área VIP / Lounges' },
+              { id: 'var', label: 'Sala VAR' },
+              { id: 'medical', label: 'Centro Médico' }
+            ].map(item => (
+              <label key={item.id} className="checkbox-item">
+                <input
+                  type="checkbox"
+                  checked={details.facilities?.includes(item.id)}
+                  onChange={(e) => {
+                    const current = details.facilities || [];
+                    const next = e.target.checked
+                      ? [...current, item.id]
+                      : current.filter(id => id !== item.id);
+                    onUpdate({ facilities: next });
+                  }}
+                />
+                <span>{item.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="metadata-group">
+          <label>Acessibilidade</label>
+          <div className="checkbox-grid">
+            {[
+              { id: 'wheelchair', label: 'Acesso Cadeira de Rodas' },
+              { id: 'tactile', label: 'Pavimento Tátil' },
+              { id: 'audio', label: 'Descrição Áudio' },
+              { id: 'elevator', label: 'Elevadores Prioritários' }
+            ].map(item => (
+              <label key={item.id} className="checkbox-item">
+                <input
+                  type="checkbox"
+                  checked={details.accessibility?.includes(item.id)}
+                  onChange={(e) => {
+                    const current = details.accessibility || [];
+                    const next = e.target.checked
+                      ? [...current, item.id]
+                      : current.filter(id => id !== item.id);
+                    onUpdate({ accessibility: next });
+                  }}
+                />
+                <span>{item.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="media-section-premium">
+        <div className="photo-upload-group">
+          <label>Foto Principal (Exterior)</label>
+          <div className={`upload-dropzone ${details.photoUrl ? 'has-file' : ''}`}>
+            <input type="file" accept="image/*" onChange={handlePhotoUpload} />
+            {details.photoUrl ? (
+              <img src={details.photoUrl} alt="Main" />
+            ) : (
+              <div className="upload-placeholder">Clique para carregar foto exterior</div>
+            )}
+          </div>
+        </div>
+
+        <div className="photo-upload-group">
+          <label>Fotos de Interior & VIP</label>
+          <div className="multi-photo-grid">
+            {/* Interior Photos Simulation */}
+            {details.interiorPhotos?.map((url, i) => (
+              <div key={i} className="mini-photo-preview">
+                <img src={url} alt={`Interior ${i}`} />
+              </div>
+            ))}
+            <label className="add-photo-btn">
+              <span>+ Adicionar Foto</span>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || []);
+                  files.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      const current = details.interiorPhotos || [];
+                      onUpdate({ interiorPhotos: [...current, reader.result as string] });
+                    };
+                    reader.readAsDataURL(file);
+                  });
+                }}
+              />
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div className="form-info-premium">
+        <div className="info-icon">💡</div>
+        <p><strong>Dica de Arquiteto:</strong> Fotos de alta qualidade e detalhes de acessibilidade aumentam a valorização da venue em 40%.</p>
       </div>
     </div>
   );

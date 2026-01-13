@@ -1,0 +1,538 @@
+/* ============================================
+   STADIUM ARCHITECT DESIGN SYSTEM
+   Blueprint-inspired professional stadium builder
+   ============================================ */
+
+/* === COLOR PALETTE === */
+:root {
+    /* Primary - Deep Navy Blueprint */
+    --stadium-bg-primary: #0a0e27;
+    --stadium-bg-secondary: #141b3d;
+    --stadium-bg-tertiary: #1e2749;
+
+    /* Accent - Electric Blue */
+    --stadium-accent-primary: #00d4ff;
+    --stadium-accent-secondary: #0099ff;
+    --stadium-accent-glow: rgba(0, 212, 255, 0.3);
+
+    /* Success/Capacity */
+    --stadium-success: #00ff88;
+    --stadium-warning: #ffaa00;
+    --stadium-error: #ff4466;
+
+    /* Glass/HUD */
+    --stadium-glass-bg: rgba(20, 27, 61, 0.7);
+    --stadium-glass-border: rgba(0, 212, 255, 0.2);
+    --stadium-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+    /* Text */
+    --stadium-text-primary: #ffffff;
+    --stadium-text-secondary: #a0aec0;
+    --stadium-text-dim: #718096;
+
+    /* Grid */
+    --stadium-grid-color: rgba(0, 212, 255, 0.15);
+    --stadium-grid-major: rgba(0, 212, 255, 0.25);
+}
+
+/* === TYPOGRAPHY === */
+.stadium-architect {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.stadium-heading-xl {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--stadium-text-primary);
+}
+
+.stadium-heading-lg {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--stadium-text-primary);
+}
+
+.stadium-heading-md {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--stadium-text-primary);
+}
+
+.stadium-label {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--stadium-text-secondary);
+}
+
+.stadium-stat {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--stadium-accent-primary);
+}
+
+/* === LAYOUT === */
+.stadium-architect-workspace {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--stadium-bg-primary);
+    overflow: hidden;
+    z-index: 9998;
+    margin: 0;
+    padding: 0;
+}
+
+.stadium-canvas-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    pointer-events: auto;
+}
+
+.stadium-hud-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    pointer-events: none;
+    /* Crucial: Allows clicks to pass through to canvas */
+}
+
+.stadium-hud-layer>* {
+    pointer-events: auto;
+}
+
+/* === GLASS MORPHISM === */
+.stadium-glass {
+    background: var(--stadium-glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--stadium-glass-border);
+    box-shadow: var(--stadium-glass-shadow);
+}
+
+.stadium-glass-intense {
+    background: rgba(20, 27, 61, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+}
+
+/* === TOP BAR === */
+.stadium-top-bar {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    border-radius: 12px;
+    z-index: 100;
+}
+
+.stadium-top-bar-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.stadium-top-bar-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* === FLOATING CONFIG PANEL === */
+.stadium-config-panel {
+    position: fixed;
+    right: 20px;
+    top: 100px;
+    bottom: 20px;
+    width: 380px;
+    border-radius: 16px;
+    padding: 24px;
+    overflow-y: auto;
+    z-index: 50;
+}
+
+.stadium-config-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.stadium-config-panel::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.stadium-config-panel::-webkit-scrollbar-thumb {
+    background: var(--stadium-accent-primary);
+    border-radius: 3px;
+}
+
+.stadium-config-section {
+    margin-bottom: 24px;
+}
+
+.stadium-config-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.stadium-config-section-header:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* === STATS PANEL === */
+.stadium-stats-panel {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 320px;
+    border-radius: 12px;
+    padding: 20px;
+    z-index: 50;
+}
+
+.stadium-stat-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.stadium-stat-row:last-child {
+    margin-bottom: 0;
+}
+
+.stadium-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.stadium-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--stadium-accent-primary), var(--stadium-success));
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+/* === ACTION PALETTE === */
+.stadium-action-palette {
+    position: fixed;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 50;
+}
+
+.stadium-action-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.stadium-action-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px var(--stadium-accent-glow);
+}
+
+.stadium-action-btn:active {
+    transform: scale(0.95);
+}
+
+.stadium-action-btn svg {
+    width: 24px;
+    height: 24px;
+    color: var(--stadium-text-primary);
+}
+
+/* === BUTTONS === */
+.stadium-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stadium-btn-primary {
+    background: linear-gradient(135deg, var(--stadium-accent-primary), var(--stadium-accent-secondary));
+    color: white;
+}
+
+.stadium-btn-primary:hover {
+    box-shadow: 0 0 20px var(--stadium-accent-glow);
+    transform: translateY(-2px);
+}
+
+.stadium-btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--stadium-text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stadium-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.stadium-btn-ghost {
+    background: transparent;
+    color: var(--stadium-text-secondary);
+}
+
+.stadium-btn-ghost:hover {
+    color: var(--stadium-text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* === CARDS === */
+.stadium-card {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+}
+
+.stadium-card:hover {
+    border-color: var(--stadium-accent-primary);
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
+}
+
+.stadium-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+/* === INPUTS === */
+.stadium-input {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: var(--stadium-text-primary);
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.stadium-input:focus {
+    outline: none;
+    border-color: var(--stadium-accent-primary);
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+}
+
+.stadium-input::placeholder {
+    color: var(--stadium-text-dim);
+}
+
+/* === ANIMATIONS === */
+@keyframes stadium-glow-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 10px var(--stadium-accent-glow);
+    }
+
+    50% {
+        box-shadow: 0 0 20px var(--stadium-accent-glow);
+    }
+}
+
+@keyframes stadium-slide-in-right {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes stadium-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.stadium-animate-glow {
+    animation: stadium-glow-pulse 2s ease-in-out infinite;
+}
+
+.stadium-animate-slide-in {
+    animation: stadium-slide-in-right 0.3s ease-out;
+}
+
+.stadium-animate-fade-in {
+    animation: stadium-fade-in 0.2s ease-out;
+}
+
+/* === TOOLTIPS === */
+.stadium-tooltip {
+    position: absolute;
+    padding: 8px 12px;
+    background: var(--stadium-bg-tertiary);
+    border: 1px solid var(--stadium-accent-primary);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--stadium-text-primary);
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* === BADGES === */
+.stadium-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stadium-badge-success {
+    background: rgba(0, 255, 136, 0.2);
+    color: var(--stadium-success);
+    border: 1px solid var(--stadium-success);
+}
+
+.stadium-badge-warning {
+    background: rgba(255, 170, 0, 0.2);
+    color: var(--stadium-warning);
+    border: 1px solid var(--stadium-warning);
+}
+
+.stadium-badge-info {
+    background: rgba(0, 212, 255, 0.2);
+    color: var(--stadium-accent-primary);
+    border: 1px solid var(--stadium-accent-primary);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 1200px) {
+    .stadium-config-panel {
+        width: 320px;
+    }
+}
+
+@media (max-width: 768px) {
+    .stadium-config-panel {
+        right: 10px;
+        left: 10px;
+        width: auto;
+        bottom: 80px;
+        top: auto;
+        max-height: 50vh;
+    }
+
+    .stadium-stats-panel {
+        left: 10px;
+        right: 10px;
+        width: auto;
+    }
+
+    .stadium-action-palette {
+        left: 10px;
+        top: auto;
+        bottom: 20px;
+        transform: none;
+        flex-direction: row;
+    }
+}
+
+/* === SAVE OVERLAY === */
+.stadium-save-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    pointer-events: auto;
+}
+
+.save-card {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 32px 48px;
+    border-radius: 20px;
+}
+
+.save-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(0, 212, 255, 0.2);
+    border-top-color: var(--stadium-accent-primary);
+    border-radius: 50%;
+    animation: save-spin 0.8s linear infinite;
+}
+
+@keyframes save-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.save-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}

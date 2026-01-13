@@ -127,14 +127,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 mockClubId = '6a9d6831-8411-4648-a885-d8d7a1ef47c3'; // Sporting Clube de Portugal
             }
 
-            // Fetch club data by club_id
-            const clubResponse = await fetch(`/api/clubs/${mockClubId}`);
-
-            if (!clubResponse.ok) {
-                throw new Error('Failed to load club data');
+            let foundClub;
+            try {
+                // Fetch club data by club_id
+                const clubResponse = await fetch(`/api/clubs/${mockClubId}`);
+                if (clubResponse.ok) {
+                    foundClub = await clubResponse.json();
+                } else {
+                    throw new Error('Fallback to mock');
+                }
+            } catch (e) {
+                console.warn('API fetch failed, using mock club data');
+                // Hardcoded fallback for development/demo
+                foundClub = {
+                    id: mockClubId,
+                    name: email === 'tiago@clube.com' ? 'Sporting Clube de Portugal' : 'Fofo Club',
+                    slug: email === 'tiago@clube.com' ? 'sporting-cp' : 'fofo-club',
+                    primary_color: email === 'tiago@clube.com' ? '#00A650' : '#4facfe',
+                    secondary_color: '#ffffff',
+                    logo_url: '/logo.png'
+                };
             }
-
-            const foundClub = await clubResponse.json();
 
             // Mock token (in real app this would come from API)
             const mockToken = `mock_token_${Date.now()}`;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Stand, Sector, Row } from '../../services/venueService';
-import StadiumCanvas2D from './StadiumCanvas2D';
-import StandConfigPanel from './StandConfigPanel';
+import StadiumArchitectWorkspace from './StadiumArchitectWorkspace';
 import SectorModal from './SectorModal';
 
 interface VenueStadiumTabProps {
@@ -21,6 +21,10 @@ interface VenueStadiumTabProps {
   onAddRow: (standId: string, floorId: string, sectorId: string, seatsCount: number) => void;
   onRemoveRow: (standId: string, floorId: string, sectorId: string, rowId: string) => void;
   onUpdateRow: (standId: string, floorId: string, sectorId: string, rowId: string, updates: Partial<Row>) => void;
+  onDuplicateFloor: (standId: string, floorId: string) => void;
+  onUpdateStandColor: (standId: string, color: string) => void;
+  onUndo: () => void;
+  onNext: () => void;
 }
 
 const VenueStadiumTab: React.FC<VenueStadiumTabProps> = ({
@@ -39,178 +43,224 @@ const VenueStadiumTab: React.FC<VenueStadiumTabProps> = ({
   onUpdateSector,
   onAddRow,
   onRemoveRow,
-  onUpdateRow
+  onUpdateRow,
+  onDuplicateFloor,
+  onUpdateStandColor,
+  onUndo,
+  onNext
 }) => {
   const [sectorModalOpen, setSectorModalOpen] = useState(false);
-  const [editingSector, setEditingSector] = useState<{
+  const [selectedSectorContext, setSelectedSectorContext] = useState<{
     standId: string;
     floorId: string;
-    sector: Sector;
+    sectorId: string;
   } | null>(null);
 
-  const selectedStand = stands.find(s => s.id === selectedStandId) || null;
-
-  const handleConfigureSector = (floorId: string, sectorId: string) => {
-    if (!selectedStandId) return;
-
-    const stand = stands.find(s => s.id === selectedStandId);
-    if (!stand) return;
-
-    const floor = stand.floors?.find(f => f.id === floorId);
-    if (!floor) return;
-
-    const sector = floor.sectors?.find(s => s.id === sectorId);
-    if (!sector) return;
-
-    setEditingSector({ standId: selectedStandId, floorId, sector });
-    setSectorModalOpen(true);
+  // Map old position format to new format
+  const positionMap: Record<string, 'north' | 'south' | 'east' | 'west'> = {
+    'Norte': 'north',
+    'Sul': 'south',
+    'Este': 'east',
+    'Oeste': 'west'
   };
 
-  const handleSaveSector = (totalSeats: number) => {
-    if (editingSector) {
-      onUpdateSector(
-        editingSector.standId,
-        editingSector.floorId,
-        editingSector.sector.id!,
-        { totalSeats }
-      );
+  const toggleFullscreen = () => {
+    // Just force a re-render or do nothing, maybe trigger cancel from parent?
+    // Since we are in a portal, closing means unmounting or hiding.
+    // The parent controls this via tab selection.
+    // Ideally we call onCancel from props? No onCancel in props.
+    // We can't easily close it without parent support to switch tabs.
+    // Let's assume onSave calls save and closes.
+    // For close button, we might want to just notify user or reload.
+    window.location.reload(); // Simplest way to 'exit' for now if stuck
+  };
+
+  const handleAddStand = (position: string) => {
+    const mappedPosition = positionMap[position] || 'north';
+    onAddStand(mappedPosition);
+  };
+
+  const handleUpdateStand = (standId: string, updates: any) => {
+    if (updates.name) {
+      onUpdateStandName(standId, updates.name);
+    }
+    if (updates.color) {
+      onUpdateStandColor(standId, updates.color);
+    }
+
+    // Handle floor array updates from ConfigPanel
+    // If floors changed length, we need to determine if it was add, remove, or duplicate
+    // Ideally we should pass specific actions from ConfigPanel, but for now we fallback to checking length
+    // OR we just use specific hooks if ConfigPanel supports it?
+    // ConfigPanel sends "floors: updatedFloors"
+
+    // Since dealing with full array replace is hard with current hooks, 
+    // let's rely on mapping specific helper methods if we passed them to workspace
+    // BUT Workspace uses generic onUpdateStand.
+
+    // Hack: check if the update contains specific flags or infer from diff (too hard)
+    // Better: Allow onUpdateStand to receive special command keys
+
+    // Handle floor array updates from ConfigPanel
+    const currentStand = stands.find(s => s.id === standId);
+    if (!currentStand) return; // Guard clause
+
+    const currentFloorsLength = currentStand.floors?.length || 0;
+    const newFloorsLength = updates.floors?.length || 0;
+
+    if (updates.floors && newFloorsLength > currentFloorsLength) {
+      // Added a floor
+      onAddFloor(standId);
+    } else if (updates.floors && newFloorsLength < currentFloorsLength) {
+      // Removed a floor
+      const currentFloors = currentStand.floors || [];
+      const newFloorIds = updates.floors.map((f: any) => f.id);
+      const removedFloor = currentFloors.find(f => f && !newFloorIds.includes(f.id));
+
+      if (removedFloor && removedFloor.id) {
+        onRemoveFloor(standId, removedFloor.id);
+      }
     }
   };
 
-  const handleAddRowToSector = (seatsCount: number) => {
-    if (editingSector) {
-      onAddRow(
-        editingSector.standId,
-        editingSector.floorId,
-        editingSector.sector.id!,
-        seatsCount
-      );
-    }
+  const handleSave = () => {
+    // Note: useVenueBuilder already persists to localStorage on every change.
+    // We just need to move to the next step (Review) so the user can finalize.
+    onNext();
   };
 
-  const handleRemoveRowFromSector = (rowId: string) => {
-    if (editingSector) {
-      onRemoveRow(
-        editingSector.standId,
-        editingSector.floorId,
-        editingSector.sector.id!,
-        rowId
-      );
-    }
-  };
-
-  const handleUpdateRowInSector = (rowId: string, updates: Partial<Row>) => {
-    if (!editingSector) return;
-    onUpdateRow(
-      editingSector.standId,
-      editingSector.floorId,
-      editingSector.sector.id!,
-      rowId,
-      updates
-    );
-  };
-
-  const existingPositions = stands.map(s => s.position);
-  const availablePositions = (['north', 'south', 'east', 'west'] as const).filter(
-    pos => !existingPositions.includes(pos)
-  );
-
-  const positionLabels = {
-    north: 'Norte',
-    south: 'Sul',
-    east: 'Este',
-    west: 'Oeste'
+  // Transform stands data for new component - with mock data if empty
+  const transformedVenue = {
+    name: 'Novo Estádio',
+    stands: stands && stands.length > 0
+      ? stands.map(stand => ({
+        ...stand,
+        position: stand.position === 'north' ? 'Norte' :
+          stand.position === 'south' ? 'Sul' :
+            stand.position === 'east' ? 'Este' : 'Oeste'
+      }))
+      : [] // Start with empty stands - user will add them
   };
 
   return (
-    <div className="venue-stadium-tab">
-      <h2>Configuração do Estádio</h2>
-      <p className="tab-description">
-        Configure as bancadas, pisos, setores e filas da sua venue. A mockup 2D atualiza em tempo real.
-      </p>
-
-      {errors.stands && (
-        <div className="error-message-banner">{errors.stands}</div>
+    <>
+      {/* Render Stadium Architect in a Portal to break out of modal */}
+      {createPortal(
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 10000,
+          background: 'var(--stadium-bg-primary, #0a0e27)'
+        }}>
+          <StadiumArchitectWorkspace
+            venue={transformedVenue}
+            onUpdateVenue={(updates: any) => {
+              // Legacy support
+            }}
+            onSave={handleSave}
+            onClose={toggleFullscreen} // Use toggle state we will add or just reload
+            onAddStand={handleAddStand}
+            onUpdateStand={handleUpdateStand}
+            onRemoveStand={onRemoveStand}
+            onAddSector={(standId, floorId) => {
+              onAddSector(standId, floorId);
+            }}
+            onRemoveSector={onRemoveSector}
+            onEditSector={(standId, floorId, sectorId) => {
+              // Open Sector Modal for editing
+              setSelectedSectorContext({ standId, floorId, sectorId });
+              setSectorModalOpen(true);
+            }}
+            onNext={onNext}
+          />
+        </div>,
+        document.body
       )}
 
-      <div className="stadium-layout">
-        {/* Left: Canvas */}
-        <div className="stadium-canvas-section">
-          <div className="canvas-header">
-            <h3>Mockup 2D do Estádio</h3>
-            {availablePositions.length > 0 && (
-              <div className="add-stand-dropdown">
-                <label>Adicionar Bancada:</label>
-                <div className="stand-position-buttons">
-                  {availablePositions.map(pos => (
-                    <button
-                      key={pos}
-                      className="btn btn-sm btn-primary"
-                      onClick={() => onAddStand(pos)}
-                    >
-                      {positionLabels[pos]}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+      {/* Sector Modal - Keep for detailed sector configuration */}
+      {sectorModalOpen && selectedSectorContext && (() => {
+        const stand = stands.find(s => s.id === selectedSectorContext.standId);
+        if (!stand || !stand.floors) return null;
 
-          <StadiumCanvas2D
-            sportCode={sportCode}
-            stands={stands}
-            selectedStandId={selectedStandId}
-            onStandClick={onSelectStand}
-          />
+        const floor = stand.floors.find(f => f.id === selectedSectorContext.floorId);
+        if (!floor || !floor.sectors) return null;
 
-          {stands.length === 0 && (
-            <div className="empty-canvas-message">
-              <p>👆 Adicione a primeira bancada para começar</p>
+        const sector = floor.sectors.find(sec => sec.id === selectedSectorContext.sectorId);
+        if (!sector) return null;
+
+        return createPortal(
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 10001,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            pointerEvents: 'none' // Allow clicks outside modal to pass (if modal has overlay it will block)
+          }}>
+            <div style={{ pointerEvents: 'auto' }}>
+              <SectorModal
+                isOpen={true}
+                sector={sector}
+                onClose={() => {
+                  setSectorModalOpen(false);
+                  setSelectedSectorContext(null);
+                }}
+                onSave={(totalSeats, name) => {
+                  if (selectedSectorContext && sector) {
+                    onUpdateSector(
+                      selectedSectorContext.standId,
+                      selectedSectorContext.floorId,
+                      selectedSectorContext.sectorId,
+                      { totalSeats, name: name || sector.name }
+                    );
+                  }
+                }}
+                onAddRow={(seatsCount) => {
+                  if (selectedSectorContext) {
+                    onAddRow(
+                      selectedSectorContext.standId,
+                      selectedSectorContext.floorId,
+                      selectedSectorContext.sectorId,
+                      seatsCount
+                    );
+                  }
+                }}
+                onRemoveRow={(rowId) => {
+                  if (selectedSectorContext) {
+                    onRemoveRow(
+                      selectedSectorContext.standId,
+                      selectedSectorContext.floorId,
+                      selectedSectorContext.sectorId,
+                      rowId
+                    );
+                  }
+                }}
+                onUpdateRow={(rowId, updates) => {
+                  if (selectedSectorContext) {
+                    onUpdateRow(
+                      selectedSectorContext.standId,
+                      selectedSectorContext.floorId,
+                      selectedSectorContext.sectorId,
+                      rowId,
+                      updates
+                    );
+                  }
+                }}
+              />
             </div>
-          )}
-        </div>
+          </div>,
+          document.body
+        );
+      })()}
 
-        {/* Right: Configuration Panel */}
-        <div className="stadium-config-section">
-          <StandConfigPanel
-            stand={selectedStand}
-            onAddFloor={() => selectedStandId && onAddFloor(selectedStandId)}
-            onRemoveFloor={(floorId) => selectedStandId && onRemoveFloor(selectedStandId, floorId)}
-            onAddSector={(floorId) => selectedStandId && onAddSector(selectedStandId, floorId)}
-            onRemoveSector={(floorId, sectorId) => selectedStandId && onRemoveSector(selectedStandId, floorId, sectorId)}
-            onUpdateSector={(floorId, sectorId, updates) => selectedStandId && onUpdateSector(selectedStandId, floorId, sectorId, updates)}
-            onConfigureSector={(floorId, sectorId) => handleConfigureSector(floorId, sectorId)}
-            onUpdateStandName={(newName) => selectedStandId && onUpdateStandName(selectedStandId, newName)}
-            errors={errors}
-          />
-
-          {selectedStand && (
-            <div className="stand-actions">
-              <button
-                className="btn btn-danger btn-block"
-                onClick={() => selectedStandId && onRemoveStand(selectedStandId)}
-              >
-                Remover Bancada {selectedStand.name}
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Sector Configuration Modal */}
-      <SectorModal
-        isOpen={sectorModalOpen}
-        sector={editingSector?.sector || null}
-        onClose={() => {
-          setSectorModalOpen(false);
-          setEditingSector(null);
-        }}
-        onSave={handleSaveSector}
-        onAddRow={handleAddRowToSector}
-        onRemoveRow={handleRemoveRowFromSector}
-        onUpdateRow={handleUpdateRowInSector}
-      />
-    </div>
+    </>
   );
 };
 
