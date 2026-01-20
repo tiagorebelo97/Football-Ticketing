@@ -15,7 +15,10 @@ const ActionPalette: React.FC<ActionPaletteProps> = ({
     onZoomOut
 }) => {
     return (
-        <div className="stadium-action-palette">
+        <div
+            className="stadium-action-palette"
+            onClick={(e) => e.stopPropagation()}
+        >
             <button
                 className="stadium-action-btn stadium-glass"
                 onClick={onUndo}

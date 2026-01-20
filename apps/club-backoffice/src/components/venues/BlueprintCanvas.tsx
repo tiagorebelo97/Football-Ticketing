@@ -5,7 +5,7 @@ interface BlueprintCanvasProps {
     stands: any[];
     selectedStandId: string | null;
     onSelectStand: (id: string | null) => void;
-    onAddStand: (position: string) => void;
+    onAddStand: (position: 'north' | 'south' | 'east' | 'west') => void;
     zoom: number;
     pan: { x: number; y: number };
     onZoomChange: (zoom: number) => void;
@@ -13,12 +13,12 @@ interface BlueprintCanvasProps {
     onEditSector: (standId: string, floorId: string, sectorId: string) => void;
 }
 
-const initialGhostZones = [
-    { id: 'north', name: 'Norte', x: 0, y: 0, width: 0, height: 0 },
-    { id: 'south', name: 'Sul', x: 0, y: 0, width: 0, height: 0 },
-    { id: 'east', name: 'Este', x: 0, y: 0, width: 0, height: 0 },
-    { id: 'west', name: 'Oeste', x: 0, y: 0, width: 0, height: 0 }
-];
+const positionLabels: Record<string, string> = {
+    'north': 'Norte',
+    'south': 'Sul',
+    'east': 'Este',
+    'west': 'Oeste'
+};
 
 const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
     stands,
@@ -36,7 +36,6 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
     });
     const [hoveredSectorId, setHoveredSectorId] = useState<string | null>(null);
     const [hoveredStandId, setHoveredStandId] = useState<string | null>(null);
-    const [mockGhostZones, setMockGhostZones] = useState(initialGhostZones);
     const [hoveredZone, setHoveredZone] = useState<string | null>(null);
 
     useEffect(() => {
@@ -62,36 +61,36 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
 
     // Ghost zones for adding stands
     const standHeight = fieldHeight * 0.22;
-    const standWidth = fieldWidth * 0.22;
+    const lateralStandWidth = standHeight; // Width of East/West stands should equal height of North/South stands
     const gap = 15;
 
     const ghostZones = [
         {
-            id: 'Norte',
-            x: centerX - (fieldWidth + standWidth) / 2,
+            id: 'north',
+            x: centerX - fieldWidth / 2,
             y: centerY - fieldHeight / 2 - standHeight - gap,
-            width: fieldWidth + standWidth,
+            width: fieldWidth,
             height: standHeight
         },
         {
-            id: 'Sul',
-            x: centerX - (fieldWidth + standWidth) / 2,
+            id: 'south',
+            x: centerX - fieldWidth / 2,
             y: centerY + fieldHeight / 2 + gap,
-            width: fieldWidth + standWidth,
+            width: fieldWidth,
             height: standHeight
         },
         {
-            id: 'Este',
+            id: 'east',
             x: centerX + fieldWidth / 2 + gap,
             y: centerY - fieldHeight / 2,
-            width: standWidth,
+            width: lateralStandWidth,
             height: fieldHeight
         },
         {
-            id: 'Oeste',
-            x: centerX - fieldWidth / 2 - standWidth - gap,
+            id: 'west',
+            x: centerX - fieldWidth / 2 - lateralStandWidth - gap,
             y: centerY - fieldHeight / 2,
-            width: standWidth,
+            width: lateralStandWidth,
             height: fieldHeight
         }
     ];
@@ -116,7 +115,7 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
     const renderSectorSeats = (sector: any, sX: number, sY: number, sW: number, sH: number, standPosition: string) => {
         if (!sector.rows || sector.rows.length === 0) return null;
 
-        const isHorizontalStand = standPosition === 'Norte' || standPosition === 'Sul';
+        const isHorizontalStand = standPosition === 'north' || standPosition === 'south';
         const rowCount = sector.rows.length;
         const maxSeats = Math.max(...sector.rows.map((r: any) => r.seatsCount));
 
@@ -200,20 +199,6 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
                 <Rect x={centerX + fieldWidth / 2 - penaltyWidth} y={centerY - penaltyHeight / 2} width={penaltyWidth} height={penaltyHeight} stroke="#00ff88" strokeWidth={3} listening={false} />
                 <Rect x={centerX - fieldWidth / 2} y={centerY - goalHeight / 2} width={goalWidth} height={goalHeight} stroke="#00ff88" strokeWidth={3} listening={false} />
                 <Rect x={centerX + fieldWidth / 2 - goalWidth} y={centerY - goalHeight / 2} width={goalWidth} height={goalHeight} stroke="#00ff88" strokeWidth={3} listening={false} />
-                <Text
-                    x={centerX}
-                    y={centerY - 15}
-                    text="RELVADO"
-                    fontSize={Math.max(24, fieldWidth * 0.04)}
-                    fontFamily="Inter"
-                    fontStyle="bold"
-                    fill="#00ff88"
-                    opacity={0.5}
-                    align="center"
-                    verticalAlign="middle"
-                    offsetX={Math.max(24, fieldWidth * 0.04) * 2}
-                    listening={false}
-                />
             </Group>
         );
     };
@@ -236,19 +221,26 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
                         cornerRadius={12}
                         onMouseEnter={() => setHoveredZone(zone.id)}
                         onMouseLeave={() => setHoveredZone(null)}
-                        onClick={() => onAddStand(zone.id)}
+                        onClick={(e) => {
+                            e.evt.stopPropagation();
+                            e.cancelBubble = true;
+                            onAddStand(zone.id as 'north' | 'south' | 'east' | 'west');
+                        }}
                     />
                     <Text
-                        x={zone.x + zone.width / 2}
-                        y={zone.y + zone.height / 2 - 12}
-                        text={`+ ${zone.id.toUpperCase()}`}
+                        x={zone.x}
+                        y={zone.y}
+                        width={zone.width}
+                        height={zone.height}
+                        text={`+ ${positionLabels[zone.id].toUpperCase()}`}
                         fontSize={14}
                         fontFamily="Inter"
                         fontStyle="bold"
                         fill="#00d4ff"
                         opacity={isHovered ? 1 : 0.7}
                         align="center"
-                        offsetX={zone.id.length * 5}
+                        verticalAlign="middle"
+                        listening={false}
                     />
                 </Group>
             );
@@ -262,15 +254,15 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
 
             const minFloorSize = 60;
             const floorCount = Math.max(1, stand.floors?.length || 1);
-            const isHorizontal = stand.position === 'Norte' || stand.position === 'Sul';
+            const isHorizontal = stand.position === 'north' || stand.position === 'south';
             const baseDepth = isHorizontal ? baseZone.height : baseZone.width;
             const dynamicDepth = Math.max(baseDepth, floorCount * minFloorSize);
 
             let zone = { ...baseZone };
-            if (stand.position === 'Norte') { zone.y = (baseZone.y + baseZone.height) - dynamicDepth; zone.height = dynamicDepth; }
-            else if (stand.position === 'Sul') { zone.height = dynamicDepth; }
-            else if (stand.position === 'Oeste') { zone.x = (baseZone.x + baseZone.width) - dynamicDepth; zone.width = dynamicDepth; }
-            else if (stand.position === 'Este') { zone.width = dynamicDepth; }
+            if (stand.position === 'north') { zone.y = (baseZone.y + baseZone.height) - dynamicDepth; zone.height = dynamicDepth; }
+            else if (stand.position === 'south') { zone.height = dynamicDepth; }
+            else if (stand.position === 'west') { zone.x = (baseZone.x + baseZone.width) - dynamicDepth; zone.width = dynamicDepth; }
+            else if (stand.position === 'east') { zone.width = dynamicDepth; }
 
             const isSelected = selectedStandId === stand.id;
             const isStandHovered = hoveredStandId === stand.id;
@@ -278,45 +270,79 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
 
             return (
                 <Group key={stand.id} onMouseEnter={() => setHoveredStandId(stand.id)} onMouseLeave={() => setHoveredStandId(null)}>
-                    <Rect x={zone.x} y={zone.y} width={zone.width} height={zone.height} fill={standColor} opacity={isStandHovered && !hoveredSectorId ? 0.6 : 0.2} stroke={isStandHovered ? '#ffffff' : 'transparent'} strokeWidth={1} cornerRadius={12} onClick={() => onSelectStand(stand.id)} />
+                    <Rect
+                        x={zone.x}
+                        y={zone.y}
+                        width={zone.width}
+                        height={zone.height}
+                        fill={standColor}
+                        opacity={isStandHovered && !hoveredSectorId ? 0.6 : 0.2}
+                        stroke={isStandHovered ? '#ffffff' : 'transparent'}
+                        strokeWidth={1}
+                        cornerRadius={12}
+                        onClick={(e) => {
+                            e.evt.stopPropagation();
+                            e.cancelBubble = true;
+                            onSelectStand(stand.id);
+                        }}
+                    />
                     <Rect x={zone.x} y={zone.y} width={zone.width} height={zone.height} stroke={isSelected ? '#ffffff' : standColor} strokeWidth={isSelected ? 5 : 3} cornerRadius={12} listening={false} />
 
                     {stand.floors?.map((floor: any, fIndex: number) => {
                         const floorCount = stand.floors.length;
-                        const gap = 1;
-                        const totalGap = (floorCount - 1) * gap;
-                        const floorW = isHorizontal ? zone.width : (zone.width - totalGap) / floorCount;
-                        const floorH = isHorizontal ? (zone.height - totalGap) / floorCount : zone.height;
-                        const visualIndex = (stand.position === 'Sul' || stand.position === 'Este') ? fIndex : (floorCount - 1 - fIndex);
-                        const floorX = isHorizontal ? zone.x : zone.x + (visualIndex * (floorW + gap));
-                        const floorY = isHorizontal ? zone.y + (visualIndex * (floorH + gap)) : zone.y;
+                        const gapBetweenFloors = 2;
+                        const floorWidth = isHorizontal ? zone.width : (zone.width - (floorCount - 1) * gapBetweenFloors) / floorCount;
+                        const floorHeight = isHorizontal ? (zone.height - (floorCount - 1) * gapBetweenFloors) / floorCount : zone.height;
+                        const visualIndex = (stand.position === 'south' || stand.position === 'east') ? fIndex : (floorCount - 1 - fIndex);
+                        const floorX = isHorizontal ? zone.x : zone.x + (visualIndex * (floorWidth + gapBetweenFloors));
+                        const floorY = isHorizontal ? zone.y + (visualIndex * (floorHeight + gapBetweenFloors)) : zone.y;
 
-                        return (floor.sectors || []).map((sector: any, sIndex: number) => {
-                            const cols = isHorizontal ? floor.sectors.length : 1;
-                            const rows = isHorizontal ? 1 : floor.sectors.length;
-                            const cellWidth = (floorW - (cols - 1)) / cols;
-                            const cellHeight = (floorH - (rows - 1)) / rows;
-                            const sectorX = floorX + (sIndex % cols) * (cellWidth + 1);
-                            const sectorY = floorY + Math.floor(sIndex / cols) * (cellHeight + 1);
+                        return (
+                            <Group key={floor.id}>
+                                {/* Floor Boundary - Visual division even without sectors */}
+                                <Rect
+                                    x={floorX}
+                                    y={floorY}
+                                    width={floorWidth}
+                                    height={floorHeight}
+                                    stroke="rgba(255,255,255,0.15)"
+                                    strokeWidth={1}
+                                    dash={[4, 4]}
+                                    listening={false}
+                                />
+                                {(floor.sectors || []).map((sector: any, sIndex: number) => {
+                                    const cols = isHorizontal ? floor.sectors.length : 1;
+                                    const rows = isHorizontal ? 1 : floor.sectors.length;
+                                    const cellWidth = (floorWidth - (cols - 1)) / cols;
+                                    const cellHeight = (floorHeight - (rows - 1)) / rows;
+                                    const sectorX = floorX + (sIndex % cols) * (cellWidth + 1);
+                                    const sectorY = floorY + Math.floor(sIndex / cols) * (cellHeight + 1);
 
-                            const isSectorHovered = hoveredSectorId === sector.id;
-                            const showActiveSector = isSectorHovered && isSelected;
+                                    const isSectorHovered = hoveredSectorId === sector.id;
+                                    const showActiveSector = isSectorHovered && isSelected;
 
-                            return (
-                                <Group key={sector.id}>
-                                    <Rect x={sectorX} y={sectorY} width={cellWidth} height={cellHeight} fill={showActiveSector ? 'rgba(0, 212, 255, 0.4)' : 'rgba(255,255,255,0.05)'} stroke={showActiveSector ? '#00d4ff' : 'rgba(255,255,255,0.1)'} strokeWidth={1} cornerRadius={2} listening={false} />
-                                    {renderSectorSeats(sector, sectorX, sectorY, cellWidth, cellHeight, stand.position)}
-                                    {(cellWidth > 35 && cellHeight > 20) && (
-                                        <Text x={sectorX} y={sectorY + (cellHeight / 2) - 5} width={cellWidth} text={sector.name.toUpperCase()} fontSize={9} fontFamily="Inter" fontStyle="bold" fill="white" align="center" opacity={showActiveSector ? 1 : 0.4} listening={false} />
-                                    )}
-                                    <Rect x={sectorX} y={sectorY} width={cellWidth} height={cellHeight} fill="transparent" listening={true}
-                                        onMouseEnter={() => { setHoveredSectorId(sector.id); if (containerRef.current) containerRef.current.style.cursor = isSelected ? 'pointer' : 'default'; }}
-                                        onMouseLeave={() => { setHoveredSectorId(null); if (containerRef.current) containerRef.current.style.cursor = 'default'; }}
-                                        onClick={(e) => { e.cancelBubble = true; if (isSelected) onEditSector(stand.id, floor.id, sector.id); else onSelectStand(stand.id); }}
-                                    />
-                                </Group>
-                            );
-                        });
+                                    return (
+                                        <Group key={sector.id}>
+                                            <Rect x={sectorX} y={sectorY} width={cellWidth} height={cellHeight} fill={showActiveSector ? 'rgba(0, 212, 255, 0.4)' : 'rgba(255,255,255,0.05)'} stroke={showActiveSector ? '#00d4ff' : 'rgba(255,255,255,0.1)'} strokeWidth={1} cornerRadius={2} listening={false} />
+                                            {renderSectorSeats(sector, sectorX, sectorY, cellWidth, cellHeight, stand.position)}
+                                            {(cellWidth > 35 && cellHeight > 20) && (
+                                                <Text x={sectorX} y={sectorY + (cellHeight / 2) - 5} width={cellWidth} text={sector.name.toUpperCase()} fontSize={9} fontFamily="Inter" fontStyle="bold" fill="white" align="center" opacity={showActiveSector ? 1 : 0.4} listening={false} />
+                                            )}
+                                            <Rect x={sectorX} y={sectorY} width={cellWidth} height={cellHeight} fill="transparent" listening={true}
+                                                onMouseEnter={() => { setHoveredSectorId(sector.id); if (containerRef.current) containerRef.current.style.cursor = isSelected ? 'pointer' : 'default'; }}
+                                                onMouseLeave={() => { setHoveredSectorId(null); if (containerRef.current) containerRef.current.style.cursor = 'default'; }}
+                                                onClick={(e) => {
+                                                    e.evt.stopPropagation();
+                                                    e.cancelBubble = true;
+                                                    if (isSelected) onEditSector(stand.id, floor.id, sector.id);
+                                                    else onSelectStand(stand.id);
+                                                }}
+                                            />
+                                        </Group>
+                                    );
+                                })}
+                            </Group>
+                        );
                     })}
                 </Group>
             );
@@ -325,8 +351,17 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
 
     return (
         <div ref={containerRef} style={{ width: '100%', height: '100%', background: 'var(--stadium-bg-primary)' }}>
-            <Stage width={width} height={height}>
+            <Stage
+                width={width}
+                height={height}
+            >
                 <Layer>
+                    <Rect
+                        width={width}
+                        height={height}
+                        fill="rgba(0,0,0,0)"
+                        onClick={() => onSelectStand(null)}
+                    />
                     {renderField()}
                     {renderGhostZones()}
                 </Layer>

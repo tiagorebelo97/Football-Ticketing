@@ -56,28 +56,12 @@ const VenueStadiumTab: React.FC<VenueStadiumTabProps> = ({
     sectorId: string;
   } | null>(null);
 
-  // Map old position format to new format
-  const positionMap: Record<string, 'north' | 'south' | 'east' | 'west'> = {
-    'Norte': 'north',
-    'Sul': 'south',
-    'Este': 'east',
-    'Oeste': 'west'
+  const handleAddStand = (position: 'north' | 'south' | 'east' | 'west') => {
+    onAddStand(position);
   };
 
   const toggleFullscreen = () => {
-    // Just force a re-render or do nothing, maybe trigger cancel from parent?
-    // Since we are in a portal, closing means unmounting or hiding.
-    // The parent controls this via tab selection.
-    // Ideally we call onCancel from props? No onCancel in props.
-    // We can't easily close it without parent support to switch tabs.
-    // Let's assume onSave calls save and closes.
-    // For close button, we might want to just notify user or reload.
     window.location.reload(); // Simplest way to 'exit' for now if stuck
-  };
-
-  const handleAddStand = (position: string) => {
-    const mappedPosition = positionMap[position] || 'north';
-    onAddStand(mappedPosition);
   };
 
   const handleUpdateStand = (standId: string, updates: any) => {
@@ -132,14 +116,7 @@ const VenueStadiumTab: React.FC<VenueStadiumTabProps> = ({
   // Transform stands data for new component - with mock data if empty
   const transformedVenue = {
     name: 'Novo Estádio',
-    stands: stands && stands.length > 0
-      ? stands.map(stand => ({
-        ...stand,
-        position: stand.position === 'north' ? 'Norte' :
-          stand.position === 'south' ? 'Sul' :
-            stand.position === 'east' ? 'Este' : 'Oeste'
-      }))
-      : [] // Start with empty stands - user will add them
+    stands: stands || []
   };
 
   return (
@@ -148,11 +125,11 @@ const VenueStadiumTab: React.FC<VenueStadiumTabProps> = ({
       {createPortal(
         <div style={{
           position: 'fixed',
-          top: 0,
+          top: 'var(--header-height, 64px)',
           left: 0,
           right: 0,
           bottom: 0,
-          zIndex: 10000,
+          zIndex: 800,
           background: 'var(--stadium-bg-primary, #0a0e27)'
         }}>
           <StadiumArchitectWorkspace

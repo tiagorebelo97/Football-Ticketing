@@ -78,13 +78,15 @@
 /* === LAYOUT === */
 .stadium-architect-workspace {
     position: fixed;
-    top: 0;
+    top: var(--header-height, 64px);
+    /* Integrate with App Header */
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: calc(100vh - var(--header-height, 64px));
     background: var(--stadium-bg-primary);
     overflow: hidden;
-    z-index: 9998;
+    z-index: 800;
+    /* Below app header's 900 */
     margin: 0;
     padding: 0;
 }
@@ -93,10 +95,16 @@
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
+    right: 400px;
+    /* Space for sidebar */
     bottom: 0;
     z-index: 1;
     pointer-events: auto;
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stadium-canvas-layer.sidebar-collapsed {
+    right: 0;
 }
 
 .stadium-hud-layer {
@@ -105,7 +113,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 10;
+    z-index: 1000;
+    /* Sit above top dashboard's 60 */
     pointer-events: none;
     /* Crucial: Allows clicks to pass through to canvas */
 }
@@ -131,55 +140,191 @@
     box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
 }
 
-/* === TOP BAR === */
-.stadium-top-bar {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    right: 20px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 24px;
-    border-radius: 12px;
+/* === TOP BAR REMOVED === */
+
+/* Top Actions HUD */
+.stadium-top-actions {
+    position: absolute;
+    top: 24px;
+    right: 424px;
+    /* Space for expanded sidebar (400) + gap (24) */
     z-index: 100;
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: auto;
 }
 
-.stadium-top-bar-title {
+.stadium-top-dashboard {
+    position: fixed;
+    top: calc(var(--header-height, 64px) + 20px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 32px;
+    border-radius: 16px;
+    background: var(--stadium-glass-heavy);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--stadium-glass-border);
+    z-index: 100;
+    /* High but below sidebar */
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    pointer-events: auto;
+}
+
+.stadium-top-dashboard.sidebar-collapsed {
+    /* Always centered regardless of sidebar */
+}
+
+.dashboard-stats-inner {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stat-item.divider {
+    width: 1px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--stadium-text-dim);
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-progress-container {
     display: flex;
     align-items: center;
     gap: 12px;
+    pointer-events: none;
 }
 
-.stadium-top-bar-actions {
+.stat-progress-bar-wrapper {
+    width: 100px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0cebeb, #20e3b2, #29ffc6);
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+    transition: width 0.5s ease;
+}
+
+.stat-progress-container .stat-value {
+    font-size: 13px;
+    color: var(--stadium-accent-primary);
+    min-width: 40px;
+}
+
+.stadium-top-dashboard .save-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--accent-primary);
+    background: var(--stadium-glass-heavy);
+    color: #fff;
     display: flex;
-    gap: 12px;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
 }
 
-/* === FLOATING CONFIG PANEL === */
-.stadium-config-panel {
+.stadium-top-dashboard .save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(79, 172, 254, 0.3);
+    background: var(--accent-primary);
+}
+
+.stadium-config-sidebar {
     position: fixed;
-    right: 20px;
-    top: 100px;
-    bottom: 20px;
-    width: 380px;
-    border-radius: 16px;
-    padding: 24px;
-    overflow-y: auto;
-    z-index: 50;
+    right: 0;
+    top: var(--header-height, 64px);
+    bottom: 0;
+    width: 400px;
+    z-index: 1100;
+    /* Top tier */
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
 }
 
-.stadium-config-panel::-webkit-scrollbar {
+.stadium-config-sidebar.collapsed {
+    transform: translateX(100%);
+}
+
+.stadium-sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    height: 100%;
+    border-left: 1px solid rgba(0, 212, 255, 0.3);
+    background: var(--stadium-bg-secondary);
+    /* This is already solid #141b3d, but let's ensure it covers everything */
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    /* Added shadow for better depth */
+}
+
+.stadium-sidebar-toggle {
+    position: absolute;
+    left: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 80px;
+    background: var(--stadium-glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--stadium-glass-border);
+    border-right: none;
+    border-radius: 12px 0 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--stadium-accent-primary);
+    transition: all 0.2s;
+    pointer-events: auto;
+}
+
+.stadium-sidebar-toggle:hover {
+    color: white;
+    background: rgba(0, 212, 255, 0.2);
+}
+
+.stadium-config-sidebar::-webkit-scrollbar {
     width: 6px;
 }
 
-.stadium-config-panel::-webkit-scrollbar-track {
+.stadium-config-sidebar::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 3px;
 }
 
-.stadium-config-panel::-webkit-scrollbar-thumb {
+.stadium-config-sidebar::-webkit-scrollbar-thumb {
     background: var(--stadium-accent-primary);
     border-radius: 3px;
 }
@@ -203,16 +348,6 @@
     background: rgba(255, 255, 255, 0.05);
 }
 
-/* === STATS PANEL === */
-.stadium-stats-panel {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    width: 320px;
-    border-radius: 12px;
-    padding: 20px;
-    z-index: 50;
-}
 
 .stadium-stat-row {
     display: flex;

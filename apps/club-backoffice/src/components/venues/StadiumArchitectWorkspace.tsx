@@ -1,18 +1,19 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import './StadiumArchitect.css';
+import { Save } from 'lucide-react';
 import BlueprintCanvas from './BlueprintCanvas';
-import FloatingConfigPanel from './FloatingConfigPanel';
+import StadiumConfigSidebar from './StadiumConfigSidebar';
 import StatsPanel from './StatsPanel';
 import ActionPalette from './ActionPalette';
-import TopBar from './TopBar';
+import { Venue, Stand } from '../../services/venueService';
 
 interface StadiumArchitectWorkspaceProps {
-    venue: any;
+    venue: Partial<Venue>;
     onUpdateVenue?: (updates: any) => void;
     onSave: () => void;
     onClose?: () => void;
-    onAddStand: (position: string) => void;
-    onUpdateStand: (standId: string, updates: any) => void;
+    onAddStand: (position: 'north' | 'south' | 'east' | 'west') => void;
+    onUpdateStand: (standId: string, updates: Partial<Stand>) => void;
     onRemoveStand: (standId: string) => void;
     onAddSector: (standId: string, floorId: string) => void;
     onRemoveSector: (standId: string, floorId: string, sectorId: string) => void;
@@ -36,26 +37,39 @@ const StadiumArchitectWorkspace: React.FC<StadiumArchitectWorkspaceProps> = ({
     const [selectedStandId, setSelectedStandId] = useState<string | null>(null);
     const [canvasZoom, setCanvasZoom] = useState(1);
     const [canvasPan, setCanvasPan] = useState({ x: 0, y: 0 });
-    const [isConfigPanelOpen, setIsConfigPanelOpen] = useState(true);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(selectedStandId === null);
     const [isSaving, setIsSaving] = useState(false);
 
     const selectedStand = venue.stands?.find((s: any) => s.id === selectedStandId);
 
-    // Auto-select new stands
+    // Auto-select new stands and expand sidebar
     const prevStandCountRef = useRef(venue.stands?.length || 0);
     useEffect(() => {
-        const currentCount = venue.stands?.length || 0;
+        const stands = venue.stands || [];
+        const currentCount = stands.length;
         if (currentCount > prevStandCountRef.current) {
-            // New stand added, select the last one
-            const newStand = venue.stands[venue.stands.length - 1];
-            if (newStand) {
+            // New stand added, select the last one and expand sidebar
+            const newStand = stands[currentCount - 1];
+            if (newStand && newStand.id) {
                 setSelectedStandId(newStand.id);
+                setIsSidebarCollapsed(false);
             }
         }
         prevStandCountRef.current = currentCount;
     }, [venue.stands]);
 
-    const handleAddStand = useCallback((position: string) => {
+    // Expand sidebar when a stand is manually selected
+    useEffect(() => {
+        // Trigger sidebar auto-retract
+        window.dispatchEvent(new CustomEvent('stadium-architect-opened'));
+    }, []);
+
+    const handleSelectStand = useCallback((id: string | null) => {
+        setSelectedStandId(id);
+        setIsSidebarCollapsed(id === null);
+    }, []);
+
+    const handleAddStand = useCallback((position: 'north' | 'south' | 'east' | 'west') => {
         onAddStand(position);
 
         // Legacy support
@@ -79,10 +93,10 @@ const StadiumArchitectWorkspace: React.FC<StadiumArchitectWorkspaceProps> = ({
         }
     }, [venue.stands, onUpdateVenue, onAddStand]);
 
-    const handleUpdateStand = useCallback((standId: string, updates: any) => {
+    const handleUpdateStand = useCallback((standId: string, updates: Partial<Stand>) => {
         onUpdateStand(standId, updates);
 
-        if (onUpdateVenue) {
+        if (onUpdateVenue && venue.stands) {
             const updatedStands = venue.stands.map((s: any) =>
                 s.id === standId ? { ...s, ...updates } : s
             );
@@ -93,7 +107,7 @@ const StadiumArchitectWorkspace: React.FC<StadiumArchitectWorkspaceProps> = ({
     const handleDeleteStand = useCallback((standId: string) => {
         onRemoveStand(standId);
 
-        if (onUpdateVenue) {
+        if (onUpdateVenue && venue.stands) {
             const updatedStands = venue.stands.filter((s: any) => s.id !== standId);
             onUpdateVenue({ stands: updatedStands });
         }
@@ -120,13 +134,16 @@ const StadiumArchitectWorkspace: React.FC<StadiumArchitectWorkspaceProps> = ({
     const completionPercentage = Math.min((standCount / 4) * 100, 100);
 
     return (
-        <div className="stadium-architect-workspace stadium-architect">
+        <div
+            className="stadium-architect-workspace stadium-architect"
+        >
+
             {/* Canvas Layer */}
-            <div className="stadium-canvas-layer">
+            <div className={`stadium-canvas-layer ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
                 <BlueprintCanvas
                     stands={venue.stands || []}
                     selectedStandId={selectedStandId}
-                    onSelectStand={setSelectedStandId}
+                    onSelectStand={handleSelectStand}
                     onAddStand={handleAddStand}
                     zoom={canvasZoom}
                     pan={canvasPan}
@@ -138,11 +155,31 @@ const StadiumArchitectWorkspace: React.FC<StadiumArchitectWorkspaceProps> = ({
 
             {/* HUD Layer */}
             <div className="stadium-hud-layer">
-                <TopBar
-                    venueName={venue.name || 'Novo Estádio'}
-                    onSave={handleSave}
-                    onToggleConfig={() => setIsConfigPanelOpen(!isConfigPanelOpen)}
-                />
+                {/* Top Dashboard HUD - Consolidates actions and stats */}
+                <div
+                    className="stadium-top-dashboard"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <div className="dashboard-stats-section">
+                        <StatsPanel
+                            totalCapacity={totalCapacity}
+                            standCount={standCount}
+                            completionPercentage={completionPercentage}
+                        />
+                    </div>
+
+                    <div className="dashboard-actions-section">
+                        <button
+                            className="stadium-btn stadium-btn-primary save-btn"
+                            onClick={handleSave}
+                            disabled={isSaving}
+                        >
+                            <Save size={18} />
+                            {isSaving ? 'A Guardar...' : 'Guardar'}
+                        </button>
+                    </div>
+                </div>
+                {/* TopBar removed as per requirements */}
 
                 <ActionPalette
                     onUndo={() => console.log('Undo')}
@@ -151,21 +188,16 @@ const StadiumArchitectWorkspace: React.FC<StadiumArchitectWorkspaceProps> = ({
                     onZoomOut={() => setCanvasZoom(z => Math.max(z - 0.1, 0.5))}
                 />
 
-                {isConfigPanelOpen && (
-                    <FloatingConfigPanel
-                        selectedStand={selectedStand}
-                        onUpdateStand={handleUpdateStand}
-                        onDeleteStand={handleDeleteStand}
-                        onAddSector={onAddSector}
-                        onRemoveSector={onRemoveSector}
-                        onEditSector={onEditSector}
-                    />
-                )}
-
-                <StatsPanel
-                    totalCapacity={totalCapacity}
-                    standCount={standCount}
-                    completionPercentage={completionPercentage}
+                <StadiumConfigSidebar
+                    selectedStand={selectedStand}
+                    isCollapsed={isSidebarCollapsed}
+                    onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                    onSave={handleSave}
+                    onUpdateStand={handleUpdateStand}
+                    onDeleteStand={handleDeleteStand}
+                    onAddSector={onAddSector}
+                    onRemoveSector={onRemoveSector}
+                    onEditSector={onEditSector}
                 />
 
                 {/* Saving HUD Overlay */}

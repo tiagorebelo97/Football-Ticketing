@@ -1,13 +1,12 @@
 import React from 'react';
-import { Save, Settings } from 'lucide-react';
+import { Save } from 'lucide-react';
 
 interface TopBarProps {
     venueName: string;
     onSave: () => void;
-    onToggleConfig?: () => void;
 }
 
-const TopBar: React.FC<TopBarProps> = ({ venueName, onSave, onToggleConfig }) => {
+const TopBar: React.FC<TopBarProps> = ({ venueName, onSave }) => {
     return (
         <div className="stadium-top-bar stadium-glass">
             <div className="stadium-top-bar-title">
@@ -30,10 +29,6 @@ const TopBar: React.FC<TopBarProps> = ({ venueName, onSave, onToggleConfig }) =>
             </div>
 
             <div className="stadium-top-bar-actions">
-                <button className="stadium-btn stadium-btn-secondary" onClick={onToggleConfig}>
-                    <Settings size={16} />
-                    Configurações
-                </button>
                 <button className="stadium-btn stadium-btn-primary" onClick={onSave}>
                     <Save size={16} />
                     Guardar Estádio

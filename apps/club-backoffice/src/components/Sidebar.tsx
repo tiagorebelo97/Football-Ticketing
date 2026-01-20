@@ -19,6 +19,19 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapsedChange }) => {
         onCollapsedChange?.(newCollapsed);
     };
 
+    // Auto-retract when entering stadium architect
+    React.useEffect(() => {
+        const handleAutoRetract = () => {
+            if (!isCollapsed) {
+                setIsCollapsed(true);
+                onCollapsedChange?.(true);
+            }
+        };
+
+        window.addEventListener('stadium-architect-opened', handleAutoRetract);
+        return () => window.removeEventListener('stadium-architect-opened', handleAutoRetract);
+    }, [isCollapsed, onCollapsedChange]);
+
     const menuItems = [
         { path: '/', label: 'Dashboard', icon: <FaThLarge /> },
         { path: '/members', label: 'Club Members', icon: <FaUsers /> },
@@ -64,15 +77,23 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapsedChange }) => {
                 <FaBars />
             </button>
 
-            <div style={{ padding: isCollapsed ? '60px 10px 20px' : '60px 32px 20px', textAlign: 'center', transition: 'padding 0.3s ease' }}>
+            <div style={{
+                padding: isCollapsed ? '70px 0 20px' : '60px 32px 20px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.3s ease'
+            }}>
                 {club?.logoUrl && (
                     <img
                         src={club.logoUrl}
                         alt={`${club.name} logo`}
                         style={{
-                            maxWidth: isCollapsed ? '40px' : '80%',
-                            maxHeight: isCollapsed ? '40px' : '80px',
+                            maxWidth: isCollapsed ? '44px' : '80%',
+                            maxHeight: isCollapsed ? '44px' : '80px',
                             objectFit: 'contain',
+                            display: 'block',
                             transition: 'all 0.3s ease'
                         }}
                     />
@@ -137,15 +158,44 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapsedChange }) => {
                 })}
             </nav>
 
-            <div style={{ padding: '24px', borderTop: '1px solid var(--border-glass)' }}>
-                <div className="glass-card" style={{ padding: '12px', display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(255,255,255,0.02)' }}>
-                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--accent-vibrant)', display: 'flex', alignItems: 'center', justifySelf: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>
+            <div style={{
+                padding: isCollapsed ? '20px 0' : '24px',
+                borderTop: '1px solid var(--border-glass)',
+                display: 'flex',
+                justifyContent: 'center'
+            }}>
+                <div className={isCollapsed ? "" : "glass-card"} style={{
+                    padding: isCollapsed ? '0' : '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: isCollapsed ? '0' : '12px',
+                    background: isCollapsed ? 'transparent' : 'rgba(255,255,255,0.02)',
+                    borderRadius: isCollapsed ? '0' : '12px',
+                    width: isCollapsed ? 'auto' : '100%',
+                    justifyContent: isCollapsed ? 'center' : 'flex-start'
+                }}>
+                    <div style={{
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '10px',
+                        background: 'var(--accent-vibrant)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        boxShadow: isCollapsed ? '0 0 15px rgba(0, 242, 254, 0.3)' : 'none',
+                        transition: 'all 0.3s ease'
+                    }}>
                         {user?.email?.[0]?.toUpperCase() || 'A'}
                     </div>
-                    <div style={{ overflow: 'hidden' }}>
-                        <div style={{ fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.email || 'Admin'}</div>
-                        <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>Club Administrator</div>
-                    </div>
+                    {!isCollapsed && (
+                        <div style={{ overflow: 'hidden' }}>
+                            <div style={{ fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.email || 'Admin'}</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>Club Administrator</div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
