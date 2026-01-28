@@ -13,7 +13,7 @@ interface StatCardProps {
 const StatCard: React.FC<StatCardProps> = ({ title, value, trend }) => {
     return (
         <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
-            <div style={{ color: 'var(--color-text-light)', fontSize: '14px', marginBottom: '10px' }}>{title}</div>
+            <div style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '10px' }}>{title}</div>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
                 <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{value}</div>
                 {trend && (

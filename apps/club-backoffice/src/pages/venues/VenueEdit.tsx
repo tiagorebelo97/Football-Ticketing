@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import VenueWizard from '../../components/venues/VenueWizard';
 import { venueService, Venue } from '../../services/venueService';
 
 const VenueEdit: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [venue, setVenue] = useState<Venue | null>(null);
@@ -16,7 +18,7 @@ const VenueEdit: React.FC = () => {
 
   const loadVenue = async () => {
     if (!id) {
-      setError('ID da venue não fornecido');
+      setError(t('venues.idNotProvided'));
       setLoading(false);
       return;
     }
@@ -26,7 +28,7 @@ const VenueEdit: React.FC = () => {
       setVenue(data);
     } catch (err: any) {
       console.error('Error loading venue:', err);
-      setError('Erro ao carregar venue');
+      setError(t('venues.loadError'));
     } finally {
       setLoading(false);
     }
@@ -34,7 +36,7 @@ const VenueEdit: React.FC = () => {
 
   const handleSave = async (updatedVenue: Venue) => {
     if (!id) {
-      throw new Error('ID da venue não fornecido');
+      throw new Error(t('venues.idNotProvided'));
     }
 
     await venueService.updateVenue(id, {
@@ -57,7 +59,7 @@ const VenueEdit: React.FC = () => {
   if (loading) {
     return (
       <div className="card">
-        <div className="loading">A carregar venue...</div>
+        <div className="loading">{t('venues.loadingVenue')}</div>
       </div>
     );
   }
@@ -65,9 +67,9 @@ const VenueEdit: React.FC = () => {
   if (error || !venue) {
     return (
       <div className="card">
-        <div className="error-message">{error || 'Venue não encontrada'}</div>
+        <div className="error-message">{error || t('venues.venueNotFound')}</div>
         <button className="btn btn-secondary" onClick={() => navigate('/venues')}>
-          Voltar
+          {t('common.back')}
         </button>
       </div>
     );

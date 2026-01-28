@@ -1,0 +1,39 @@
+CRITICAL: The following keys MUST be added to es.json, fr.json, and de.json:
+
+## common namespace - ADD:
+"reset": "Reset", // translate to ES, FR, DE
+"saving": "Saving...", // translate to ES, FR, DE
+"saveChanges": "Save Changes" // translate to ES, FR, DE
+
+## settings namespace - ADD ENTIRE NAMESPACE:
+"settings": {
+    "title": "Club Settings", // translate
+    "subtitle": "Update your club's information to keep it current for fans and members", // translate
+    "basicInfo": "Basic Information", // translate
+    "clubName": "Club Name", // translate
+    "short Name": "Short Name", // translate
+    "foundedYear": "Founded Year", // translate
+    "country": "Country", // translate
+    "selectCountry": "Select a country", // translate
+    "website": "Website", // translate
+    "logoUrl": "Logo URL", // translate
+    "stadiumInfo": "Stadium Information", // translate
+    "stadiumCapacity": "Stadium Capacity", // translate
+    "brandingColors": "Branding Colors", // translate
+    "primaryColor": "Primary Color", // translate
+    "secondaryColor": "Secondary Color", // translate
+    "loadError": "Failed to load club information", // translate
+    "updateSuccess": "Club information updated successfully! The theme has been updated.", // translate
+    "updateError": "Failed to update club information" // translate
+},
+
+## venues namespace - ADD ENTIRE NAMESPACE:
+"venues": {
+    "idNotProvided": "Venue ID not provided", // translate
+    "loadError": "Error loading venue", // translate
+    "loadingVenue": "Loading venue...", // translate
+    "venueNotFound": "Venue not found" // translate
+}
+
+USER ACTION REQUIRED:
+After rebuild, manually update es.json, fr.json, and de.json with translations, then rebuild again.

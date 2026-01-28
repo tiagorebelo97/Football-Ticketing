@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 interface Match {
   id: string;
@@ -16,6 +17,7 @@ interface Match {
 }
 
 const Calendar: React.FC = () => {
+  const { t } = useTranslation();
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -119,7 +121,7 @@ const Calendar: React.FC = () => {
             justifyContent: 'space-between'
           }}>
             {day}
-            {isToday && <span style={{ fontSize: '10px', background: 'var(--accent-secondary)', color: '#000', padding: '1px 4px', borderRadius: '4px' }}>TODAY</span>}
+            {isToday && <span style={{ fontSize: '10px', background: 'var(--accent-secondary)', color: '#000', padding: '1px 4px', borderRadius: '4px' }}>{t('common.today') || 'TODAY'}</span>}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {dayMatches.map(match => (
@@ -159,24 +161,26 @@ const Calendar: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="loading" style={{ textAlign: 'center', marginTop: '50px' }}>Loading calendar...</div>;
+    return <div className="loading" style={{ textAlign: 'center', marginTop: '50px' }}>{t('common.loading') || 'Loading...'}</div>;
   }
 
-  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];
+  const monthNames = [
+    t('months.january'), t('months.february'), t('months.march'), t('months.april'), t('months.may'), t('months.june'),
+    t('months.july'), t('months.august'), t('months.september'), t('months.october'), t('months.november'), t('months.december')
+  ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '0 0 40px' }}>
       {/* Page Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <h1 style={{ margin: 0, color: '#ffffff', fontSize: '2.5rem' }}>Match Calendar</h1>
+          <h1 style={{ margin: 0, color: '#ffffff', fontSize: '2.5rem' }}>{t('calendar.title')}</h1>
           <p style={{ margin: '8px 0 0', color: 'var(--text-muted)', fontSize: '1.1rem' }}>
-            Organize and manage your season schedule
+            {t('calendar.subtitle')}
           </p>
         </div>
         <button className="premium-btn premium-btn-primary" onClick={() => navigate('/create-match')}>
-          + New Match
+          + {t('calendar.newMatch')}
         </button>
       </div>
 
@@ -184,7 +188,7 @@ const Calendar: React.FC = () => {
         {/* Calendar Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <button className="premium-btn premium-btn-secondary" onClick={goToPreviousMonth}>
-            ← Previous
+            ← {t('common.previous')}
           </button>
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
             <h3 style={{ margin: 0, fontSize: '1.5rem', color: '#ffffff' }}>
@@ -196,11 +200,11 @@ const Calendar: React.FC = () => {
               background: 'rgba(255, 255, 255, 0.05)',
               border: '1px solid var(--border-glass)'
             }}>
-              Today
+              {t('common.today')}
             </button>
           </div>
           <button className="premium-btn premium-btn-secondary" onClick={goToNextMonth}>
-            Next →
+            {t('common.next')} →
           </button>
         </div>
 
@@ -208,15 +212,15 @@ const Calendar: React.FC = () => {
         <div style={{ display: 'flex', gap: '24px', marginBottom: '24px', padding: '12px', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--text-muted)' }}>
             <div style={{ width: '10px', height: '10px', backgroundColor: '#10b981', borderRadius: '50%' }} />
-            Scheduled
+            {t('calendar.status.scheduled')}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--text-muted)' }}>
             <div style={{ width: '10px', height: '10px', backgroundColor: '#f59e0b', borderRadius: '50%' }} />
-            Ongoing
+            {t('calendar.status.ongoing')}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--text-muted)' }}>
             <div style={{ width: '10px', height: '10px', backgroundColor: 'rgba(255, 255, 255, 0.3)', borderRadius: '50%' }} />
-            Completed/Cancelled
+            {t('calendar.status.completed')}
           </div>
         </div>
 
@@ -230,7 +234,7 @@ const Calendar: React.FC = () => {
           borderRadius: '12px 12px 0 0',
           overflow: 'hidden'
         }}>
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+          {[t('days.sun'), t('days.mon'), t('days.tue'), t('days.wed'), t('days.thu'), t('days.fri'), t('days.sat')].map(day => (
             <div key={day} style={{
               padding: '12px',
               textAlign: 'center',
@@ -263,7 +267,7 @@ const Calendar: React.FC = () => {
 
       {/* Upcoming matches summary */}
       <div style={{ marginTop: '30px' }}>
-        <h3 style={{ marginBottom: '20px', color: '#ffffff', fontSize: '1.5rem' }}>Next Scheduled Events</h3>
+        <h3 style={{ marginBottom: '20px', color: '#ffffff', fontSize: '1.5rem' }}>{t('calendar.nextEvents')}</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '20px' }}>
           {matches
             .filter(m => new Date(m.match_date) >= new Date() && m.status === 'scheduled')
@@ -311,20 +315,20 @@ const Calendar: React.FC = () => {
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                    Ticket Price
+                    {t('common.ticketPrice') || 'Ticket Price'}
                   </div>
                   <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--accent-primary)' }}>
                     €{Number(match.ticket_price).toFixed(2)}
                   </div>
                   <div style={{ fontSize: '11px', color: '#10b981', marginTop: '4px' }}>
-                    {match.current_attendance} booked
+                    {match.current_attendance} {t('common.booked') || 'booked'}
                   </div>
                 </div>
               </div>
             ))}
           {matches.filter(m => new Date(m.match_date) >= new Date() && m.status === 'scheduled').length === 0 && (
             <div className="glass-card" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-              No upcoming matches scheduled currently.
+              {t('calendar.noEvents')}
             </div>
           )}
         </div>

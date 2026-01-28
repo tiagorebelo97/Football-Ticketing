@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { memberService } from '../services/memberService';
+import { useTranslation } from 'react-i18next';
 import '../App.css';
 
 interface Member {
@@ -112,246 +113,260 @@ const MemberDetails: React.FC = () => {
     }
   };
 
-  if (loading) return <div className="card">Loading...</div>;
-  if (error) return <div className="card" style={{ color: 'red' }}>{error}</div>;
-  if (!member) return <div className="card">Member not found</div>;
+  if (loading) return <div className="loading">Loading member data...</div>;
+  if (error) return <div className="error">{error}</div>;
+  if (!member) return <div className="glass-card" style={{ padding: '40px', textAlign: 'center' }}>Member not found</div>;
 
   return (
-    <div>
-      <div className="card" style={{ marginBottom: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2>Member Details / Detalhes do Sócio</h2>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={() => navigate(`/members/${id}/edit`)} className="btn-secondary">
-              Edit Member
-            </button>
-            <button onClick={() => navigate('/members')} className="btn-secondary">
-              Back to List
-            </button>
-          </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 className="font-premium text-gradient" style={{ margin: 0, fontSize: '2.5rem', fontWeight: 800 }}>Member Details</h1>
+          <p style={{ margin: '8px 0 0', color: 'var(--text-muted)', fontSize: '1.1rem' }}>
+            View and manage member information and quota history
+          </p>
         </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
-          <div>
-            <h3>Personal Information</h3>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>Member Number:</strong> {member.member_number}
-            </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>Name:</strong> {member.first_name} {member.last_name}
-            </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>Email:</strong> {member.email}
-            </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>Phone:</strong> {member.phone || 'N/A'}
-            </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>Date of Birth:</strong> {member.date_of_birth ? new Date(member.date_of_birth).toLocaleDateString() : 'N/A'}
-            </div>
-          </div>
-
-          <div>
-            <h3>Address</h3>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>Address:</strong> {member.address || 'N/A'}
-            </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>City:</strong> {member.city || 'N/A'}
-            </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>Postal Code:</strong> {member.postal_code || 'N/A'}
-            </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>Country:</strong> {member.country || 'N/A'}
-            </div>
-          </div>
-        </div>
-
-        <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #ddd' }}>
-          <h3>Membership Information</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
-            <div>
-              <strong>Status:</strong>
-              <span style={{
-                marginLeft: '10px',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                backgroundColor: member.status === 'active' ? '#4caf50' : '#f44336',
-                color: 'white',
-                fontSize: '12px'
-              }}>
-                {member.status}
-              </span>
-            </div>
-            <div>
-              <strong>Type:</strong>
-              <span style={{
-                marginLeft: '10px',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                backgroundColor: '#2196f3',
-                color: 'white',
-                fontSize: '12px'
-              }}>
-                {member.member_type}
-              </span>
-            </div>
-            <div>
-              <strong>Member Since:</strong> {new Date(member.member_since).toLocaleDateString()}
-            </div>
-          </div>
-          <div style={{ marginTop: '15px' }}>
-            <strong>Quota:</strong> €{parseFloat(member.quota_amount.toString()).toFixed(2)} / {member.quota_frequency}
-          </div>
-          {member.notes && (
-            <div style={{ marginTop: '15px' }}>
-              <strong>Notes:</strong>
-              <p style={{ marginTop: '5px', padding: '10px', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
-                {member.notes}
-              </p>
-            </div>
-          )}
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button onClick={() => navigate(`/members/${id}/edit`)} className="premium-btn premium-btn-secondary">
+            Edit Member
+          </button>
+          <button onClick={() => navigate('/members')} className="premium-btn premium-btn-secondary">
+            Back to List
+          </button>
         </div>
       </div>
 
-      <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3>Quota Payment History / Histórico de Quotas</h3>
-          <button onClick={() => setShowQuotaForm(!showQuotaForm)} className="btn">
-            {showQuotaForm ? 'Cancel' : 'Add Payment'}
-          </button>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+        gap: '32px'
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+          <div className="glass-card" style={{ padding: 'var(--content-padding)' }}>
+            <h3 className="font-premium" style={{ fontSize: '1.5rem', marginBottom: '24px', color: 'var(--accent-secondary)' }}>Personal Information</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
+              <div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Member Number</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--accent-secondary)' }}>{member.member_number}</div>
+              </div>
+              <div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Full Name</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: '600', color: '#ffffff' }}>{member.first_name} {member.last_name}</div>
+              </div>
+              <div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Email Address</div>
+                <div style={{ fontSize: '1rem', color: '#ffffff' }}>{member.email}</div>
+              </div>
+              <div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Phone Number</div>
+                <div style={{ fontSize: '1rem', color: '#ffffff' }}>{member.phone || 'N/A'}</div>
+              </div>
+              <div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Date of Birth</div>
+                <div style={{ fontSize: '1rem', color: '#ffffff' }}>{member.date_of_birth ? new Date(member.date_of_birth).toLocaleDateString() : 'N/A'}</div>
+              </div>
+            </div>
+
+            <div style={{ marginTop: '40px', paddingTop: '32px', borderTop: '1px solid var(--border-glass)' }}>
+              <h3 className="font-premium" style={{ fontSize: '1.5rem', marginBottom: '24px', color: 'var(--accent-secondary)' }}>Address Information</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
+                <div style={{ gridColumn: 'span 2' }}>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Street Address</div>
+                  <div style={{ fontSize: '1rem', color: '#ffffff' }}>{member.address || 'N/A'}</div>
+                </div>
+                <div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>City</div>
+                  <div style={{ fontSize: '1rem', color: '#ffffff' }}>{member.city || 'N/A'}</div>
+                </div>
+                <div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Postal Code</div>
+                  <div style={{ fontSize: '1rem', color: '#ffffff' }}>{member.postal_code || 'N/A'}</div>
+                </div>
+                <div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Country</div>
+                  <div style={{ fontSize: '1rem', color: '#ffffff' }}>{member.country || 'N/A'}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="glass-card" style={{ padding: 'var(--content-padding)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+              <h3 className="font-premium" style={{ fontSize: '1.5rem', margin: 0, color: 'var(--accent-secondary)' }}>Quota Payment History</h3>
+              <button onClick={() => setShowQuotaForm(!showQuotaForm)} className="premium-btn premium-btn-primary" style={{ padding: '8px 16px', fontSize: '14px' }}>
+                {showQuotaForm ? 'Cancel' : '+ Add Payment'}
+              </button>
+            </div>
+
+            {showQuotaForm && (
+              <div style={{ marginBottom: '32px', padding: '24px', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '16px', border: '1px solid var(--border-glass)' }}>
+                <form onSubmit={handleQuotaSubmit}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+                    <div className="form-group">
+                      <label>Amount (€)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={quotaFormData.amount}
+                        onChange={(e) => setQuotaFormData({ ...quotaFormData, amount: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Payment Date</label>
+                      <input
+                        type="date"
+                        value={quotaFormData.payment_date}
+                        onChange={(e) => setQuotaFormData({ ...quotaFormData, payment_date: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Period Start</label>
+                      <input
+                        type="date"
+                        value={quotaFormData.period_start}
+                        onChange={(e) => setQuotaFormData({ ...quotaFormData, period_start: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Period End</label>
+                      <input
+                        type="date"
+                        value={quotaFormData.period_end}
+                        onChange={(e) => setQuotaFormData({ ...quotaFormData, period_end: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Payment Method</label>
+                      <select
+                        value={quotaFormData.payment_method}
+                        onChange={(e) => setQuotaFormData({ ...quotaFormData, payment_method: e.target.value })}
+                      >
+                        <option value="cash">Cash</option>
+                        <option value="card">Card</option>
+                        <option value="transfer">Bank Transfer</option>
+                        <option value="stripe">Stripe</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label>Reference</label>
+                      <input
+                        type="text"
+                        value={quotaFormData.reference}
+                        onChange={(e) => setQuotaFormData({ ...quotaFormData, reference: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group" style={{ marginTop: '16px' }}>
+                    <label>Notes</label>
+                    <textarea
+                      value={quotaFormData.notes}
+                      onChange={(e) => setQuotaFormData({ ...quotaFormData, notes: e.target.value })}
+                      rows={3}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
+                    <button type="submit" className="premium-btn premium-btn-primary">Save Payment</button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            <div className="responsive-table-wrapper">
+              <table className="table" style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 4px', minWidth: '600px' }}>
+                <thead>
+                  <tr>
+                    <th style={{ padding: '12px 32px', border: 'none' }}>Date</th>
+                    <th style={{ padding: '12px 32px', border: 'none' }}>Period</th>
+                    <th style={{ padding: '12px 32px', border: 'none' }}>Amount</th>
+                    <th style={{ padding: '12px 32px', border: 'none' }}>Method</th>
+                    <th style={{ padding: '12px 32px', border: 'none' }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {quotas.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                        No quota payments recorded yet.
+                      </td>
+                    </tr>
+                  ) : (
+                    quotas.map((quota) => (
+                      <tr key={quota.id} className="table-row-hover">
+                        <td style={{ padding: '16px 32px', border: 'none', color: '#ffffff' }}>{new Date(quota.payment_date).toLocaleDateString()}</td>
+                        <td style={{ padding: '16px 32px', border: 'none', color: 'var(--text-muted)', fontSize: '13px' }}>
+                          {new Date(quota.period_start).toLocaleDateString()} - {new Date(quota.period_end).toLocaleDateString()}
+                        </td>
+                        <td style={{ padding: '16px 32px', border: 'none', fontWeight: '700', color: 'var(--accent-secondary)' }}>€{parseFloat(quota.amount.toString()).toFixed(2)}</td>
+                        <td style={{ padding: '16px 32px', border: 'none', color: '#ffffff', textTransform: 'capitalize' }}>{quota.payment_method}</td>
+                        <td style={{ padding: '16px 32px', border: 'none' }}>
+                          <span className={`badge ${quota.status === 'paid' ? 'badge-success' : 'badge-warning'}`}>
+                            {quota.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
-        {showQuotaForm && (
-          <form onSubmit={handleQuotaSubmit} style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+          <div className="glass-card" style={{ padding: 'var(--content-padding)' }}>
+            <h3 className="font-premium" style={{ fontSize: '1.5rem', marginBottom: '24px', color: 'var(--accent-secondary)' }}>Membership</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Amount (€) *</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={quotaFormData.amount}
-                  onChange={(e) => setQuotaFormData({ ...quotaFormData, amount: e.target.value })}
-                  required
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-                />
+                <div style={{ color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Current Status</div>
+                <span className={`badge ${member.status === 'active' ? 'badge-success' : 'badge-warning'}`} style={{ fontSize: '14px', padding: '6px 16px' }}>
+                  {member.status}
+                </span>
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Payment Date *</label>
-                <input
-                  type="date"
-                  value={quotaFormData.payment_date}
-                  onChange={(e) => setQuotaFormData({ ...quotaFormData, payment_date: e.target.value })}
-                  required
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-                />
+                <div style={{ color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Member Type</div>
+                <div style={{ display: 'flex' }}>
+                  <span className="badge" style={{
+                    background: 'rgba(112, 0, 255, 0.1)',
+                    color: '#a855f7',
+                    border: '1px solid rgba(112, 0, 255, 0.2)',
+                    fontSize: '14px',
+                    padding: '6px 16px'
+                  }}>
+                    {member.member_type}
+                  </span>
+                </div>
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Period Start *</label>
-                <input
-                  type="date"
-                  value={quotaFormData.period_start}
-                  onChange={(e) => setQuotaFormData({ ...quotaFormData, period_start: e.target.value })}
-                  required
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Period End *</label>
-                <input
-                  type="date"
-                  value={quotaFormData.period_end}
-                  onChange={(e) => setQuotaFormData({ ...quotaFormData, period_end: e.target.value })}
-                  required
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Payment Method</label>
-                <select
-                  value={quotaFormData.payment_method}
-                  onChange={(e) => setQuotaFormData({ ...quotaFormData, payment_method: e.target.value })}
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-                >
-                  <option value="cash">Cash</option>
-                  <option value="card">Card</option>
-                  <option value="transfer">Bank Transfer</option>
-                  <option value="stripe">Stripe</option>
-                </select>
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Reference</label>
-                <input
-                  type="text"
-                  value={quotaFormData.reference}
-                  onChange={(e) => setQuotaFormData({ ...quotaFormData, reference: e.target.value })}
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-                />
+                <div style={{ color: 'var(--text-muted)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>Subscription Details</div>
+                <div style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Amount:</span>
+                    <span style={{ fontWeight: '700', color: '#ffffff' }}>€{parseFloat(member.quota_amount.toString()).toFixed(2)}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Frequency:</span>
+                    <span style={{ color: '#ffffff', textTransform: 'capitalize' }}>{member.quota_frequency}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Member Since:</span>
+                    <span style={{ color: '#ffffff' }}>{new Date(member.member_since).toLocaleDateString()}</span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div style={{ marginTop: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Notes</label>
-              <textarea
-                value={quotaFormData.notes}
-                onChange={(e) => setQuotaFormData({ ...quotaFormData, notes: e.target.value })}
-                rows={2}
-                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-              />
-            </div>
-            <div style={{ marginTop: '15px' }}>
-              <button type="submit" className="btn">Save Payment</button>
-            </div>
-          </form>
-        )}
+          </div>
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#f5f5f5', textAlign: 'left' }}>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Payment Date</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Period</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Amount</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Method</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Status</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Reference</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Recorded By</th>
-              </tr>
-            </thead>
-            <tbody>
-              {quotas.length === 0 ? (
-                <tr>
-                  <td colSpan={7} style={{ padding: '20px', textAlign: 'center' }}>
-                    No quota payments recorded yet.
-                  </td>
-                </tr>
-              ) : (
-                quotas.map((quota) => (
-                  <tr key={quota.id} style={{ borderBottom: '1px solid #eee' }}>
-                    <td style={{ padding: '10px' }}>{new Date(quota.payment_date).toLocaleDateString()}</td>
-                    <td style={{ padding: '10px' }}>
-                      {new Date(quota.period_start).toLocaleDateString()} - {new Date(quota.period_end).toLocaleDateString()}
-                    </td>
-                    <td style={{ padding: '10px' }}>€{parseFloat(quota.amount.toString()).toFixed(2)}</td>
-                    <td style={{ padding: '10px' }}>{quota.payment_method}</td>
-                    <td style={{ padding: '10px' }}>
-                      <span style={{
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        backgroundColor: quota.status === 'paid' ? '#4caf50' : '#f44336',
-                        color: 'white',
-                        fontSize: '12px'
-                      }}>
-                        {quota.status}
-                      </span>
-                    </td>
-                    <td style={{ padding: '10px' }}>{quota.reference || '-'}</td>
-                    <td style={{ padding: '10px' }}>{quota.recorded_by || '-'}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+          <div className="glass-card" style={{ padding: 'var(--content-padding)' }}>
+            <h3 className="font-premium" style={{ fontSize: '1.5rem', marginBottom: '16px', color: 'var(--accent-secondary)' }}>Internal Notes</h3>
+            <p style={{ color: member.notes ? '#ffffff' : 'var(--text-muted)', fontSize: '14px', lineHeight: '1.6', fontStyle: member.notes ? 'normal' : 'italic' }}>
+              {member.notes || 'No internal notes found for this member.'}
+            </p>
+          </div>
         </div>
       </div>
     </div>

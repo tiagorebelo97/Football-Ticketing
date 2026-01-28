@@ -7,21 +7,21 @@
 /* Venue Wizard Styles */
 /* Venue Wizard Styles */
 .venue-wizard {
-  background: rgba(15, 23, 42, 0.8);
+  background: var(--bg-glass);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-glass);
   border-radius: 16px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  color: #f8fafc;
+  box-shadow: var(--shadow-premium);
+  color: var(--text-main);
   overflow: hidden;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 .glassmorphism {
-  background: rgba(30, 41, 59, 0.5);
+  background: var(--bg-glass-light);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-glass);
   border-radius: 12px;
 }
 
@@ -48,8 +48,8 @@
 
 .wizard-header {
   padding: 1.5rem 2rem;
-  background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-glass-light);
+  border-bottom: 1px solid var(--border-glass);
 }
 
 .header-main {
@@ -63,10 +63,7 @@
   margin: 0;
   font-size: 1.75rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-main);
 }
 
 .header-badge {
@@ -104,11 +101,11 @@
 }
 
 .stepper-item:hover:not(.disabled) {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-glass-light);
 }
 
 .stepper-item.active {
-  background: rgba(0, 212, 255, 0.08);
+  background: rgba(0, 212, 255, 0.1);
   border-color: rgba(0, 212, 255, 0.3);
   box-shadow: 0 4px 20px rgba(0, 212, 255, 0.1);
 }
@@ -144,11 +141,11 @@
 
 .stepper-icon {
   font-size: 1.25rem;
-  color: white;
+  color: var(--text-main);
 }
 
 .stepper-item.active .stepper-icon {
-  color: #0a0e27;
+  color: inherit;
 }
 
 .stepper-content {
@@ -159,18 +156,18 @@
 .stepper-label {
   font-weight: 700;
   font-size: 0.95rem;
-  color: #94a3b8;
+  color: var(--text-muted);
   transition: color 0.3s ease;
 }
 
 .stepper-item.active .stepper-label,
 .stepper-item.completed .stepper-label {
-  color: white;
+  color: var(--text-main);
 }
 
 .stepper-desc {
   font-size: 0.7rem;
-  color: #64748b;
+  color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -209,7 +206,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 2rem;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--bg-glass-light);
   border-top: 1px solid var(--border-glass);
 }
 
@@ -332,7 +329,7 @@
   border-radius: 4px;
   font-size: 1rem;
   transition: border-color 0.3s ease;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-glass-light);
   color: var(--text-main);
 }
 
@@ -412,31 +409,52 @@
 
 .checkbox-item {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 0.75rem;
+  /* gap: 1.25rem; - Removed due to browser incompatibility/overlap issues */
   padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-glass-light);
+  border: 1px solid var(--border-glass);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-height: 48px;
 }
 
 .checkbox-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--bg-glass);
+  border-color: var(--accent-primary, #00d4ff);
 }
 
 .checkbox-item input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: #00d4ff;
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent-primary, #00d4ff);
+  margin-right: 8px;
+  /* Reduced to 8px as requested */
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-left: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
 }
 
 .checkbox-item span {
-  font-size: 0.9rem;
-  color: #e2e8f0;
+  font-size: 0.75rem;
+  /* Reduced to 12px to match sport options */
+  color: var(--text-main);
+  font-weight: 500;
+  line-height: 1;
+  /* Reset for better vertical centering */
+  padding-top: 2px;
+  /* Optical correction for uppercase font */
+
 }
+
+/* Micro-adjustment for optical center */
+
 
 /* Media Gallery */
 .media-section-premium {
@@ -848,10 +866,10 @@
 
 /* Floor Cards */
 .floor-card {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-glass-light);
   border-radius: 12px;
   margin-bottom: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-glass);
   overflow: hidden;
 }
 
@@ -860,7 +878,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-glass-light);
   cursor: pointer;
 }
 
@@ -900,10 +918,10 @@
 }
 
 .sector-card {
-  background: rgba(30, 41, 59, 0.7);
+  background: var(--bg-glass-light);
   border-radius: 10px;
   padding: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-glass);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -919,7 +937,7 @@
   background: transparent;
   border: none;
   border-bottom: 1px solid transparent;
-  color: white;
+  color: var(--text-main);
   font-weight: 700;
   width: 100%;
 }
@@ -1077,6 +1095,8 @@
 }
 
 .modal-content {
+  background: #1e293b;
+  /* Keep dark for modal even in light mode for contrast, or use var(--bg-deep) */
   background: var(--bg-glass);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -1473,12 +1493,12 @@
 .review-header-premium h2 {
   margin: 0;
   font-size: 1.5rem;
-  color: white;
+  color: var(--text-main);
 }
 
 .review-header-premium p {
   margin: 0.5rem 0 0;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
 
@@ -1490,8 +1510,8 @@
 }
 
 .summary-card-premium {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-glass-light);
+  border: 1px solid var(--border-glass);
   border-radius: 16px;
   padding: 2rem;
   position: relative;
@@ -1518,7 +1538,7 @@
 }
 
 .summary-location {
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 0.9rem;
   margin-bottom: 2rem;
 }
@@ -1527,7 +1547,8 @@
   display: flex;
   gap: 1rem;
   margin-bottom: 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 2rem;
+  border-top: 1px solid var(--border-glass);
   padding-top: 2rem;
 }
 
@@ -1544,7 +1565,7 @@
 .sum-lab {
   font-size: 0.7rem;
   text-transform: uppercase;
-  color: #64748b;
+  color: var(--text-dim);
   letter-spacing: 1px;
 }
 
@@ -1563,11 +1584,11 @@
 }
 
 .sum-list-item span {
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .sum-list-item strong {
-  color: white;
+  color: var(--text-main);
 }
 
 /* Inspection View */

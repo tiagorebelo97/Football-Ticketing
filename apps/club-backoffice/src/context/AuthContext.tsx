@@ -25,6 +25,7 @@ interface AuthContextType {
     token: string | null;
     login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
     logout: () => void;
+    updateClub: (clubData: Club) => void;
     isAuthenticated: boolean;
 }
 
@@ -96,6 +97,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             try {
                 const clubData = JSON.parse(storedClub);
                 // Dynamically update CSS variables for branding
+                document.documentElement.style.setProperty('--accent-primary', clubData.primaryColor);
+                document.documentElement.style.setProperty('--accent-secondary', clubData.secondaryColor);
+                // Keep legacy variables for safety
                 document.documentElement.style.setProperty('--color-primary', clubData.primaryColor);
                 document.documentElement.style.setProperty('--color-secondary', clubData.secondaryColor);
                 return clubData;
@@ -192,6 +196,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
 
             // Dynamically update CSS variables for branding
+            document.documentElement.style.setProperty('--accent-primary', clubData.primaryColor);
+            document.documentElement.style.setProperty('--accent-secondary', clubData.secondaryColor);
+            // Keep legacy variables for safety
             document.documentElement.style.setProperty('--color-primary', clubData.primaryColor);
             document.documentElement.style.setProperty('--color-secondary', clubData.secondaryColor);
 
@@ -211,12 +218,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('club_expires_at');
         delete axios.defaults.headers.common['Authorization'];
         // Reset colors
+        document.documentElement.style.removeProperty('--accent-primary');
+        document.documentElement.style.removeProperty('--accent-secondary');
         document.documentElement.style.removeProperty('--color-primary');
         document.documentElement.style.removeProperty('--color-secondary');
     };
 
+    const updateClub = (clubData: Club) => {
+        setClub(clubData);
+        localStorage.setItem('club_data', JSON.stringify(clubData));
+
+        // Dynamically update CSS variables for branding
+        document.documentElement.style.setProperty('--accent-primary', clubData.primaryColor);
+        document.documentElement.style.setProperty('--accent-secondary', clubData.secondaryColor);
+        // Keep legacy variables for safety
+        document.documentElement.style.setProperty('--color-primary', clubData.primaryColor);
+        document.documentElement.style.setProperty('--color-secondary', clubData.secondaryColor);
+    };
+
     return (
-        <AuthContext.Provider value={{ user, club, token, login, logout, isAuthenticated: !!token }}>
+        <AuthContext.Provider value={{ user, club, token, login, logout, updateClub, isAuthenticated: !!token }}>
             {children}
         </AuthContext.Provider>
     );

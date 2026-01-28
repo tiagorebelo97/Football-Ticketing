@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Row } from '../../services/venueService';
+import { useTranslation } from 'react-i18next';
 
 interface RowConfigTableProps {
   rows: Row[];
@@ -18,6 +19,7 @@ const RowConfigTable: React.FC<RowConfigTableProps> = ({
   onRemoveRow,
   onUpdateRow
 }) => {
+  const { t } = useTranslation();
   const [newRowSeats, setNewRowSeats] = useState<number>(10);
   const [editingRowId, setEditingRowId] = useState<string | null>(null);
   const [editingSeats, setEditingSeats] = useState<number>(0);
@@ -54,8 +56,8 @@ const RowConfigTable: React.FC<RowConfigTableProps> = ({
     <div className="row-config-premium">
       <div className="premium-config-header">
         <div className="header-labels">
-          <label>Configuração de Malha</label>
-          <h3>Gestão de Filas</h3>
+          <label>{t('venueWizard.meshConfiguration')}</label>
+          <h3>{t('venueWizard.rowManagement')}</h3>
         </div>
         <div className={`seats-counter ${remainingSeats === 0 ? 'fully-configured' : ''}`}>
           <div className="counter-main">
@@ -63,7 +65,7 @@ const RowConfigTable: React.FC<RowConfigTableProps> = ({
             <span className="separator">/</span>
             <span className="total">{totalSeats}</span>
           </div>
-          <div className="counter-label">Lugares Alocados</div>
+          <div className="counter-label">{t('venueWizard.allocatedSeats')}</div>
         </div>
       </div>
 
@@ -75,7 +77,7 @@ const RowConfigTable: React.FC<RowConfigTableProps> = ({
             <thead>
               <tr>
                 <th>CÓDIGO FILA</th>
-                <th>CAPACIDADE</th>
+                <th>{t('venueWizard.capacity').toUpperCase()}</th>
                 <th className="text-right">AÇÕES</th>
               </tr>
             </thead>
@@ -106,19 +108,19 @@ const RowConfigTable: React.FC<RowConfigTableProps> = ({
                         onChange={(e) => setEditingSeats(parseInt(e.target.value) || 0)}
                       />
                     ) : (
-                      <span className="seats-val">{row.seatsCount} <small>lugares</small></span>
+                      <span className="seats-val">{row.seatsCount} <small>{t('venueWizard.seats').toLowerCase()}</small></span>
                     )}
                   </td>
                   <td className="col-actions text-right">
                     {editingRowId === row.id ? (
                       <div className="action-btns-premium">
-                        <button className="btn-icon btn-save" onClick={handleSaveEdit} title="Guardar">✓</button>
-                        <button className="btn-icon btn-cancel" onClick={handleCancelEdit} title="Cancelar">✕</button>
+                        <button className="btn-icon btn-save" onClick={handleSaveEdit} title={t('venueWizard.save')}>✓</button>
+                        <button className="btn-icon btn-cancel" onClick={handleCancelEdit} title={t('venueWizard.cancel')}>✕</button>
                       </div>
                     ) : (
                       <div className="action-btns-premium">
-                        <button className="btn-underline" onClick={() => handleStartEdit(row)}>EDITAR</button>
-                        <button className="btn-underline btn-danger" onClick={() => onRemoveRow(row.id!)}>REMOVER</button>
+                        <button className="btn-underline" onClick={() => handleStartEdit(row)}>{t('venueWizard.edit')}</button>
+                        <button className="btn-underline btn-danger" onClick={() => onRemoveRow(row.id!)}>{t('venueWizard.remove')}</button>
                       </div>
                     )}
                   </td>
@@ -133,7 +135,7 @@ const RowConfigTable: React.FC<RowConfigTableProps> = ({
         <div className="add-row-architect">
           <div className="add-controls">
             <div className="input-group-premium">
-              <label>Novos Assentos</label>
+              <label>{t('venueWizard.newSeats')}</label>
               <input
                 type="number"
                 min="1"
@@ -148,13 +150,13 @@ const RowConfigTable: React.FC<RowConfigTableProps> = ({
               onClick={handleAddRow}
               disabled={newRowSeats <= 0 || newRowSeats > remainingSeats}
             >
-              <span className="plus-icon">+</span> ADICIONAR FILA À MALHA
+              <span className="plus-icon">+</span> {t('venueWizard.addRowToMesh')}
             </button>
           </div>
           {newRowSeats > remainingSeats && (
             <div className="architect-alert warning">
               <span className="alert-icon">⚠️</span>
-              Capacidade excedida. Disponível: {remainingSeats} lugares.
+              {t('venueWizard.capacityExceeded', { count: remainingSeats })}
             </div>
           )}
         </div>
@@ -162,7 +164,7 @@ const RowConfigTable: React.FC<RowConfigTableProps> = ({
         rows.length > 0 && (
           <div className="architect-alert success">
             <span className="alert-icon">✓</span>
-            Arquitetura de ocupação validada com sucesso!
+            {t('venueWizard.occupationValidated')}
           </div>
         )
       )}
@@ -170,7 +172,7 @@ const RowConfigTable: React.FC<RowConfigTableProps> = ({
       {rows.length === 0 && (
         <div className="architect-empty-state">
           <div className="empty-icon">📐</div>
-          <p>Inicie o desenho do setor adicionando a primeira fila de assentos.</p>
+          <p>{t('venueWizard.startDrawingInstruction')}</p>
         </div>
       )}
     </div>

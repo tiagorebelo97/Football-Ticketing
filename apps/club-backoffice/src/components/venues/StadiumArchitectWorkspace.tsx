@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import './StadiumArchitect.css';
 import { Save } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import BlueprintCanvas from './BlueprintCanvas';
 import StadiumConfigSidebar from './StadiumConfigSidebar';
 import StatsPanel from './StatsPanel';
@@ -34,6 +35,7 @@ const StadiumArchitectWorkspace: React.FC<StadiumArchitectWorkspaceProps> = ({
     onEditSector,
     onNext
 }) => {
+    const { t } = useTranslation();
     const [selectedStandId, setSelectedStandId] = useState<string | null>(null);
     const [canvasZoom, setCanvasZoom] = useState(1);
     const [canvasPan, setCanvasPan] = useState({ x: 0, y: 0 });
@@ -175,7 +177,7 @@ const StadiumArchitectWorkspace: React.FC<StadiumArchitectWorkspaceProps> = ({
                             disabled={isSaving}
                         >
                             <Save size={18} />
-                            {isSaving ? 'A Guardar...' : 'Guardar'}
+                            {isSaving ? t('venueWizard.saving') : t('venueWizard.save')}
                         </button>
                     </div>
                 </div>

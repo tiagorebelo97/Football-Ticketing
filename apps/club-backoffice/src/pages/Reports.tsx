@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 
 interface SalesReport {
@@ -25,7 +26,7 @@ const Reports: React.FC = () => {
   const [attendanceData, setAttendanceData] = useState<AttendanceReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
+  const { t } = useTranslation();
   const { user } = useAuth();
 
   useEffect(() => {
@@ -46,89 +47,123 @@ const Reports: React.FC = () => {
       setAttendanceData(attendanceRes.data);
       setLoading(false);
     } catch (err) {
-      setError('Failed to load reports');
+      setError(t('reports.loadError'));
       setLoading(false);
     }
   };
 
-  if (loading) return <div className="loading">Loading reports...</div>;
+  if (loading) return <div className="loading">{t('common.loading')}...</div>;
   if (error) return <div className="error">{error}</div>;
 
   const totalRevenue = salesData.reduce((sum, item) => sum + parseFloat(item.total_revenue), 0);
   const totalTickets = salesData.reduce((sum, item) => sum + parseInt(item.tickets_sold, 10), 0);
 
   return (
-    <div>
-      <h2 style={{ marginBottom: '20px' }}>Reports & Analytics</h2>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', paddingBottom: '40px' }}>
+      <div style={{ marginBottom: '8px' }}>
+        <h1 className="font-premium text-gradient" style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '8px' }}>
+          {t('reports.title')}
+        </h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>
+          {t('reports.subtitle')}
+        </p>
+      </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', marginBottom: '30px' }}>
-        <div className="card">
-          <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'var(--color-primary)' }}>
-            ${totalRevenue.toFixed(2)}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+        <div className="glass-card" style={{ padding: '24px', textAlign: 'center' }}>
+          <div className="text-gradient" style={{ fontSize: '40px', fontWeight: 800, marginBottom: '8px' }}>
+            €{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
-          <div style={{ color: 'var(--color-text-light)' }}>Total Revenue</div>
+          <div style={{ color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', fontSize: '13px' }}>
+            {t('reports.types.revenue')}
+          </div>
         </div>
-        <div className="card">
-          <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{totalTickets}</div>
-          <div style={{ color: 'var(--color-text-light)' }}>Tickets Sold</div>
+        <div className="glass-card" style={{ padding: '24px', textAlign: 'center' }}>
+          <div style={{ fontSize: '40px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '8px' }}>
+            {totalTickets.toLocaleString()}
+          </div>
+          <div style={{ color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', fontSize: '13px' }}>
+            {t('reports.types.sales')}
+          </div>
         </div>
       </div>
 
-      <div className="card">
-        <h3 style={{ marginBottom: '20px' }}>Sales Report</h3>
+      <div className="glass-card" style={{ padding: '24px' }}>
+        <h3 className="font-premium" style={{ marginBottom: '24px', fontSize: '20px', fontWeight: 700 }}>{t('reports.types.sales')}</h3>
         {salesData.length === 0 ? (
-          <p>No sales data available</p>
+          <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '20px' }}>{t('common.noData')}</p>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Match</th>
-                <th>Tickets Sold</th>
-                <th>Revenue</th>
-              </tr>
-            </thead>
-            <tbody>
-              {salesData.map((item, idx) => (
-                <tr key={idx}>
-                  <td>{new Date(item.date).toLocaleDateString()}</td>
-                  <td>{item.home_team} vs {item.away_team}</td>
-                  <td>{item.tickets_sold}</td>
-                  <td>${parseFloat(item.total_revenue).toFixed(2)}</td>
+          <div className="responsive-table-wrapper">
+            <table className="member-table" style={{ minWidth: '800px' }}>
+              <thead>
+                <tr>
+                  <th>{t('common.date')}</th>
+                  <th>{t('matches.table.opponent')}</th>
+                  <th style={{ textAlign: 'right' }}>{t('reports.types.sales')}</th>
+                  <th style={{ textAlign: 'right' }}>{t('matches.table.ticketPrice')}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {salesData.map((item, idx) => (
+                  <tr key={idx}>
+                    <td>{new Date(item.date).toLocaleDateString()}</td>
+                    <td>
+                      <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>{item.home_team} vs {item.away_team}</div>
+                    </td>
+                    <td style={{ textAlign: 'right' }}>{item.tickets_sold}</td>
+                    <td style={{ textAlign: 'right', fontWeight: 700, color: 'var(--accent-primary)' }}>
+                      €{parseFloat(item.total_revenue).toFixed(2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
-      <div className="card">
-        <h3 style={{ marginBottom: '20px' }}>Attendance Report</h3>
+      <div className="glass-card" style={{ padding: '24px' }}>
+        <h3 className="font-premium" style={{ marginBottom: '24px', fontSize: '20px', fontWeight: 700 }}>{t('reports.types.attendance')}</h3>
         {attendanceData.length === 0 ? (
-          <p>No attendance data available</p>
+          <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '20px' }}>{t('common.noData')}</p>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Match</th>
-                <th>Date</th>
-                <th>Attendance</th>
-                <th>Capacity</th>
-                <th>Fill Rate</th>
-              </tr>
-            </thead>
-            <tbody>
-              {attendanceData.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.home_team} vs {item.away_team}</td>
-                  <td>{new Date(item.match_date).toLocaleDateString()}</td>
-                  <td>{item.current_attendance}</td>
-                  <td>{item.total_capacity}</td>
-                  <td>{parseFloat(item.attendance_percentage).toFixed(1)}%</td>
+          <div className="responsive-table-wrapper">
+            <table className="member-table" style={{ minWidth: '900px' }}>
+              <thead>
+                <tr>
+                  <th>{t('matches.table.opponent')}</th>
+                  <th>{t('common.date')}</th>
+                  <th style={{ textAlign: 'right' }}>{t('matches.table.attendance')}</th>
+                  <th style={{ textAlign: 'right' }}>{t('matches.form.attendance')}</th>
+                  <th style={{ textAlign: 'right' }}>{t('reports.fillRate')}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {attendanceData.map((item) => (
+                  <tr key={item.id}>
+                    <td>
+                      <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>{item.home_team} vs {item.away_team}</div>
+                    </td>
+                    <td>{new Date(item.match_date).toLocaleDateString()}</td>
+                    <td style={{ textAlign: 'right' }}>{item.current_attendance.toLocaleString()}</td>
+                    <td style={{ textAlign: 'right' }}>{item.total_capacity.toLocaleString()}</td>
+                    <td style={{ textAlign: 'right' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+                        <div style={{ width: '60px', height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
+                          <div style={{
+                            width: `${item.attendance_percentage}%`,
+                            height: '100%',
+                            background: parseFloat(item.attendance_percentage) > 80 ? '#22c55e' : (parseFloat(item.attendance_percentage) > 50 ? 'var(--accent-secondary)' : '#ef4444')
+                          }} />
+                        </div>
+                        <span style={{ fontWeight: 700, minWidth: '45px' }}>{parseFloat(item.attendance_percentage).toFixed(1)}%</span>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

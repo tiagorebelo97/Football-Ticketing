@@ -1,5 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Stage, Layer, Rect, Circle, Line, Text, Group } from 'react-konva';
+import { useTheme } from '../../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 interface BlueprintCanvasProps {
     stands: any[];
@@ -13,12 +15,6 @@ interface BlueprintCanvasProps {
     onEditSector: (standId: string, floorId: string, sectorId: string) => void;
 }
 
-const positionLabels: Record<string, string> = {
-    'north': 'Norte',
-    'south': 'Sul',
-    'east': 'Este',
-    'west': 'Oeste'
-};
 
 const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
     stands,
@@ -29,6 +25,8 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
     pan,
     onEditSector
 }) => {
+    const { t } = useTranslation();
+    const { theme } = useTheme();
     const containerRef = useRef<HTMLDivElement>(null);
     const [dimensions, setDimensions] = useState({
         width: typeof window !== 'undefined' ? window.innerWidth : 1920,
@@ -102,11 +100,12 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
     const renderGrid = () => {
         const gridLines = [];
         const gridSize = 50;
+        const strokeColor = theme === 'light' ? 'rgba(2, 132, 199, 0.08)' : 'rgba(0, 212, 255, 0.08)';
         for (let x = 0; x < width; x += gridSize) {
-            gridLines.push(<Line key={`v-${x}`} points={[x, 0, x, height]} stroke="rgba(0, 212, 255, 0.08)" strokeWidth={1} />);
+            gridLines.push(<Line key={`v-${x}`} points={[x, 0, x, height]} stroke={strokeColor} strokeWidth={1} />);
         }
         for (let y = 0; y < height; y += gridSize) {
-            gridLines.push(<Line key={`h-${y}`} points={[0, y, width, y]} stroke="rgba(0, 212, 255, 0.08)" strokeWidth={1} />);
+            gridLines.push(<Line key={`h-${y}`} points={[0, y, width, y]} stroke={strokeColor} strokeWidth={1} />);
         }
         return gridLines;
     };
@@ -131,6 +130,7 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
             <Group opacity={0.6}>
                 {sector.rows.map((row: any, rIdx: number) => {
                     const depthCoord = (rIdx + 1) * rowGap;
+                    const seatColor = theme === 'light' ? '#0284c7' : '#00d4ff';
 
                     if (seatGap < 1.5) {
                         const points = isHorizontalStand
@@ -141,7 +141,7 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
                             <Line
                                 key={`row-line-${rIdx}`}
                                 points={points}
-                                stroke="#00d4ff"
+                                stroke={seatColor}
                                 strokeWidth={dotSize}
                                 opacity={0.5}
                             />
@@ -160,7 +160,7 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
                                 y={y - dotSize / 2}
                                 width={dotSize}
                                 height={dotSize}
-                                fill="#00d4ff"
+                                fill={seatColor}
                                 listening={false}
                             />
                         );
@@ -204,6 +204,10 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
     };
 
     const renderGhostZones = () => {
+        const ghostFillHover = theme === 'light' ? 'rgba(2, 132, 199, 0.15)' : 'rgba(0, 212, 255, 0.15)';
+        const ghostFillDefault = theme === 'light' ? 'rgba(2, 132, 199, 0.05)' : 'rgba(0, 212, 255, 0.05)';
+        const ghostStroke = theme === 'light' ? '#0284c7' : '#00d4ff';
+
         return ghostZones.map(zone => {
             if (getStandByPosition(zone.id)) return null;
             const isHovered = hoveredZone === zone.id;
@@ -214,8 +218,8 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
                         y={zone.y}
                         width={zone.width}
                         height={zone.height}
-                        fill={isHovered ? 'rgba(0, 212, 255, 0.15)' : 'rgba(0, 212, 255, 0.05)'}
-                        stroke="#00d4ff"
+                        fill={isHovered ? ghostFillHover : ghostFillDefault}
+                        stroke={ghostStroke}
                         strokeWidth={3}
                         dash={[15, 8]}
                         cornerRadius={12}
@@ -232,11 +236,11 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
                         y={zone.y}
                         width={zone.width}
                         height={zone.height}
-                        text={`+ ${positionLabels[zone.id].toUpperCase()}`}
+                        text={`+ ${t(`venueWizard.${zone.id}`).toUpperCase()}`}
                         fontSize={14}
                         fontFamily="Inter"
                         fontStyle="bold"
-                        fill="#00d4ff"
+                        fill={ghostStroke}
                         opacity={isHovered ? 1 : 0.7}
                         align="center"
                         verticalAlign="middle"
@@ -266,7 +270,8 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
 
             const isSelected = selectedStandId === stand.id;
             const isStandHovered = hoveredStandId === stand.id;
-            const standColor = stand.color || '#00d4ff';
+            const standColor = stand.color || (theme === 'light' ? '#0284c7' : '#00d4ff');
+            const strokeHover = theme === 'light' ? '#0f172a' : '#ffffff';
 
             return (
                 <Group key={stand.id} onMouseEnter={() => setHoveredStandId(stand.id)} onMouseLeave={() => setHoveredStandId(null)}>
@@ -277,7 +282,7 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
                         height={zone.height}
                         fill={standColor}
                         opacity={isStandHovered && !hoveredSectorId ? 0.6 : 0.2}
-                        stroke={isStandHovered ? '#ffffff' : 'transparent'}
+                        stroke={isStandHovered ? strokeHover : 'transparent'}
                         strokeWidth={1}
                         cornerRadius={12}
                         onClick={(e) => {
@@ -321,9 +326,14 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({
                                     const isSectorHovered = hoveredSectorId === sector.id;
                                     const showActiveSector = isSectorHovered && isSelected;
 
+                                    const activeFill = theme === 'light' ? 'rgba(2, 132, 199, 0.4)' : 'rgba(0, 212, 255, 0.4)';
+                                    const inactiveFill = theme === 'light' ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.05)';
+                                    const activeStroke = theme === 'light' ? '#0284c7' : '#00d4ff';
+                                    const inactiveStroke = theme === 'light' ? 'rgba(2, 132, 199, 0.2)' : 'rgba(255,255,255,0.1)';
+
                                     return (
                                         <Group key={sector.id}>
-                                            <Rect x={sectorX} y={sectorY} width={cellWidth} height={cellHeight} fill={showActiveSector ? 'rgba(0, 212, 255, 0.4)' : 'rgba(255,255,255,0.05)'} stroke={showActiveSector ? '#00d4ff' : 'rgba(255,255,255,0.1)'} strokeWidth={1} cornerRadius={2} listening={false} />
+                                            <Rect x={sectorX} y={sectorY} width={cellWidth} height={cellHeight} fill={showActiveSector ? activeFill : inactiveFill} stroke={showActiveSector ? activeStroke : inactiveStroke} strokeWidth={1} cornerRadius={2} listening={false} />
                                             {renderSectorSeats(sector, sectorX, sectorY, cellWidth, cellHeight, stand.position)}
                                             {(cellWidth > 35 && cellHeight > 20) && (
                                                 <Text x={sectorX} y={sectorY + (cellHeight / 2) - 5} width={cellWidth} text={sector.name.toUpperCase()} fontSize={9} fontFamily="Inter" fontStyle="bold" fill="white" align="center" opacity={showActiveSector ? 1 : 0.4} listening={false} />

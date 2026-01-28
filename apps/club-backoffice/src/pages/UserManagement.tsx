@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { userService, User, Role, CreateUserRequest, PERMISSION_LABELS } from '../services/userService';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { FaPlus, FaEdit, FaTrash, FaShieldAlt, FaTimes } from 'react-icons/fa';
 
 const UserManagement: React.FC = () => {
+    const { t } = useTranslation();
     const { club } = useAuth();
     const [users, setUsers] = useState<User[]>([]);
     const [roles, setRoles] = useState<Role[]>([]);
@@ -30,7 +32,7 @@ const UserManagement: React.FC = () => {
 
     const loadData = async () => {
         if (!club?.id) return;
-        
+
         try {
             setLoading(true);
             const [usersData, rolesData] = await Promise.all([
@@ -40,7 +42,7 @@ const UserManagement: React.FC = () => {
             setUsers(usersData);
             setRoles(rolesData);
         } catch (err) {
-            const message = err instanceof Error ? err.message : 'Failed to load data';
+            const message = err instanceof Error ? err.message : t('users.loadError');
             setError(message);
         } finally {
             setLoading(false);
@@ -57,9 +59,9 @@ const UserManagement: React.FC = () => {
             resetForm();
             loadData();
         } catch (err) {
-            const message = err instanceof Error && 'response' in err ? 
-                (err as any).response?.data?.error || err.message : 
-                'Failed to create user';
+            const message = err instanceof Error && 'response' in err ?
+                (err as any).response?.data?.error || err.message :
+                t('users.createError');
             setError(message);
         }
     };
@@ -74,24 +76,24 @@ const UserManagement: React.FC = () => {
             resetForm();
             loadData();
         } catch (err) {
-            const message = err instanceof Error && 'response' in err ? 
-                (err as any).response?.data?.error || err.message : 
-                'Failed to update user';
+            const message = err instanceof Error && 'response' in err ?
+                (err as any).response?.data?.error || err.message :
+                t('users.updateError');
             setError(message);
         }
     };
 
     const handleDeleteUser = async (userId: string) => {
         if (!club?.id) return;
-        if (!window.confirm('Are you sure you want to delete this user?')) return;
+        if (!window.confirm(t('users.confirmDelete'))) return;
 
         try {
             await userService.deleteUser(club.id, userId);
             loadData();
         } catch (err) {
-            const message = err instanceof Error && 'response' in err ? 
-                (err as any).response?.data?.error || err.message : 
-                'Failed to delete user';
+            const message = err instanceof Error && 'response' in err ?
+                (err as any).response?.data?.error || err.message :
+                t('users.deleteError');
             setError(message);
         }
     };
@@ -127,25 +129,25 @@ const UserManagement: React.FC = () => {
         return (
             <div style={{ textAlign: 'center', padding: '60px' }}>
                 <div className="spinner" style={{ margin: '0 auto' }} />
-                <p style={{ color: 'var(--text-muted)', marginTop: '16px' }}>Loading users...</p>
+                <p style={{ color: 'var(--text-muted)', marginTop: '16px' }}>{t('common.loading')}</p>
             </div>
         );
     }
 
     return (
-        <div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', paddingBottom: '40px' }}>
             {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                 <div>
-                    <h1 style={{ margin: 0, color: 'var(--text-main)', fontSize: '32px', fontWeight: 700 }}>User Management</h1>
-                    <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>Manage staff accounts and permissions</p>
+                    <h1 className="font-premium" style={{ margin: 0, color: 'var(--text-main)', fontSize: '2.5rem', fontWeight: 800 }}>{t('users.title')}</h1>
+                    <p style={{ color: 'var(--text-muted)', marginTop: '8px', fontSize: '1.1rem' }}>{t('users.subtitle')}</p>
                 </div>
                 <button
                     onClick={() => setShowCreateModal(true)}
                     className="premium-btn premium-btn-primary"
                     style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
-                    <FaPlus /> Create User
+                    <FaPlus /> {t('users.addUser')}
                 </button>
             </div>
 
@@ -162,109 +164,111 @@ const UserManagement: React.FC = () => {
             )}
 
             {/* Users Table */}
-            <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                        <tr style={{ borderBottom: '1px solid var(--border-glass)' }}>
-                            <th style={{ padding: '20px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>User</th>
-                            <th style={{ padding: '20px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>Role</th>
-                            <th style={{ padding: '20px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>Permissions</th>
-                            <th style={{ padding: '20px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>Status</th>
-                            <th style={{ padding: '20px', textAlign: 'right', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {users.map((user) => (
-                            <tr key={user.id} style={{ borderBottom: '1px solid var(--border-glass)' }}>
-                                <td style={{ padding: '20px' }}>
-                                    <div>
-                                        <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>
-                                            {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}
-                                        </div>
-                                        {user.firstName && user.lastName && (
-                                            <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
-                                                {user.email}
-                                            </div>
-                                        )}
-                                    </div>
-                                </td>
-                                <td style={{ padding: '20px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <FaShieldAlt style={{ color: 'var(--accent-primary)' }} />
-                                        <div>
-                                            <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>{user.role.name}</div>
-                                            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{user.role.description}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style={{ padding: '20px' }}>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                                        {user.role.permissions.slice(0, 3).map((perm) => (
-                                            <span
-                                                key={perm}
-                                                style={{
-                                                    padding: '4px 10px',
-                                                    fontSize: '11px',
-                                                    background: 'rgba(0, 242, 254, 0.1)',
-                                                    color: 'var(--accent-primary)',
-                                                    borderRadius: '6px',
-                                                    border: '1px solid rgba(0, 242, 254, 0.2)'
-                                                }}
-                                            >
-                                                {PERMISSION_LABELS[perm] || perm}
-                                            </span>
-                                        ))}
-                                        {user.role.permissions.length > 3 && (
-                                            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                                                +{user.role.permissions.length - 3} more
-                                            </span>
-                                        )}
-                                    </div>
-                                </td>
-                                <td style={{ padding: '20px' }}>
-                                    <span style={{
-                                        padding: '6px 12px',
-                                        fontSize: '12px',
-                                        fontWeight: 600,
-                                        background: user.isActive ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                                        color: user.isActive ? '#22c55e' : '#ef4444',
-                                        borderRadius: '8px',
-                                        border: `1px solid ${user.isActive ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
-                                    }}>
-                                        {user.isActive ? 'Active' : 'Inactive'}
-                                    </span>
-                                </td>
-                                <td style={{ padding: '20px', textAlign: 'right' }}>
-                                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                        <button
-                                            onClick={() => openEditModal(user)}
-                                            className="icon-btn"
-                                            style={{ padding: '8px 12px' }}
-                                            title="Edit"
-                                        >
-                                            <FaEdit />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeleteUser(user.id)}
-                                            className="icon-btn"
-                                            style={{ padding: '8px 12px', color: '#ef4444' }}
-                                            title="Delete"
-                                        >
-                                            <FaTrash />
-                                        </button>
-                                    </div>
-                                </td>
+            <div className="responsive-table-wrapper">
+                <div className="glass-card" style={{ padding: 0, overflow: 'hidden', minWidth: '1000px' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                            <tr style={{ borderBottom: '1px solid var(--border-glass)' }}>
+                                <th style={{ padding: '20px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>{t('users.table.name')}</th>
+                                <th style={{ padding: '20px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>{t('users.table.role')}</th>
+                                <th style={{ padding: '20px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>{t('users.permissions')}</th>
+                                <th style={{ padding: '20px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>{t('users.table.status')}</th>
+                                <th style={{ padding: '20px', textAlign: 'right', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>{t('users.table.actions')}</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {users.map((user) => (
+                                <tr key={user.id} style={{ borderBottom: '1px solid var(--border-glass)' }}>
+                                    <td style={{ padding: '20px' }}>
+                                        <div>
+                                            <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>
+                                                {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}
+                                            </div>
+                                            {user.firstName && user.lastName && (
+                                                <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                                                    {user.email}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </td>
+                                    <td style={{ padding: '20px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <FaShieldAlt style={{ color: 'var(--accent-primary)' }} />
+                                            <div>
+                                                <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>{user.role.name}</div>
+                                                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{user.role.description}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style={{ padding: '20px' }}>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                            {user.role.permissions.slice(0, 3).map((perm) => (
+                                                <span
+                                                    key={perm}
+                                                    style={{
+                                                        padding: '4px 10px',
+                                                        fontSize: '11px',
+                                                        background: 'rgba(0, 242, 254, 0.1)',
+                                                        color: 'var(--accent-primary)',
+                                                        borderRadius: '6px',
+                                                        border: '1px solid rgba(0, 242, 254, 0.2)'
+                                                    }}
+                                                >
+                                                    {PERMISSION_LABELS[perm] || perm}
+                                                </span>
+                                            ))}
+                                            {user.role.permissions.length > 3 && (
+                                                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                                                    +{user.role.permissions.length - 3} {t('users.more')}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </td>
+                                    <td style={{ padding: '20px' }}>
+                                        <span style={{
+                                            padding: '6px 12px',
+                                            fontSize: '12px',
+                                            fontWeight: 600,
+                                            background: user.isActive ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                            color: user.isActive ? '#22c55e' : '#ef4444',
+                                            borderRadius: '8px',
+                                            border: `1px solid ${user.isActive ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
+                                        }}>
+                                            {user.isActive ? t('users.status.active') : t('users.status.inactive')}
+                                        </span>
+                                    </td>
+                                    <td style={{ padding: '20px', textAlign: 'right' }}>
+                                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                            <button
+                                                onClick={() => openEditModal(user)}
+                                                className="icon-btn"
+                                                style={{ padding: '8px 12px' }}
+                                                title={t('users.edit')}
+                                            >
+                                                <FaEdit />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteUser(user.id)}
+                                                className="icon-btn"
+                                                style={{ padding: '8px 12px', color: '#ef4444' }}
+                                                title={t('users.delete')}
+                                            >
+                                                <FaTrash />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
 
-                {users.length === 0 && (
-                    <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-muted)' }}>
-                        <FaShieldAlt style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.3 }} />
-                        <p>No users found. Create your first user to get started.</p>
-                    </div>
-                )}
+                    {users.length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-muted)' }}>
+                            <FaShieldAlt style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.3 }} />
+                            <p>{t('users.noUsers')}</p>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Create/Edit Modal */}
@@ -285,7 +289,7 @@ const UserManagement: React.FC = () => {
                     <div className="glass-card" style={{ maxWidth: '600px', width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                             <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 700 }}>
-                                {editingUser ? 'Edit User' : 'Create New User'}
+                                {editingUser ? t('users.editUser') : t('users.createUser')}
                             </h2>
                             <button
                                 onClick={closeModal}
@@ -299,100 +303,70 @@ const UserManagement: React.FC = () => {
                         <form onSubmit={editingUser ? handleUpdateUser : handleCreateUser}>
                             <div style={{ marginBottom: '20px' }}>
                                 <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600 }}>
-                                    Email *
+                                    {t('users.table.email')} *
                                 </label>
                                 <input
                                     type="email"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     required
-                                    className="glass-effect"
-                                    style={{
-                                        width: '100%',
-                                        padding: '12px 16px',
-                                        color: 'white',
-                                        borderRadius: '10px',
-                                        background: 'rgba(255,255,255,0.03)'
-                                    }}
+                                    className="form-input"
+                                    placeholder={t('users.form.emailPlaceholder')}
                                 />
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '20px' }}>
                                 <div>
                                     <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600 }}>
-                                        First Name
+                                        {t('users.form.firstName')}
                                     </label>
                                     <input
                                         type="text"
                                         value={formData.firstName}
                                         onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                                        className="glass-effect"
-                                        style={{
-                                            width: '100%',
-                                            padding: '12px 16px',
-                                            color: 'white',
-                                            borderRadius: '10px',
-                                            background: 'rgba(255,255,255,0.03)'
-                                        }}
+                                        className="form-input"
+                                        placeholder={t('users.form.firstNamePlaceholder')}
                                     />
                                 </div>
                                 <div>
                                     <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600 }}>
-                                        Last Name
+                                        {t('users.form.lastName')}
                                     </label>
                                     <input
                                         type="text"
                                         value={formData.lastName}
                                         onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                                        className="glass-effect"
-                                        style={{
-                                            width: '100%',
-                                            padding: '12px 16px',
-                                            color: 'white',
-                                            borderRadius: '10px',
-                                            background: 'rgba(255,255,255,0.03)'
-                                        }}
+                                        className="form-input"
+                                        placeholder={t('users.form.lastNamePlaceholder')}
                                     />
                                 </div>
                             </div>
 
                             <div style={{ marginBottom: '20px' }}>
                                 <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600 }}>
-                                    Phone
+                                    {t('users.form.phone')}
                                 </label>
                                 <input
                                     type="tel"
                                     value={formData.phone}
                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                    className="glass-effect"
-                                    style={{
-                                        width: '100%',
-                                        padding: '12px 16px',
-                                        color: 'white',
-                                        borderRadius: '10px',
-                                        background: 'rgba(255,255,255,0.03)'
-                                    }}
+                                    className="form-input"
+                                    placeholder={t('users.form.phonePlaceholder')}
                                 />
                             </div>
 
                             <div style={{ marginBottom: '24px' }}>
                                 <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600 }}>
-                                    Role *
+                                    {t('users.table.role')} *
                                 </label>
                                 <select
                                     value={formData.roleId}
                                     onChange={(e) => setFormData({ ...formData, roleId: e.target.value })}
                                     required
-                                    className="glass-effect"
-                                    style={{
-                                        width: '100%',
-                                        padding: '12px 16px',
-                                        color: 'white',
-                                        borderRadius: '10px',
-                                        background: 'rgba(255,255,255,0.03)'
-                                    }}
+                                    className="form-input"
+                                    style={{ background: 'rgba(255,255,255,0.05)' }}
                                 >
-                                    <option value="">Select a role</option>
+                                    <option value="">{t('users.form.selectRole')}</option>
                                     {roles.map((role) => (
                                         <option key={role.id} value={role.id}>
                                             {role.name} - {role.description}
@@ -402,7 +376,7 @@ const UserManagement: React.FC = () => {
 
                                 {formData.roleId && (
                                     <div style={{ marginTop: '12px', padding: '12px', background: 'rgba(0, 242, 254, 0.05)', borderRadius: '8px', border: '1px solid rgba(0, 242, 254, 0.1)' }}>
-                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 600 }}>Permissions:</div>
+                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 600 }}>{t('users.permissions')}:</div>
                                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                                             {roles.find(r => r.id === formData.roleId)?.permissions.map((perm) => (
                                                 <span
@@ -431,13 +405,13 @@ const UserManagement: React.FC = () => {
                                     className="premium-btn"
                                     style={{ background: 'rgba(255,255,255,0.05)' }}
                                 >
-                                    Cancel
+                                    {t('common.cancel')}
                                 </button>
                                 <button
                                     type="submit"
                                     className="premium-btn premium-btn-primary"
                                 >
-                                    {editingUser ? 'Update User' : 'Create User'}
+                                    {editingUser ? t('users.updateUser') : t('users.addUser')}
                                 </button>
                             </div>
                         </form>

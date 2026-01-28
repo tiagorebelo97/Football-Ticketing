@@ -1,5 +1,6 @@
 import React from 'react';
 import { Undo, Redo, ZoomIn, ZoomOut, Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ActionPaletteProps {
     onUndo: () => void;
@@ -14,6 +15,8 @@ const ActionPalette: React.FC<ActionPaletteProps> = ({
     onZoomIn,
     onZoomOut
 }) => {
+    const { t } = useTranslation();
+
     return (
         <div
             className="stadium-action-palette"
@@ -22,7 +25,7 @@ const ActionPalette: React.FC<ActionPaletteProps> = ({
             <button
                 className="stadium-action-btn stadium-glass"
                 onClick={onUndo}
-                title="Desfazer (Ctrl+Z)"
+                title={t('venueWizard.undoTooltip')}
             >
                 <Undo />
             </button>
@@ -30,7 +33,7 @@ const ActionPalette: React.FC<ActionPaletteProps> = ({
             <button
                 className="stadium-action-btn stadium-glass"
                 onClick={onRedo}
-                title="Refazer (Ctrl+Y)"
+                title={t('venueWizard.redoTooltip')}
             >
                 <Redo />
             </button>
@@ -40,7 +43,7 @@ const ActionPalette: React.FC<ActionPaletteProps> = ({
             <button
                 className="stadium-action-btn stadium-glass"
                 onClick={onZoomIn}
-                title="Zoom In"
+                title={t('venueWizard.zoomIn')}
             >
                 <ZoomIn />
             </button>
@@ -48,7 +51,7 @@ const ActionPalette: React.FC<ActionPaletteProps> = ({
             <button
                 className="stadium-action-btn stadium-glass"
                 onClick={onZoomOut}
-                title="Zoom Out"
+                title={t('venueWizard.zoomOut')}
             >
                 <ZoomOut />
             </button>

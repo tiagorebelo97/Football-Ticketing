@@ -2,12 +2,14 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const { t } = useTranslation();
     const { login } = useAuth();
     const navigate = useNavigate();
 
@@ -20,11 +22,11 @@ const Login: React.FC = () => {
             navigate('/');
         } catch (error: any) {
             console.error('Login error:', error);
-            let errorMessage = error.message || 'Login failed. Please check your credentials.';
+            let errorMessage = error.message || t('login.errors.invalidCredentials');
 
             // Provide more helpful error messages
             if (error.message && error.message.includes('Failed to fetch')) {
-                errorMessage = 'Unable to connect to the server. Please ensure the services are running.';
+                errorMessage = t('login.errors.serverError');
             }
 
             setError(errorMessage);
@@ -69,8 +71,8 @@ const Login: React.FC = () => {
                     }}>
                         <span style={{ fontSize: '32px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>🛡️</span>
                     </div>
-                    <h1 className="text-gradient" style={{ fontSize: '32px', fontWeight: 800, marginBottom: '8px' }}>Club Admin</h1>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>Access your club management console</p>
+                    <h1 className="text-gradient" style={{ fontSize: '32px', fontWeight: 800, marginBottom: '8px' }}>{t('login.title')}</h1>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>{t('login.subtitle')}</p>
                 </div>
 
                 {error && (
@@ -90,7 +92,7 @@ const Login: React.FC = () => {
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group" style={{ marginBottom: '24px' }}>
-                        <label style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Admin Email</label>
+                        <label style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('login.email')}</label>
                         <input
                             type="email"
                             value={email}
@@ -109,7 +111,7 @@ const Login: React.FC = () => {
                     </div>
 
                     <div className="form-group" style={{ marginBottom: '24px' }}>
-                        <label style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Password</label>
+                        <label style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('login.password')}</label>
                         <input
                             type="password"
                             value={password}
@@ -133,7 +135,7 @@ const Login: React.FC = () => {
                         style={{ width: '100%', padding: '16px', fontSize: '16px' }}
                         disabled={loading}
                     >
-                        {loading ? 'Authenticating...' : 'Access Dashboard'}
+                        {loading ? `${t('common.loading')}...` : t('login.submit')}
                     </button>
                 </form>
 

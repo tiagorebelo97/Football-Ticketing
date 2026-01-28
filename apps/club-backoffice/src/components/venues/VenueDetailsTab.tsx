@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Sport, sportService } from '../../services/sportService';
 import SportSelector from './SportSelector';
 import { VenueDetails } from '../../hooks/useVenueBuilder';
+import { useTranslation } from 'react-i18next';
 
 interface Club {
   id: string;
@@ -27,6 +28,7 @@ const MOCK_SPORTS: Sport[] = [
 ];
 
 const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUpdate, isSuperAdmin = false }) => {
+  const { t } = useTranslation();
   const [sports, setSports] = useState<Sport[]>(MOCK_SPORTS); // Default to mock
   const [clubs, setClubs] = useState<Club[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,26 +89,26 @@ const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUp
   };
 
   if (loading) {
-    return <div className="loading">A carregar desportos...</div>;
+    return <div className="loading">{t('venueWizard.loadingSports')}</div>;
   }
 
   return (
     <div className="venue-details-tab">
-      <h2>Detalhes da Venue</h2>
+      <h2>{t('venueWizard.detailsTitle')}</h2>
       <p className="tab-description">
-        Preencha as informações básicas da venue desportiva.
+        {t('venueWizard.detailsDescription')}
       </p>
 
       {isSuperAdmin && (
         <div className="form-group">
-          <label htmlFor="clubSelect">Clube *</label>
+          <label htmlFor="clubSelect">{t('venueWizard.clubLabel')} *</label>
           <select
             id="clubSelect"
             className={`form-control ${errors.clubId ? 'error' : ''}`}
             value={details.clubId || ''}
             onChange={(e) => onUpdate({ clubId: e.target.value })}
           >
-            <option value="">Selecione um clube</option>
+            <option value="">{t('venueWizard.selectClub')}</option>
             {clubs.map(club => (
               <option key={club.id} value={club.id}>
                 {club.name}
@@ -128,51 +130,51 @@ const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUp
 
       <div className="form-row">
         <div className="form-group">
-          <label htmlFor="venueName">Nome da Venue *</label>
+          <label htmlFor="venueName">{t('venueWizard.venueNameLabel')} *</label>
           <input
             id="venueName"
             type="text"
             className={`form-control ${errors.name ? 'error' : ''}`}
             value={details.name}
             onChange={(e) => onUpdate({ name: e.target.value })}
-            placeholder="Ex: Estádio José Alvalade"
+            placeholder={t('venueWizard.venueNamePlaceholder')}
           />
           {errors.name && <div className="error-message">{errors.name}</div>}
         </div>
 
         <div className="form-group">
-          <label htmlFor="venueCity">Cidade *</label>
+          <label htmlFor="venueCity">{t('venueWizard.cityLabel')} *</label>
           <input
             id="venueCity"
             type="text"
             className={`form-control ${errors.city ? 'error' : ''}`}
             value={details.city}
             onChange={(e) => onUpdate({ city: e.target.value })}
-            placeholder="Ex: Lisboa"
+            placeholder={t('venueWizard.cityPlaceholder')}
           />
           {errors.city && <div className="error-message">{errors.city}</div>}
         </div>
       </div>
 
       <div className="form-group">
-        <label htmlFor="venueAddress">Morada</label>
+        <label htmlFor="venueAddress">{t('venueWizard.addressLabel')}</label>
         <input
           id="venueAddress"
           type="text"
           className="form-control"
           value={details.address}
           onChange={(e) => onUpdate({ address: e.target.value })}
-          placeholder="Ex: Rua Professor Fernando da Fonseca"
+          placeholder={t('venueWizard.addressPlaceholder')}
         />
       </div>
 
       {/* Geographic Location Section */}
       <div className="form-section location-premium-section">
-        <label>Geolocalização & Precisão</label>
+        <label>{t('venueWizard.geolocationLabel')}</label>
         <div className="location-grid">
           <div className="location-inputs">
             <div className="form-group small">
-              <label>Latitude</label>
+              <label>{t('venueWizard.latitudeLabel')}</label>
               <input
                 type="number"
                 step="any"
@@ -183,7 +185,7 @@ const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUp
               />
             </div>
             <div className="form-group small">
-              <label>Longitude</label>
+              <label>{t('venueWizard.longitudeLabel')}</label>
               <input
                 type="number"
                 step="any"
@@ -206,7 +208,7 @@ const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUp
                 }
               }}
             >
-              📍 Detectar Localização
+              {t('venueWizard.detectLocation')}
             </button>
           </div>
 
@@ -222,14 +224,14 @@ const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUp
       {/* Facilities & Accessibility Section */}
       <div className="form-row metadata-sections">
         <div className="metadata-group">
-          <label>Cacilidades & Infraestrutura</label>
+          <label>{t('venueWizard.facilitiesLabel')}</label>
           <div className="checkbox-grid">
             {[
-              { id: 'press', label: 'Centro de Imprensa' },
-              { id: 'parking', label: 'Estacionamento Privado' },
-              { id: 'vip', label: 'Área VIP / Lounges' },
-              { id: 'var', label: 'Sala VAR' },
-              { id: 'medical', label: 'Centro Médico' }
+              { id: 'press', label: t('venueWizard.pressCenter') },
+              { id: 'parking', label: t('venueWizard.parkingPrivate') },
+              { id: 'vip', label: t('venueWizard.vipArea') },
+              { id: 'var', label: t('venueWizard.varRoom') },
+              { id: 'medical', label: t('venueWizard.medicalCenter') }
             ].map(item => (
               <label key={item.id} className="checkbox-item">
                 <input
@@ -250,13 +252,13 @@ const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUp
         </div>
 
         <div className="metadata-group">
-          <label>Acessibilidade</label>
+          <label>{t('venueWizard.accessibilityLabel')}</label>
           <div className="checkbox-grid">
             {[
-              { id: 'wheelchair', label: 'Acesso Cadeira de Rodas' },
-              { id: 'tactile', label: 'Pavimento Tátil' },
-              { id: 'audio', label: 'Descrição Áudio' },
-              { id: 'elevator', label: 'Elevadores Prioritários' }
+              { id: 'wheelchair', label: t('venueWizard.wheelchairAccess') },
+              { id: 'tactile', label: t('venueWizard.tactilePaving') },
+              { id: 'audio', label: t('venueWizard.audioDescription') },
+              { id: 'elevator', label: t('venueWizard.priorityElevators') }
             ].map(item => (
               <label key={item.id} className="checkbox-item">
                 <input
@@ -279,19 +281,19 @@ const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUp
 
       <div className="media-section-premium">
         <div className="photo-upload-group">
-          <label>Foto Principal (Exterior)</label>
+          <label>{t('venueWizard.mainPhotoLabel')}</label>
           <div className={`upload-dropzone ${details.photoUrl ? 'has-file' : ''}`}>
             <input type="file" accept="image/*" onChange={handlePhotoUpload} />
             {details.photoUrl ? (
               <img src={details.photoUrl} alt="Main" />
             ) : (
-              <div className="upload-placeholder">Clique para carregar foto exterior</div>
+              <div className="upload-placeholder">{t('venueWizard.clickToUpload')}</div>
             )}
           </div>
         </div>
 
         <div className="photo-upload-group">
-          <label>Fotos de Interior & VIP</label>
+          <label>{t('venueWizard.interiorPhotosLabel')}</label>
           <div className="multi-photo-grid">
             {/* Interior Photos Simulation */}
             {details.interiorPhotos?.map((url, i) => (
@@ -300,7 +302,7 @@ const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUp
               </div>
             ))}
             <label className="add-photo-btn">
-              <span>+ Adicionar Foto</span>
+              <span>{t('venueWizard.addPhoto')}</span>
               <input
                 type="file"
                 multiple
@@ -325,7 +327,7 @@ const VenueDetailsTab: React.FC<VenueDetailsTabProps> = ({ details, errors, onUp
 
       <div className="form-info-premium">
         <div className="info-icon">💡</div>
-        <p><strong>Dica de Arquiteto:</strong> Fotos de alta qualidade e detalhes de acessibilidade aumentam a valorização da venue em 40%.</p>
+        <p>{t('venueWizard.architectTip')}</p>
       </div>
     </div>
   );

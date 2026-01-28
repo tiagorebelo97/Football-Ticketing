@@ -4,6 +4,7 @@ import { Venue } from '../../services/venueService';
 import VenueDetailsTab from './VenueDetailsTab';
 import VenueStadiumTab from './VenueStadiumTab';
 import VenueReviewTab from './VenueReviewTab';
+import { useTranslation } from 'react-i18next';
 import './VenueWizard.css';
 
 interface VenueWizardProps {
@@ -15,6 +16,7 @@ interface VenueWizardProps {
 }
 
 const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCancel, isSuperAdmin = false, initialData }) => {
+  const { t } = useTranslation();
   const {
     state,
     goToTab,
@@ -48,9 +50,9 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
   const [saveError, setSaveError] = React.useState<string>('');
 
   const tabs = [
-    { id: 0, label: 'Identidade', icon: '🆔', description: 'Dados básicos' },
-    { id: 1, label: 'Arquitetura', icon: '🏟️', description: 'Desenho do estádio' },
-    { id: 2, label: 'Publicação', icon: '🚀', description: 'Revisão final' }
+    { id: 0, label: t('venueWizard.step1'), icon: '🆔', description: t('venueWizard.step1Desc') },
+    { id: 1, label: t('venueWizard.step2'), icon: '🏟️', description: t('venueWizard.step2Desc') },
+    { id: 2, label: t('venueWizard.step3'), icon: '🚀', description: t('venueWizard.step3Desc') }
   ];
 
   // Memoize total capacity calculation to ensure it updates when stands change
@@ -60,7 +62,7 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
     if (state.currentTab === 0) {
       if (!validateTab1()) return;
       if (isSuperAdmin && !state.details.clubId) {
-        setSaveError('Por favor, selecione um clube');
+        setSaveError(t('common.errorSelectClub') || 'Please select a club');
         return;
       }
       nextTab();
@@ -111,7 +113,7 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
     <div className="venue-wizard">
       <div className="wizard-header">
         <div className="header-main">
-          <h1>{initialVenue ? 'Editar Arquitetura' : 'Nova Infraestrutura'}</h1>
+          <h1>{initialVenue ? t('common.edit') + ' ' + t('venueWizard.title') : t('venueWizard.title')}</h1>
           <div className="header-badge">Executive Architect v2.0</div>
         </div>
 
@@ -195,16 +197,15 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
       <div className="wizard-footer">
         <div className="footer-left">
           <button className="btn btn-secondary" onClick={onCancel} disabled={saving}>
-            Cancelar
+            {t('common.cancel')}
           </button>
         </div>
 
         <div className="footer-center">
           {state.currentTab === 1 && (
             <div className="capacity-display">
-              <span className="capacity-label">Capacidade Total:</span>
+              <span className="capacity-label">{t('venueWizard.capacity')}:</span>
               <span className="capacity-value">{totalCapacity}</span>
-              <span className="capacity-unit">lugares</span>
             </div>
           )}
         </div>
@@ -212,13 +213,13 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
         <div className="footer-right">
           {state.currentTab > 0 && (
             <button className="btn btn-secondary" onClick={handlePrevious} disabled={saving}>
-              ← Anterior
+              ← {t('common.back')}
             </button>
           )}
 
           {state.currentTab < tabs.length - 1 ? (
             <button className="btn btn-primary" onClick={handleNext}>
-              Seguinte →
+              {t('common.next')} →
             </button>
           ) : (
             <button
@@ -226,7 +227,7 @@ const VenueWizard: React.FC<VenueWizardProps> = ({ initialVenue, onSave, onCance
               onClick={handleSave}
               disabled={saving || state.stands.length === 0}
             >
-              {saving ? 'A guardar...' : initialVenue ? 'Atualizar Venue' : 'Criar Venue'}
+              {saving ? t('common.loading') : t('common.save')}
             </button>
           )}
         </div>

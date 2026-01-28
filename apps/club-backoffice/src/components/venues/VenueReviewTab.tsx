@@ -1,6 +1,7 @@
 import React from 'react';
 import { Stand } from '../../services/venueService';
 import { VenueDetails } from '../../hooks/useVenueBuilder';
+import { useTranslation } from 'react-i18next';
 import './VenueWizard.css';
 
 interface VenueReviewTabProps {
@@ -10,50 +11,51 @@ interface VenueReviewTabProps {
 }
 
 const VenueReviewTab: React.FC<VenueReviewTabProps> = ({ details, stands, totalCapacity }) => {
+    const { t } = useTranslation();
     return (
         <div className="venue-review-tab-premium">
             <div className="review-header-premium">
-                <h2>Relatório de Inspeção Arquitetónica</h2>
-                <p>Validação final da infraestrutura antes da publicação oficial.</p>
+                <h2>{t('venueWizard.inspectionReport')}</h2>
+                <p>{t('venueWizard.validationDescription')}</p>
             </div>
 
             <div className="review-main-grid">
                 {/* Summary Card */}
                 <div className="summary-card-premium">
-                    <div className="summary-badge">Official Record</div>
-                    <div className="summary-title">{details.name || 'Nova Venue sem nome'}</div>
+                    <div className="summary-badge">{t('venueWizard.officialRecord')}</div>
+                    <div className="summary-title">{details.name || t('venueWizard.newVenue')}</div>
                     <div className="summary-location">{details.city}, {details.address}</div>
 
                     <div className="summary-stats">
                         <div className="sum-stat">
                             <div className="sum-val">{totalCapacity}</div>
-                            <div className="sum-lab">Capacidade Total</div>
+                            <div className="sum-lab">{t('venueWizard.totalCapacityLabel')}</div>
                         </div>
                         <div className="sum-stat">
                             <div className="sum-val">{stands.length}</div>
-                            <div className="sum-lab">Bancadas</div>
+                            <div className="sum-lab">{t('venueWizard.standsLabel')}</div>
                         </div>
                     </div>
 
                     <div className="summary-section-list">
                         <div className="sum-list-item">
-                            <span>Desporto</span>
+                            <span>{t('venueWizard.sportLabel')}</span>
                             <strong>{details.sportName}</strong>
                         </div>
                         <div className="sum-list-item">
-                            <span>Facilidades</span>
-                            <strong>{details.facilities?.length || 0} Ativos</strong>
+                            <span>{t('venueWizard.facilitiesLabel')}</span>
+                            <strong>{details.facilities?.length || 0} {t('venueWizard.facilitiesCount')}</strong>
                         </div>
                         <div className="sum-list-item">
-                            <span>Acessibilidade</span>
-                            <strong>{details.accessibility?.length || 0} Ativos</strong>
+                            <span>{t('venueWizard.accessibilityLabel')}</span>
+                            <strong>{details.accessibility?.length || 0} {t('venueWizard.accessibilityCount')}</strong>
                         </div>
                     </div>
                 </div>
 
                 {/* Blueprint Inspection View */}
                 <div className="inspection-view-premium">
-                    <label>Inspeção Visual (Blueprint 2D)</label>
+                    <label>{t('venueWizard.inspectionVisual')}</label>
                     <div className="mini-stadium-preview">
                         {/* Simple representation of the stadium */}
                         <div className="mini-field">
@@ -71,13 +73,13 @@ const VenueReviewTab: React.FC<VenueReviewTabProps> = ({ details, stands, totalC
                     </div>
                     <div className="inspection-status-bar">
                         <div className="status-indicator success"></div>
-                        <span>Estrutura validada pelo motor de arquitetura.</span>
+                        <span>{t('venueWizard.structureValidated')}</span>
                     </div>
                 </div>
             </div>
 
             <div className="review-gallery-row">
-                <label>Arquivos de Media Anexados</label>
+                <label>{t('venueWizard.mediaFiles')}</label>
                 <div className="review-gallery-grid">
                     {details.photoUrl && <div className="gallery-item-review"><img src={details.photoUrl} alt="Main" /></div>}
                     {details.interiorPhotos?.map((url, i) => (
@@ -89,8 +91,7 @@ const VenueReviewTab: React.FC<VenueReviewTabProps> = ({ details, stands, totalC
             <div className="publication-notice">
                 <div className="notice-icon">🛡️</div>
                 <div className="notice-text">
-                    Ao publicar, esta venue ficará disponível para a venda de bilhetes e gestão de eventos.
-                    Pode continuar a editar a arquitetura no futuro, mas mudanças na capacidade podem afetar vendas em curso.
+                    {t('venueWizard.publicationNotice')}
                 </div>
             </div>
         </div>

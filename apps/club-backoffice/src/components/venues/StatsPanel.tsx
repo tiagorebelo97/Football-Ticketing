@@ -1,5 +1,6 @@
 import React from 'react';
 import { Users, Layers, TrendingUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface StatsPanelProps {
     totalCapacity: number;
@@ -12,11 +13,13 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
     standCount,
     completionPercentage
 }) => {
+    const { t } = useTranslation();
+
     return (
         <div className="dashboard-stats-inner">
             <div className="stat-item">
                 <Users size={16} color="#00d4ff" />
-                <span className="stat-label">Capacidade</span>
+                <span className="stat-label">{t('venueWizard.capacity')}</span>
                 <span className="stat-value">{totalCapacity.toLocaleString()}</span>
             </div>
 
@@ -24,7 +27,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
 
             <div className="stat-item">
                 <Layers size={16} color="#00d4ff" />
-                <span className="stat-label">Bancadas</span>
+                <span className="stat-label">{t('venueWizard.stands')}</span>
                 <span className="stat-value">{standCount}/4</span>
             </div>
 
@@ -32,7 +35,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({
 
             <div className="stat-item">
                 <TrendingUp size={16} color="#00d4ff" />
-                <span className="stat-label">Status</span>
+                <span className="stat-label">{t('venueWizard.status')}</span>
                 <div className="stat-progress-container">
                     <div className="stat-progress-bar-wrapper">
                         <div

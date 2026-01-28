@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Sector, Row } from '../../services/venueService';
 import SectorCanvas2D from './SectorCanvas2D';
 import RowConfigTable from './RowConfigTable';
+import { useTranslation } from 'react-i18next';
 
 interface SectorModalProps {
   isOpen: boolean;
@@ -23,6 +24,8 @@ const SectorModal: React.FC<SectorModalProps> = ({
   onRemoveRow,
   onUpdateRow
 }) => {
+  const { t } = useTranslation();
+
   if (!isOpen || !sector) {
     return null;
   }
@@ -44,23 +47,23 @@ const SectorModal: React.FC<SectorModalProps> = ({
         {/* Header with Blueprint Metadata */}
         <div className="inspector-header">
           <div className="header-identity">
-            <span className="inspector-badge">MODO INSPEÇÃO: SETOR</span>
+            <span className="inspector-badge">{t('venueWizard.inspectionMode')}</span>
             <h2>{sector.name} <small>Architecture ID: {sector.id?.slice(0, 8)}</small></h2>
           </div>
-          <button className="inspector-close" onClick={onClose} title="Fechar Inspetor">✕</button>
+          <button className="inspector-close" onClick={onClose} title={t('venueWizard.closeInspector')}>✕</button>
         </div>
 
         <div className="inspector-body">
           <div className="sector-architect-grid">
             {/* Left side: Immersive Canvas */}
             <div className="inspector-canvas-area">
-              <div className="canvas-label-architect">PROJEÇÃO DE MALHA 2D</div>
+              <div className="canvas-label-architect">{t('venueWizard.meshProjection')}</div>
               <SectorCanvas2D
                 rows={sector.rows || []}
                 totalSeats={totalSeats}
               />
               <div className="canvas-footer-blueprint">
-                <span>COORDENADAS LOCAIS VALIDATED</span>
+                <span>{t('venueWizard.localCoordinates')}</span>
                 <span className="blink">● REC</span>
               </div>
             </div>
@@ -83,18 +86,18 @@ const SectorModal: React.FC<SectorModalProps> = ({
         <div className="inspector-actions">
           <div className="actions-info">
             <span className="info-icon">🛈</span>
-            Exatidão de assentos é crítica para o sistema de bilhética.
+            {t('venueWizard.seatAccuracyWarning')}
           </div>
           <div className="actions-btns">
             <button className="btn-architect-secondary" onClick={onClose}>
-              DESCARTAR
+              {t('venueWizard.discard')}
             </button>
             <button
               className="btn-architect-primary"
               onClick={handleDone}
               disabled={!isComplete}
             >
-              FINALIZAR E VALIDAR
+              {t('venueWizard.finalizeValidate')}
             </button>
           </div>
         </div>

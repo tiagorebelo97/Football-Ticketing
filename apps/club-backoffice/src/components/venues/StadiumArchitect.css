@@ -35,6 +35,38 @@
     --stadium-grid-major: rgba(0, 212, 255, 0.25);
 }
 
+[data-theme="light"] {
+    /* Primary - White Blueprint */
+    --stadium-bg-primary: #f0f4f8;
+    --stadium-bg-secondary: #ffffff;
+    --stadium-bg-tertiary: #e2e8f0;
+
+    /* Accent - Cerulean Blue */
+    --stadium-accent-primary: #0284c7;
+    --stadium-accent-secondary: #0ea5e9;
+    --stadium-accent-glow: rgba(2, 132, 199, 0.2);
+
+    /* Success/Capacity */
+    --stadium-success: #059669;
+    --stadium-warning: #d97706;
+    --stadium-error: #dc2626;
+
+    /* Glass/HUD */
+    --stadium-glass-bg: rgba(255, 255, 255, 0.85);
+    --stadium-glass-border: rgba(148, 163, 184, 0.3);
+    --stadium-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --stadium-glass-heavy: rgba(255, 255, 255, 0.95);
+
+    /* Text */
+    --stadium-text-primary: #0f172a;
+    --stadium-text-secondary: #64748b;
+    --stadium-text-dim: #94a3b8;
+
+    /* Grid */
+    --stadium-grid-color: rgba(2, 132, 199, 0.08);
+    --stadium-grid-major: rgba(2, 132, 199, 0.15);
+}
+
 /* === TYPOGRAPHY === */
 .stadium-architect {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;

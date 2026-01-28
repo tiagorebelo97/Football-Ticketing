@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sport } from '../../services/sportService';
+import { useTranslation } from 'react-i18next';
 
 interface SportSelectorProps {
   sports: Sport[];
@@ -8,6 +9,8 @@ interface SportSelectorProps {
 }
 
 const SportSelector: React.FC<SportSelectorProps> = ({ sports, selectedSportId, onSelectSport }) => {
+  const { t } = useTranslation();
+
   const sportIcons: { [key: string]: string } = {
     football: '⚽',
     hockey: '🏒',
@@ -17,9 +20,16 @@ const SportSelector: React.FC<SportSelectorProps> = ({ sports, selectedSportId, 
     volleyball: '🏐'
   };
 
+  const getSportName = (sport: Sport): string => {
+    // Try to translate by code, fallback to API name
+    const translationKey = `common.sports.${sport.code}`;
+    const translated = t(translationKey);
+    return translated !== translationKey ? translated : sport.name;
+  };
+
   return (
     <div className="sport-selector">
-      <label className="form-label">Tipo de Desporto *</label>
+      <label className="form-label">{t('venueWizard.sportType')} *</label>
       <div className="sport-grid">
         {sports.map(sport => (
           <div
@@ -28,7 +38,7 @@ const SportSelector: React.FC<SportSelectorProps> = ({ sports, selectedSportId, 
             onClick={() => onSelectSport(sport.id)}
           >
             <div className="sport-icon">{sportIcons[sport.code] || '🏟️'}</div>
-            <div className="sport-name">{sport.name}</div>
+            <div className="sport-name">{getSportName(sport)}</div>
           </div>
         ))}
       </div>

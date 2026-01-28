@@ -10,7 +10,7 @@ const ActivityChart: React.FC<ActivityChartProps> = ({ data = [] }) => {
         <div className="card" style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h3>Revenue Activity</h3>
-                <select style={{ border: 'none', background: 'transparent', color: 'var(--color-text)', fontWeight: 600, cursor: 'pointer' }}>
+                <select style={{ border: 'none', background: 'transparent', color: 'var(--text-main)', fontWeight: 600, cursor: 'pointer' }}>
                     <option style={{ color: 'black' }}>Last 6 Months</option>
                 </select>
             </div>

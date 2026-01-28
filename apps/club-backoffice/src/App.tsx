@@ -19,6 +19,7 @@ import MemberDetails from './pages/MemberDetails';
 import UserManagement from './pages/UserManagement';
 import ClubSettings from './pages/ClubSettings';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import './App.css';
 
 const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -44,32 +45,34 @@ const ProtectedLayout = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route element={<ProtectedLayout />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/matches" element={<MatchList />} />
-            <Route path="/create-match" element={<MatchCreate />} />
-            <Route path="/matches/:matchId/edit" element={<MatchEdit />} />
-            <Route path="/members" element={<MemberList />} />
-            <Route path="/members/create" element={<MemberCreate />} />
-            <Route path="/members/:id" element={<MemberDetails />} />
-            <Route path="/members/:id/edit" element={<MemberDetails />} />
-            <Route path="/club-members" element={<MemberList />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/venues" element={<VenueList />} />
-            <Route path="/venues/create" element={<VenueCreate />} />
-            <Route path="/venues/:id/edit" element={<VenueEdit />} />
-            <Route path="/nfc-inventory" element={<NFCInventory />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/user-management" element={<UserManagement />} />
-            <Route path="/settings" element={<ClubSettings />} />
-          </Route>
-        </Routes>
-      </Router>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route element={<ProtectedLayout />}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/matches" element={<MatchList />} />
+              <Route path="/create-match" element={<MatchCreate />} />
+              <Route path="/matches/:matchId/edit" element={<MatchEdit />} />
+              <Route path="/members" element={<MemberList />} />
+              <Route path="/members/create" element={<MemberCreate />} />
+              <Route path="/members/:id" element={<MemberDetails />} />
+              <Route path="/members/:id/edit" element={<MemberDetails />} />
+              <Route path="/club-members" element={<MemberList />} />
+              <Route path="/calendar" element={<Calendar />} />
+              <Route path="/venues" element={<VenueList />} />
+              <Route path="/venues/create" element={<VenueCreate />} />
+              <Route path="/venues/:id/edit" element={<VenueEdit />} />
+              <Route path="/nfc-inventory" element={<NFCInventory />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/user-management" element={<UserManagement />} />
+              <Route path="/settings" element={<ClubSettings />} />
+            </Route>
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

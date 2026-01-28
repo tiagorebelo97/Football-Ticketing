@@ -1,5 +1,6 @@
 import React from 'react';
 import { Stage, Layer, Rect, Text, Group } from 'react-konva';
+import { useTranslation } from 'react-i18next';
 import { Row } from '../../services/venueService';
 
 interface SectorCanvas2DProps {
@@ -8,6 +9,7 @@ interface SectorCanvas2DProps {
 }
 
 const SectorCanvas2D: React.FC<SectorCanvas2DProps> = ({ rows, totalSeats }) => {
+  const { t } = useTranslation();
   const stageRef = React.useRef<any>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [stageSize, setStageSize] = React.useState({ width: 800, height: 600 });
@@ -113,7 +115,7 @@ const SectorCanvas2D: React.FC<SectorCanvas2DProps> = ({ rows, totalSeats }) => 
           x={pitchX}
           y={fieldY + fieldHeight + 10}
           width={pitchWidth}
-          text="ORIENTAÇÃO: RELVADO"
+          text={t('venueWizard.orientationPitch')}
           fontSize={10}
           fontStyle="bold"
           fill="#4ade80"
@@ -229,7 +231,7 @@ const SectorCanvas2D: React.FC<SectorCanvas2DProps> = ({ rows, totalSeats }) => 
                   x={0}
                   y={200}
                   width={stageSize.width}
-                  text="A AGUARDAR DEFINIÇÃO DA MALHA DE ASSENTOS"
+                  text={t('venueWizard.waitingSeatDefinition')}
                   fontSize={14}
                   fontStyle="bold"
                   fill="#64748b"

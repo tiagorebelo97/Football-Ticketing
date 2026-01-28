@@ -1,16 +1,20 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaThLarge, FaUsers, FaCalendarAlt, FaMapMarkerAlt, FaChartBar, FaUsersCog, FaCog, FaBars } from 'react-icons/fa';
+import { FaThLarge, FaUsers, FaCalendarAlt, FaMapMarkerAlt, FaChartBar, FaUsersCog, FaCog, FaBars, FaSignOutAlt } from 'react-icons/fa';
 import '../index.css';
 import { useAuth } from '../context/AuthContext';
 
 interface SidebarProps {
     onCollapsedChange?: (collapsed: boolean) => void;
+    mobileOpen?: boolean;
+    onMobileClose?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onCollapsedChange }) => {
+const Sidebar: React.FC<SidebarProps> = ({ onCollapsedChange, mobileOpen = false, onMobileClose }) => {
+    const { t } = useTranslation();
     const location = useLocation();
-    const { club, user } = useAuth();
+    const { club, user, logout } = useAuth();
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     const toggleCollapsed = () => {
@@ -33,14 +37,20 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapsedChange }) => {
     }, [isCollapsed, onCollapsedChange]);
 
     const menuItems = [
-        { path: '/', label: 'Dashboard', icon: <FaThLarge /> },
-        { path: '/members', label: 'Club Members', icon: <FaUsers /> },
-        { path: '/calendar', label: 'Calendar', icon: <FaCalendarAlt /> },
-        { path: '/venues', label: 'Venues', icon: <FaMapMarkerAlt /> },
-        { path: '/reports', label: 'Reports', icon: <FaChartBar /> },
-        { path: '/user-management', label: 'User Management', icon: <FaUsersCog /> },
-        { path: '/settings', label: 'Settings', icon: <FaCog /> },
+        { path: '/', label: t('sidebar.dashboard'), icon: <FaThLarge /> },
+        { path: '/members', label: t('sidebar.members'), icon: <FaUsers /> },
+        { path: '/calendar', label: t('sidebar.matches'), icon: <FaCalendarAlt /> },
+        { path: '/venues', label: t('sidebar.venues'), icon: <FaMapMarkerAlt /> },
+        { path: '/reports', label: t('sidebar.marketing'), icon: <FaChartBar /> },
+        { path: '/user-management', label: t('sidebar.users'), icon: <FaUsersCog /> },
+        { path: '/settings', label: t('sidebar.settings'), icon: <FaCog /> },
     ];
+
+    const handleLogout = () => {
+        if (window.confirm(t('common.confirmLogout') || 'Are you sure you want to logout?')) {
+            logout();
+        }
+    };
 
     return (
         <div className="glass-effect" style={{
@@ -118,44 +128,47 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapsedChange }) => {
                 )}
             </div>
 
-            <nav style={{ flex: 1, padding: '0 16px' }}>
-                {menuItems.map((item) => {
-                    const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
-                    return (
-                        <Link
-                            key={item.path}
-                            to={item.path}
-                            title={isCollapsed ? item.label : ''}
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: isCollapsed ? 'center' : 'flex-start',
-                                padding: isCollapsed ? '14px 10px' : '14px 20px',
-                                textDecoration: 'none',
-                                borderRadius: 'var(--radius-sm)',
-                                color: isActive ? 'var(--accent-primary)' : 'var(--text-muted)',
-                                background: isActive ? 'rgba(0, 242, 254, 0.08)' : 'transparent',
-                                marginBottom: '8px',
-                                transition: 'var(--transition-smooth)',
-                                position: 'relative'
-                            }}
-                            className="nav-link"
-                        >
-                            {isActive && (
-                                <div style={{
-                                    position: 'absolute',
-                                    left: 0,
-                                    height: '20px',
-                                    width: '3px',
-                                    background: 'var(--accent-primary)',
-                                    borderRadius: '0 4px 4px 0'
-                                }} />
-                            )}
-                            <span style={{ marginRight: isCollapsed ? '0' : '16px', fontSize: '18px', display: 'flex' }}>{item.icon}</span>
-                            {!isCollapsed && <span style={{ fontWeight: isActive ? 600 : 500, fontSize: '15px' }}>{item.label}</span>}
-                        </Link>
-                    );
-                })}
+            <nav style={{ flex: 1, padding: '0 16px', display: 'flex', flexDirection: 'column' }}>
+                <div>
+                    {menuItems.map((item) => {
+                        const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
+                        return (
+                            <Link
+                                key={item.path}
+                                to={item.path}
+                                title={isCollapsed ? item.label : ''}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: isCollapsed ? 'center' : 'flex-start',
+                                    padding: isCollapsed ? '14px 10px' : '14px 20px',
+                                    textDecoration: 'none',
+                                    borderRadius: 'var(--radius-sm)',
+                                    color: isActive ? 'var(--accent-primary)' : 'var(--text-muted)',
+                                    background: isActive ? 'rgba(0, 242, 254, 0.08)' : 'transparent',
+                                    marginBottom: '8px',
+                                    transition: 'var(--transition-smooth)',
+                                    position: 'relative'
+                                }}
+                                className="nav-link"
+                            >
+                                {isActive && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        left: 0,
+                                        height: '20px',
+                                        width: '3px',
+                                        background: 'var(--accent-primary)',
+                                        borderRadius: '0 4px 4px 0'
+                                    }} />
+                                )}
+                                <span style={{ marginRight: isCollapsed ? '0' : '16px', fontSize: '18px', display: 'flex' }}>{item.icon}</span>
+                                {!isCollapsed && <span style={{ fontWeight: isActive ? 600 : 500, fontSize: '15px' }}>{item.label}</span>}
+                            </Link>
+                        );
+                    })}
+                </div>
+
             </nav>
 
             <div style={{

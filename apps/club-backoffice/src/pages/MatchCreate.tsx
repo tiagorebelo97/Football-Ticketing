@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 
 const MatchCreate: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -35,96 +37,134 @@ const MatchCreate: React.FC = () => {
       navigate('/matches'); // Redirect to match list after creation
     } catch (err: any) {
       console.error(err);
-      setError(err.response?.data?.error || 'Failed to create match');
+      setError(err.response?.data?.error || t('matches.loadError'));
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-      <div className="card">
-        <h2 style={{ marginBottom: '20px', color: 'var(--color-secondary)' }}>Create New Match</h2>
+    <div style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: '40px' }}>
+      <div style={{ marginBottom: '32px' }}>
+        <h1 className="font-premium text-gradient" style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '8px' }}>
+          {t('matches.create')}
+        </h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>
+          {t('matches.subtitle')}
+        </p>
+      </div>
+
+      <div className="glass-card" style={{ padding: '32px' }}>
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Home Team *</label>
-            <input
-              type="text"
-              value={formData.homeTeam}
-              onChange={(e) => setFormData({ ...formData, homeTeam: e.target.value })}
-              required
-              placeholder="e.g., Manchester United"
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '24px' }}>
+            <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-main)', fontWeight: 600 }}>{t('matches.form.homeTeam')} *</label>
+              <input
+                type="text"
+                className="form-input"
+                value={formData.homeTeam}
+                onChange={(e) => setFormData({ ...formData, homeTeam: e.target.value })}
+                required
+                placeholder="e.g., Manchester United"
+              />
+            </div>
+
+            <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-main)', fontWeight: 600 }}>{t('matches.form.awayTeam')} *</label>
+              <input
+                type="text"
+                className="form-input"
+                value={formData.awayTeam}
+                onChange={(e) => setFormData({ ...formData, awayTeam: e.target.value })}
+                required
+                placeholder="e.g., Liverpool FC"
+              />
+            </div>
           </div>
 
-          <div className="form-group">
-            <label>Away Team *</label>
-            <input
-              type="text"
-              value={formData.awayTeam}
-              onChange={(e) => setFormData({ ...formData, awayTeam: e.target.value })}
-              required
-              placeholder="e.g., Liverpool FC"
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '24px' }}>
+            <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-main)', fontWeight: 600 }}>{t('matches.form.kickoff')} *</label>
+              <input
+                type="datetime-local"
+                className="form-input"
+                value={formData.matchDate}
+                onChange={(e) => setFormData({ ...formData, matchDate: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-main)', fontWeight: 600 }}>{t('matches.form.venue')}</label>
+              <input
+                type="text"
+                className="form-input"
+                value={formData.venue}
+                onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
+                placeholder="e.g., Old Trafford"
+              />
+            </div>
           </div>
 
-          <div className="form-group">
-            <label>Match Date & Time *</label>
-            <input
-              type="datetime-local"
-              value={formData.matchDate}
-              onChange={(e) => setFormData({ ...formData, matchDate: e.target.value })}
-              required
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '24px' }}>
+            <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-main)', fontWeight: 600 }}>{t('matches.form.attendance')} *</label>
+              <input
+                type="number"
+                className="form-input"
+                value={formData.totalCapacity}
+                onChange={(e) => setFormData({ ...formData, totalCapacity: parseInt(e.target.value) || 0 })}
+                required
+                min="1"
+              />
+            </div>
+
+            <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-main)', fontWeight: 600 }}>{t('matches.form.ticketPrice')} (€) *</label>
+              <input
+                type="number"
+                step="0.01"
+                className="form-input"
+                value={formData.ticketPrice}
+                onChange={(e) => setFormData({ ...formData, ticketPrice: parseFloat(e.target.value) || 0 })}
+                required
+                min="0"
+              />
+            </div>
           </div>
 
-          <div className="form-group">
-            <label>Venue</label>
-            <input
-              type="text"
-              value={formData.venue}
-              onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
-              placeholder="e.g., Old Trafford"
-            />
-          </div>
+          {error && (
+            <div style={{
+              color: '#ef4444',
+              marginBottom: '24px',
+              padding: '16px',
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              borderRadius: '12px',
+              fontSize: '14px',
+              fontWeight: 500
+            }}>
+              {error}
+            </div>
+          )}
 
-          <div className="form-group">
-            <label>Total Capacity *</label>
-            <input
-              type="number"
-              value={formData.totalCapacity}
-              onChange={(e) => setFormData({ ...formData, totalCapacity: parseInt(e.target.value) || 0 })}
-              required
-              min="1"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Ticket Price (€) *</label>
-            <input
-              type="number"
-              step="0.01"
-              value={formData.ticketPrice}
-              onChange={(e) => setFormData({ ...formData, ticketPrice: parseFloat(e.target.value) || 0 })}
-              required
-              min="0"
-            />
-          </div>
-
-          {error && <div className="error" style={{ color: 'var(--color-danger)', marginBottom: '15px', padding: '10px', backgroundColor: '#fee', borderRadius: '4px' }}>{error}</div>}
-
-          <div style={{ display: 'flex', gap: '10px', marginTop: '30px' }}>
-            <button type="submit" className="btn btn-success" disabled={loading} style={{ flex: 1 }}>
-              {loading ? 'Creating...' : 'Create Match'}
-            </button>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '32px' }}>
             <button
               type="button"
-              className="btn"
-              style={{ background: '#ecf0f1', color: '#2c3e50' }}
+              className="premium-btn premium-btn-secondary"
               onClick={() => navigate('/matches')}
               disabled={loading}
+              style={{ padding: '12px 24px' }}
             >
-              Cancel
+              {t('common.cancel')}
+            </button>
+            <button
+              type="submit"
+              className="premium-btn premium-btn-primary"
+              disabled={loading}
+              style={{ padding: '12px 32px' }}
+            >
+              {loading ? `${t('common.loading')}...` : t('matches.create')}
             </button>
           </div>
         </form>

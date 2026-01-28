@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { memberService } from '../services/memberService';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import '../App.css';
 
 interface Member {
@@ -35,6 +36,7 @@ interface MemberStats {
 
 const MemberList: React.FC = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [members, setMembers] = useState<Member[]>([]);
   const [stats, setStats] = useState<MemberStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -66,7 +68,7 @@ const MemberList: React.FC = () => {
       setMembers(data.members);
       setError(null);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load members';
+      const errorMessage = err instanceof Error ? err.message : t('common.errorLoading') || 'Failed to load members';
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -84,7 +86,7 @@ const MemberList: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this member?') || !clubId) return;
+    if (!window.confirm(t('common.confirmDeactivate') || 'Are you sure you want to deactivate this member?') || !clubId) return;
 
     try {
       await memberService.deleteMember(id);
@@ -98,14 +100,14 @@ const MemberList: React.FC = () => {
 
   const handleImport = async () => {
     if (!importFile) {
-      alert('Please select a file to import');
+      alert(t('common.selectFile') || 'Please select a file to import');
       return;
     }
 
     if (!importFile || !clubId) return;
 
     try {
-      setImportStatus('Importing...');
+      setImportStatus(t('common.importing') || 'Importing...');
       const result = await memberService.importMembers(clubId, importFile);
       setImportStatus(`Import completed: ${result.results.success} succeeded, ${result.results.failed} failed`);
       setTimeout(() => {
@@ -138,18 +140,24 @@ const MemberList: React.FC = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    const isSuccess = status === 'active';
-    const isWarning = status === 'suspended';
-
-    return (
-      <span className={`badge ${isSuccess ? 'badge-success' : isWarning ? 'badge-warning' : ''}`} style={{
-        backgroundColor: !isSuccess && !isWarning ? 'rgba(255, 255, 255, 0.05)' : undefined,
-        color: !isSuccess && !isWarning ? 'var(--text-muted)' : undefined,
-        border: !isSuccess && !isWarning ? '1px solid var(--border-glass)' : undefined,
-      }}>
-        {status}
-      </span>
-    );
+    switch (status.toLowerCase()) {
+      case 'active':
+        return <span className="badge badge-success">{t('members.statusActive')}</span>;
+      case 'suspended':
+        return <span className="badge badge-warning">{t('members.statusSuspended')}</span>;
+      case 'cancelled':
+        return (
+          <span className="badge" style={{
+            background: 'rgba(255, 255, 255, 0.05)',
+            color: 'var(--text-muted)',
+            border: '1px solid var(--border-glass)'
+          }}>
+            {t('members.statusCancelled')}
+          </span>
+        );
+      default:
+        return <span className="badge" style={{ background: 'var(--bg-glass-light)', color: 'var(--text-muted)' }}>{status}</span>;
+    }
   };
 
   const getTypeBadge = (type: string) => {
@@ -161,7 +169,7 @@ const MemberList: React.FC = () => {
       senior: { bg: 'rgba(94, 114, 228, 0.1)', text: '#5e72e4' }
     };
 
-    const style = colors[type] || { bg: 'rgba(255, 255, 255, 0.05)', text: 'var(--text-muted)' };
+    const style = colors[type.toLowerCase()] || { bg: 'rgba(255, 255, 255, 0.05)', text: 'var(--text-muted)' };
 
     return (
       <span className="badge" style={{
@@ -175,43 +183,49 @@ const MemberList: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       {/* Page Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        flexWrap: 'wrap',
+        gap: '20px'
+      }}>
         <div>
-          <h1 style={{ margin: 0, color: '#ffffff', fontSize: '2.5rem' }}>Club Members</h1>
+          <h1 className="font-premium text-gradient" style={{ margin: 0, fontSize: '2.5rem', fontWeight: 800 }}>{t('members.title')}</h1>
           <p style={{ margin: '8px 0 0', color: 'var(--text-muted)', fontSize: '1.1rem' }}>
-            Manage and monitor your club's member base and revenue
+            {t('members.subtitle')}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <button onClick={() => setShowImportModal(true)} className="premium-btn premium-btn-secondary">
-            <span>📥</span> Import Excel
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <button onClick={() => setShowImportModal(true)} className="premium-btn premium-btn-secondary" style={{ whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: '1.2em' }}>📥</span> {t('members.import')}
           </button>
-          <Link to="/members/create" className="premium-btn premium-btn-primary" style={{ textDecoration: 'none' }}>
-            <span>+</span> Add Member
+          <Link to="/members/create" className="premium-btn premium-btn-primary" style={{ textDecoration: 'none', whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: '1.2em' }}>+</span> {t('members.add')}
           </Link>
         </div>
       </div>
 
       {/* Statistics Row */}
       {stats && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
-          <div className="glass-card" style={{ padding: '24px' }}>
-            <div style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>Total Members</div>
-            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#ffffff' }}>{stats.members.total_members}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px' }}>
+          <div className="glass-card" style={{ padding: '28px' }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 600 }}>{t('members.stats.total')}</div>
+            <div style={{ fontSize: '36px', fontWeight: '800', color: 'var(--text-main)', fontFamily: 'Outfit' }}>{stats.members.total_members}</div>
           </div>
-          <div className="glass-card" style={{ padding: '24px' }}>
-            <div style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>Active Members</div>
-            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#10b981' }}>{stats.members.active_members}</div>
+          <div className="glass-card" style={{ padding: '28px' }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 600 }}>{t('members.stats.active')}</div>
+            <div style={{ fontSize: '36px', fontWeight: '800', color: '#10b981', fontFamily: 'Outfit' }}>{stats.members.active_members}</div>
           </div>
-          <div className="glass-card" style={{ padding: '24px' }}>
-            <div style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>Overdue Quotas</div>
-            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#f59e0b' }}>{stats.quotas.overdue_quotas}</div>
+          <div className="glass-card" style={{ padding: '28px' }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 600 }}>{t('members.stats.overdue')}</div>
+            <div style={{ fontSize: '36px', fontWeight: '800', color: '#f59e0b', fontFamily: 'Outfit' }}>{stats.quotas.overdue_quotas}</div>
           </div>
-          <div className="glass-card" style={{ padding: '24px' }}>
-            <div style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>Total Revenue</div>
-            <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'var(--accent-primary)' }}>
+          <div className="glass-card" style={{ padding: '28px' }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 600 }}>{t('members.stats.revenue')}</div>
+            <div className="text-gradient" style={{ fontSize: '36px', fontWeight: '800', fontFamily: 'Outfit' }}>
               €{parseFloat(stats.quotas.total_revenue).toLocaleString('pt-PT', { minimumFractionDigits: 2 })}
             </div>
           </div>
@@ -219,23 +233,30 @@ const MemberList: React.FC = () => {
       )}
 
       {/* Members Main Section */}
-      <div className="glass-card" style={{ padding: '24px' }}>
+      <div className="glass-card" style={{ padding: 'var(--content-padding)' }}>
         {/* Filters Panel */}
-        <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
-          <div style={{ flex: 1, minWidth: '300px', position: 'relative' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '16px',
+          marginBottom: '32px'
+        }}>
+          <div style={{ gridColumn: '1 / -1', display: 'flex' }}>
             <input
               type="text"
-              placeholder="Search by name, email, or member number..."
+              placeholder={t('members.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              className="form-input"
               style={{
                 width: '100%',
-                padding: '12px 16px',
-                background: 'rgba(255, 255, 255, 0.03)',
+                padding: '14px 20px',
+                background: 'var(--bg-glass-light)',
                 border: '1px solid var(--border-glass)',
-                borderRadius: '12px',
-                color: '#ffffff',
-                outline: 'none'
+                borderRadius: '14px',
+                color: 'var(--text-main)',
+                outline: 'none',
+                transition: 'var(--transition-smooth)'
               }}
             />
           </div>
@@ -243,115 +264,125 @@ const MemberList: React.FC = () => {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             style={{
-              padding: '12px 16px',
-              background: 'rgba(255, 255, 255, 0.03)',
+              padding: '14px 20px',
+              background: 'var(--bg-glass-light)',
               border: '1px solid var(--border-glass)',
-              borderRadius: '12px',
-              color: '#ffffff',
-              minWidth: '150px'
+              borderRadius: '14px',
+              color: 'var(--text-main)',
+              outline: 'none'
             }}
           >
-            <option value="" style={{ background: '#1a1c23' }}>All Status</option>
-            <option value="active" style={{ background: '#1a1c23' }}>Active</option>
-            <option value="suspended" style={{ background: '#1a1c23' }}>Suspended</option>
-            <option value="cancelled" style={{ background: '#1a1c23' }}>Cancelled</option>
+            <option value="" style={{ background: '#0f111a' }}>{t('members.allStatus')}</option>
+            <option value="active" style={{ background: '#0f111a' }}>Active</option>
+            <option value="suspended" style={{ background: '#0f111a' }}>Suspended</option>
+            <option value="cancelled" style={{ background: '#0f111a' }}>Cancelled</option>
           </select>
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
             style={{
-              padding: '12px 16px',
-              background: 'rgba(255, 255, 255, 0.03)',
+              padding: '14px 20px',
+              background: 'var(--bg-glass-light)',
               border: '1px solid var(--border-glass)',
-              borderRadius: '12px',
-              color: '#ffffff',
-              minWidth: '150px'
+              borderRadius: '14px',
+              color: 'var(--text-main)',
+              outline: 'none'
             }}
           >
-            <option value="" style={{ background: '#1a1c23' }}>All Types</option>
-            <option value="regular" style={{ background: '#1a1c23' }}>Regular</option>
-            <option value="premium" style={{ background: '#1a1c23' }}>Premium</option>
-            <option value="vip" style={{ background: '#1a1c23' }}>VIP</option>
-            <option value="junior" style={{ background: '#1a1c23' }}>Junior</option>
-            <option value="senior" style={{ background: '#1a1c23' }}>Senior</option>
+            <option value="" style={{ background: '#0f111a' }}>{t('members.allTypes')}</option>
+            <option value="regular" style={{ background: '#0f111a' }}>Regular</option>
+            <option value="premium" style={{ background: '#0f111a' }}>Premium</option>
+            <option value="vip" style={{ background: '#0f111a' }}>VIP</option>
+            <option value="junior" style={{ background: '#0f111a' }}>Junior</option>
+            <option value="senior" style={{ background: '#0f111a' }}>Senior</option>
           </select>
         </div>
 
-        {loading && <div className="loading">Updating member list...</div>}
+        {loading && <div className="loading" style={{ padding: '40px' }}>{t('common.loading')}</div>}
         {error && <div className="error">{error}</div>}
 
         {!loading && !error && (
-          <div style={{ overflowX: 'auto' }}>
-            <table className="table">
+          <div className="responsive-table-wrapper">
+            <table className="table" style={{ borderCollapse: 'separate', borderSpacing: '0 8px', width: '100%', minWidth: '1000px' }}>
               <thead>
                 <tr>
-                  <th>Member #</th>
-                  <th>Name</th>
-                  <th>Status</th>
-                  <th>Type</th>
-                  <th>Member Since</th>
-                  <th>Quota</th>
-                  <th>Quotas Status</th>
-                  <th style={{ textAlign: 'right' }}>Actions</th>
+                  <th style={{ padding: '16px 32px', border: 'none' }}>{t('members.table.number')}</th>
+                  <th style={{ padding: '16px 32px', border: 'none' }}>{t('members.table.name')}</th>
+                  <th style={{ padding: '16px 32px', border: 'none' }}>{t('members.table.status')}</th>
+                  <th style={{ padding: '16px 32px', border: 'none' }}>{t('members.table.type')}</th>
+                  <th style={{ padding: '16px 32px', border: 'none' }}>{t('members.table.since')}</th>
+                  <th style={{ padding: '16px 32px', border: 'none' }}>{t('members.table.quota')}</th>
+                  <th style={{ padding: '16px 32px', border: 'none' }}>{t('members.table.statusQuota')}</th>
+                  <th style={{ padding: '16px 32px', border: 'none', textAlign: 'right' }}>{t('members.table.actions')}</th>
                 </tr>
               </thead>
               <tbody>
                 {members.length === 0 ? (
                   <tr>
-                    <td colSpan={8} style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
-                      No members found matching your search criteria.
+                    <td colSpan={8} style={{ padding: '60px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                      {t('members.noMembers')}
                     </td>
                   </tr>
                 ) : (
                   members.map((member) => (
-                    <tr key={member.id}>
-                      <td style={{ fontWeight: '500', color: 'var(--accent-secondary)' }}>{member.member_number}</td>
-                      <td>
+                    <tr
+                      key={member.id}
+                      className="table-row-hover"
+                      style={{
+                        transition: 'var(--transition-smooth)',
+                        borderRadius: '12px'
+                      }}
+                    >
+                      <td style={{ padding: '16px 32px', border: 'none', fontWeight: '600', color: 'var(--accent-secondary)' }}>{member.member_number}</td>
+                      <td style={{ padding: '16px 32px', border: 'none' }}>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <span style={{ fontWeight: '600' }}>{member.first_name} {member.last_name}</span>
+                          <span style={{ fontWeight: '600', color: 'var(--text-main)' }}>{member.first_name} {member.last_name}</span>
                           <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{member.email}</span>
                         </div>
                       </td>
-                      <td>{getStatusBadge(member.status)}</td>
-                      <td>{getTypeBadge(member.member_type)}</td>
-                      <td>{new Date(member.member_since).toLocaleDateString()}</td>
-                      <td style={{ fontWeight: '500' }}>€{parseFloat(member.quota_amount.toString()).toFixed(2)}</td>
-                      <td>
+                      <td style={{ padding: '16px 32px', border: 'none' }}>{getStatusBadge(member.status)}</td>
+                      <td style={{ padding: '16px 32px', border: 'none' }}>{getTypeBadge(member.member_type)}</td>
+                      <td style={{ padding: '16px 32px', border: 'none', color: 'var(--text-muted)' }}>{new Date(member.member_since).toLocaleDateString()}</td>
+                      <td style={{ padding: '16px 32px', border: 'none', fontWeight: '600', color: 'var(--text-main)' }}>€{parseFloat(member.quota_amount.toString()).toFixed(2)}</td>
+                      <td style={{ padding: '16px 32px', border: 'none' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ color: '#10b981', fontWeight: '500' }}>{member.paid_quotas} paid</span>
+                          <span style={{ color: '#10b981', fontWeight: '600', fontSize: '13px' }}>{member.paid_quotas} {t('members.paid')}</span>
                           {member.overdue_quotas > 0 && (
                             <span style={{
-                              color: 'var(--color-danger)',
-                              fontSize: '12px',
-                              background: 'rgba(231, 76, 60, 0.1)',
-                              padding: '2px 6px',
-                              borderRadius: '4px'
+                              color: '#ff4d4d',
+                              fontSize: '11px',
+                              background: 'rgba(255, 77, 77, 0.1)',
+                              padding: '2px 8px',
+                              borderRadius: '20px',
+                              fontWeight: '600',
+                              textTransform: 'uppercase'
                             }}>
-                              {member.overdue_quotas} overdue
+                              {member.overdue_quotas} {t('members.overdue')}
                             </span>
                           )}
                         </div>
                       </td>
-                      <td>
+                      <td style={{ padding: '16px 32px', border: 'none' }}>
                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                          <Link to={`/members/${member.id}`} className="premium-btn premium-btn-secondary" style={{ padding: '6px 12px', fontSize: '13px', textDecoration: 'none' }}>
-                            View
+                          <Link to={`/members/${member.id}`} className="premium-btn premium-btn-secondary" style={{ padding: '8px 16px', fontSize: '13px', textDecoration: 'none', borderRadius: '10px' }}>
+                            {t('members.view')}
                           </Link>
-                          <Link to={`/members/${member.id}/edit`} className="premium-btn premium-btn-secondary" style={{ padding: '6px 12px', fontSize: '13px', textDecoration: 'none' }}>
-                            Edit
+                          <Link to={`/members/${member.id}/edit`} className="premium-btn premium-btn-secondary" style={{ padding: '8px 16px', fontSize: '13px', textDecoration: 'none', borderRadius: '10px' }}>
+                            {t('common.edit')}
                           </Link>
                           <button
                             onClick={() => handleDelete(member.id)}
                             className="premium-btn"
                             style={{
-                              padding: '6px 12px',
+                              padding: '8px 16px',
                               fontSize: '13px',
-                              background: 'rgba(231, 76, 60, 0.1)',
-                              color: 'var(--color-danger)',
-                              border: '1px solid rgba(231, 76, 60, 0.2)'
+                              background: 'rgba(255, 77, 77, 0.1)',
+                              color: '#ff4d4d',
+                              border: '1px solid rgba(255, 77, 77, 0.2)',
+                              borderRadius: '10px'
                             }}
                           >
-                            Deactivate
+                            {t('members.deactivate')}
                           </button>
                         </div>
                       </td>
@@ -380,7 +411,7 @@ const MemberList: React.FC = () => {
           backdropFilter: 'blur(10px)'
         }}>
           <div className="glass-card" style={{ width: '540px', maxWidth: '95%', padding: '32px' }}>
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>Import Members</h3>
+            <h3 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>{t('members.import')}</h3>
             <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>Upload an Excel (.xlsx) or CSV file with member information to batch create records.</p>
 
             <button onClick={downloadTemplate} className="premium-btn premium-btn-secondary" style={{ marginBottom: '16px', width: '100%', justifyContent: 'center' }}>
@@ -432,7 +463,7 @@ const MemberList: React.FC = () => {
                 }}
                 className="premium-btn premium-btn-secondary"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button onClick={handleImport} className="premium-btn premium-btn-primary" disabled={!importFile || importStatus === 'Importing...'}>
                 {importStatus === 'Importing...' ? 'Processing...' : 'Start Import'}
@@ -443,7 +474,6 @@ const MemberList: React.FC = () => {
       )}
     </div>
   );
-
 };
 
 export default MemberList;

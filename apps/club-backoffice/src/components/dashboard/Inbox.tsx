@@ -40,8 +40,8 @@ const Inbox: React.FC<InboxProps> = ({ messages = [] }) => {
                             {msg.type === 'sale' ? '$$' : 'User'}
                         </div>
                         <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: 'bold', fontSize: '14px', color: 'var(--color-secondary)' }}>{msg.user}</div>
-                            <div style={{ fontSize: '12px', color: 'var(--color-text-light)' }}>{msg.text}</div>
+                            <div style={{ fontWeight: 'bold', fontSize: '14px', color: 'var(--text-main)' }}>{msg.user}</div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{msg.text}</div>
                         </div>
                         <div style={{ fontSize: '10px', color: '#bdc3c7' }}>{msg.time}</div>
                     </div>

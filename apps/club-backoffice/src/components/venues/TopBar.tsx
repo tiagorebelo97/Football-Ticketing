@@ -1,5 +1,6 @@
 import React from 'react';
 import { Save } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface TopBarProps {
     venueName: string;
@@ -7,6 +8,8 @@ interface TopBarProps {
 }
 
 const TopBar: React.FC<TopBarProps> = ({ venueName, onSave }) => {
+    const { t } = useTranslation();
+
     return (
         <div className="stadium-top-bar stadium-glass">
             <div className="stadium-top-bar-title">
@@ -24,14 +27,14 @@ const TopBar: React.FC<TopBarProps> = ({ venueName, onSave }) => {
                 </div>
                 <div>
                     <div className="stadium-heading-md">{venueName}</div>
-                    <div className="stadium-label" style={{ marginTop: 2 }}>Stadium Architect</div>
+                    <div className="stadium-label" style={{ marginTop: 2 }}>{t('venueWizard.stadiumArchitect')}</div>
                 </div>
             </div>
 
             <div className="stadium-top-bar-actions">
                 <button className="stadium-btn stadium-btn-primary" onClick={onSave}>
                     <Save size={16} />
-                    Guardar Estádio
+                    {t('venueWizard.saveStadium')}
                 </button>
             </div>
         </div>

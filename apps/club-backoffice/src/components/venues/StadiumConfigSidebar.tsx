@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronRight, Plus, Trash2, Copy, Edit2, ChevronLeft } from 'lucide-react';
 import { Stand, Floor, Sector } from '../../services/venueService';
+import { useTranslation } from 'react-i18next';
 
 interface StadiumConfigSidebarProps {
     selectedStand: Stand | null | undefined;
@@ -25,6 +26,7 @@ const StadiumConfigSidebar: React.FC<StadiumConfigSidebarProps> = ({
     onRemoveSector,
     onEditSector
 }) => {
+    const { t } = useTranslation();
     const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
         info: true,
         floors: true
@@ -43,7 +45,7 @@ const StadiumConfigSidebar: React.FC<StadiumConfigSidebarProps> = ({
             <button
                 className="stadium-sidebar-toggle"
                 onClick={onToggle}
-                title={isCollapsed ? "Expandir Configurações" : "Recolher Configurações"}
+                title={isCollapsed ? t('venueWizard.expandSettings') : t('venueWizard.collapseSettings')}
             >
                 {isCollapsed ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
             </button>
@@ -61,10 +63,10 @@ const StadiumConfigSidebar: React.FC<StadiumConfigSidebarProps> = ({
                     }}>
                         <div style={{ fontSize: 48, marginBottom: 16 }}>🏟️</div>
                         <div className="stadium-heading-md" style={{ marginBottom: 8 }}>
-                            Selecione uma Bancada
+                            {t('venueWizard.selectStand')}
                         </div>
                         <div className="stadium-label">
-                            Clique numa zona do mapa para adicionar ou selecionar uma bancada
+                            {t('venueWizard.selectStandInstruction')}
                         </div>
                     </div>
                 ) : (
@@ -85,20 +87,20 @@ const StadiumConfigSidebar: React.FC<StadiumConfigSidebarProps> = ({
                                 <div className="stadium-animate-fade-in">
                                     <div style={{ marginBottom: 12 }}>
                                         <label className="stadium-label" style={{ display: 'block', marginBottom: 6 }}>
-                                            Nome da Bancada
+                                            {t('venueWizard.standName')}
                                         </label>
                                         <input
                                             type="text"
                                             className="stadium-input"
                                             value={selectedStand.name}
                                             onChange={(e) => selectedStand.id && onUpdateStand(selectedStand.id, { name: e.target.value })}
-                                            placeholder="Ex: Bancada Norte"
+                                            placeholder={t('venueWizard.standNamePlaceholder')}
                                         />
                                     </div>
 
                                     <div style={{ marginBottom: 12 }}>
                                         <label className="stadium-label" style={{ display: 'block', marginBottom: 6 }}>
-                                            Cor
+                                            {t('venueWizard.color')}
                                         </label>
                                         <div style={{ display: 'flex', gap: 8 }}>
                                             {['#00d4ff', '#00ff88', '#ffaa00', '#ff4466', '#a855f7'].map(color => (
@@ -124,7 +126,7 @@ const StadiumConfigSidebar: React.FC<StadiumConfigSidebarProps> = ({
                                             {selectedStand.position}
                                         </span>
                                         <span className="stadium-badge stadium-badge-success">
-                                            {selectedStand.totalCapacity || 0} lugares
+                                            {selectedStand.totalCapacity || 0} {t('venueWizard.seats')}
                                         </span>
                                     </div>
                                 </div>
@@ -138,7 +140,7 @@ const StadiumConfigSidebar: React.FC<StadiumConfigSidebarProps> = ({
                                 onClick={() => toggleSection('floors')}
                             >
                                 <div className="stadium-heading-md">
-                                    Pisos ({selectedStand.floors?.length || 0})
+                                    {t('venueWizard.floors')} ({selectedStand.floors?.length || 0})
                                 </div>
                                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                                     <button
@@ -149,7 +151,7 @@ const StadiumConfigSidebar: React.FC<StadiumConfigSidebarProps> = ({
                                             if (selectedStand.id) {
                                                 const newFloor = {
                                                     id: `floor-${Date.now()}`,
-                                                    name: `Piso ${(selectedStand.floors?.length || 0) + 1}`,
+                                                    name: `${t('venueWizard.floor')} ${(selectedStand.floors?.length || 0) + 1}`,
                                                     floorNumber: (selectedStand.floors?.length || 0) + 1,
                                                     sectors: []
                                                 };
@@ -173,7 +175,7 @@ const StadiumConfigSidebar: React.FC<StadiumConfigSidebarProps> = ({
                                                 <div>
                                                     <div style={{ fontWeight: 600, color: 'white' }}>{floor.name}</div>
                                                     <div className="stadium-label" style={{ marginTop: 4 }}>
-                                                        {floor.sectors?.length || 0} setores
+                                                        {floor.sectors?.length || 0} {t('venueWizard.sectors')}
                                                     </div>
 
                                                     {/* Sector List */}
@@ -196,7 +198,7 @@ const StadiumConfigSidebar: React.FC<StadiumConfigSidebarProps> = ({
                                                                             className="stadium-btn stadium-btn-ghost"
                                                                             style={{ padding: 4 }}
                                                                             onClick={() => selectedStand.id && onEditSector(selectedStand.id, floor.id, sector.id)}
-                                                                            title="Editar Setor"
+                                                                            title={t('venueWizard.editSector')}
                                                                         >
                                                                             <Edit2 size={12} />
                                                                         </button>
@@ -204,7 +206,7 @@ const StadiumConfigSidebar: React.FC<StadiumConfigSidebarProps> = ({
                                                                             className="stadium-btn stadium-btn-ghost"
                                                                             style={{ padding: 4, color: '#ff4d4d' }}
                                                                             onClick={() => selectedStand.id && onRemoveSector(selectedStand.id, floor.id, sector.id)}
-                                                                            title="Remover Setor"
+                                                                            title={t('venueWizard.removeSector')}
                                                                         >
                                                                             <Trash2 size={12} />
                                                                         </button>
@@ -218,7 +220,7 @@ const StadiumConfigSidebar: React.FC<StadiumConfigSidebarProps> = ({
                                                     <button
                                                         className="stadium-btn stadium-btn-ghost"
                                                         style={{ padding: 6 }}
-                                                        title="Adicionar Setor"
+                                                        title={t('venueWizard.addSector')}
                                                         onClick={() => selectedStand.id && onAddSector(selectedStand.id, floor.id)}
                                                     >
                                                         <Plus size={16} />
@@ -226,14 +228,14 @@ const StadiumConfigSidebar: React.FC<StadiumConfigSidebarProps> = ({
                                                     <button
                                                         className="stadium-btn stadium-btn-ghost"
                                                         style={{ padding: 6 }}
-                                                        title="Duplicar piso"
+                                                        title={t('venueWizard.duplicateFloor')}
                                                     >
                                                         <Copy size={16} />
                                                     </button>
                                                     <button
                                                         className="stadium-btn stadium-btn-ghost"
                                                         style={{ padding: 6 }}
-                                                        title="Remover piso"
+                                                        title={t('venueWizard.removeFloor')}
                                                         onClick={() => {
                                                             if (selectedStand.id) {
                                                                 const updatedFloors = (selectedStand.floors || []).filter((_: any, i: number) => i !== index);
@@ -254,7 +256,7 @@ const StadiumConfigSidebar: React.FC<StadiumConfigSidebarProps> = ({
                                             padding: '20px',
                                             color: 'rgba(255,255,255,0.4)'
                                         }}>
-                                            Nenhum piso adicionado
+                                            {t('venueWizard.noFloorsAdded')}
                                         </div>
                                     )}
                                 </div>
@@ -269,7 +271,7 @@ const StadiumConfigSidebar: React.FC<StadiumConfigSidebarProps> = ({
                                 onClick={() => selectedStand.id && onDeleteStand(selectedStand.id)}
                             >
                                 <Trash2 size={16} />
-                                Remover Bancada
+                                {t('venueWizard.removeStand')}
                             </button>
                         </div>
                     </>
